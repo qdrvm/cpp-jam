@@ -1,0 +1,27 @@
+#
+# Copyright Quadrivium LLC
+# All Rights Reserved
+# SPDX-License-Identifier: Apache-2.0
+#
+
+BasedOnStyle: Google
+
+AlignAfterOpenBracket: DontAlign
+AlignOperands: DontAlign
+AllowShortFunctionsOnASingleLine: Empty
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBinaryOperators: NonAssignment
+BreakStringLiterals: false
+DerivePointerAlignment: false
+FixNamespaceComments: true
+IncludeBlocks: Preserve
+InsertBraces: true
+InsertTrailingCommas: Wrapped
+NamespaceIndentation: All
+PointerAlignment: Right
+QualifierAlignment: Custom
+QualifierOrder: ['inline', 'static', 'constexpr', 'const', 'volatile', 'type', 'restrict']
+ReferenceAlignment: Right
+ShortNamespaceLines: 0
+SortIncludes: CaseSensitive
