@@ -30,7 +30,12 @@ def c_using(name: str, other: str):
 
 
 def c_struct(name: str, members):
-    return ["struct %s {" % name, *(("  %s %s;" % (t, k) for k, t in members)), "};"]
+    return [
+        "struct %s {" % name,
+        *(("  %s %s;" % (t, k) for k, t in members)),
+        "  bool operator==(const %s &)const = default;" % name,
+        "};",
+    ]
 
 
 def c_dash(s: int | str):
