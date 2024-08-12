@@ -1,4 +1,6 @@
 {
+  "name": "cpp-jam",
+  "version": "0.01",
   "dependencies": [
     "scale",
     {
