@@ -1,5 +1,9 @@
 {
   "dependencies": [
-    "scale"
+    "scale",
+    {
+      "name": "fmt",
+      "version>=": "10.2.1#2"
+    }
   ]
 }
