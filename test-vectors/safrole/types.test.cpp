@@ -10,6 +10,9 @@
 #include "types.hpp"
 #include "types.scale.hpp"
 
+/**
+ * Find and validate "*.scale" files inside "full" or "tiny" directory.
+ */
 template <bool full>
 void test_dir() {
   using types = std::conditional_t<full,
