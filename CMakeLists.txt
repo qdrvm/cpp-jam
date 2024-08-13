@@ -16,7 +16,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(TESTING "Build and run test suite" ON)
 
-find_package(Python3)
+find_package(Python3 REQUIRED)
 
 find_package(Boost CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
