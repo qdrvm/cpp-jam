@@ -58,7 +58,7 @@ class Type:
     def c_tdecl(self):
         if not self.args:
             return []
-        return ["template<%s>" % ", ".join("size_t %s" % c_dash(x) for x in self.args)]
+        return ["template<%s>" % ", ".join("uint32_t %s" % c_dash(x) for x in self.args)]
 
     def c_targs(self):
         if not self.args:
@@ -238,7 +238,7 @@ g_types = ["namespace %s::generic {" % NS, *indent(g_types), "}"]
 for name in ["tiny", "full"]:
     args = parse_const(safrole_file(name))
     g_args = [
-        *["static constexpr size_t %s = %s;" % (c_dash(a), args[a]) for a in ARGS],
+        *["static constexpr uint32_t %s = %s;" % (c_dash(a), args[a]) for a in ARGS],
         *flatten(
             c_using(ty.name, "%s::generic::%s" % (NS, ty.c_tname())) for ty in types
         ),
