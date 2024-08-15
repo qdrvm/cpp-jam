@@ -18,8 +18,12 @@ option(TESTING "Build and run test suite" ON)
 
 find_package(Python3 REQUIRED)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(libb2 REQUIRED IMPORTED_TARGET GLOBAL libb2)
+
 find_package(Boost CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
+find_package(jam_crust CONFIG REQUIRED)
 find_package(scale CONFIG REQUIRED)
 
 add_subdirectory(src)

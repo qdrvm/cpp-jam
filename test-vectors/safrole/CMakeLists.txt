@@ -29,3 +29,15 @@ target_link_libraries(test_vectors_safrole_types_test
   test_vectors_safrole_types
 )
 add_test(NAME test_vectors_safrole_types_test COMMAND $<TARGET_FILE:test_vectors_safrole_types_test>)
+
+add_executable(test_vectors_safrole_test
+  safrole.test.cpp
+)
+target_compile_definitions(test_vectors_safrole_test PRIVATE PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
+target_link_libraries(test_vectors_safrole_test
+  fmt::fmt
+  jam_crust::jam_crust
+  PkgConfig::libb2
+  test_vectors_safrole_types
+)
+add_test(NAME test_vectors_safrole_test COMMAND $<TARGET_FILE:test_vectors_safrole_test>)
