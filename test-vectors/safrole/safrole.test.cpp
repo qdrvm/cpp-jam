@@ -10,7 +10,7 @@
 #include "vectors.hpp"
 
 using jam::test_vectors_safrole::Vectors;
-using _types = jam::test_vectors_safrole::tiny;
+namespace generic = jam::test_vectors_safrole::generic;
 
 auto ok = true;
 
@@ -34,17 +34,23 @@ struct fmt::formatter<Indent> {
   }
 };
 
-#define DIFF_F(T) void diff(Indent indent, const T &v1, const T &v2)
+#define DIFF_F(...) \
+  void diff(Indent indent, const __VA_ARGS__ &v1, const __VA_ARGS__ &v2)
 DIFF_F(uint32_t);
-DIFF_F(_types::CustomErrorCode);
-DIFF_F(_types::EpochMark);
-DIFF_F(_types::TicketEnvelope);
-DIFF_F(_types::TicketBody);
-DIFF_F(_types::OutputMarks);
-DIFF_F(_types::Output);
-DIFF_F(_types::ValidatorData);
-DIFF_F(_types::TicketsOrKeys);
-DIFF_F(_types::State);
+DIFF_F(generic::CustomErrorCode);
+template <uint32_t validators_count>
+DIFF_F(generic::EpochMark<validators_count>);
+DIFF_F(generic::TicketEnvelope);
+DIFF_F(generic::TicketBody);
+template <uint32_t validators_count, uint32_t epoch_length>
+DIFF_F(generic::OutputMarks<validators_count, epoch_length>);
+template <uint32_t validators_count, uint32_t epoch_length>
+DIFF_F(generic::Output<validators_count, epoch_length>);
+DIFF_F(generic::ValidatorData);
+template <uint32_t epoch_length>
+DIFF_F(generic::TicketsOrKeys<epoch_length>);
+template <uint32_t validators_count, uint32_t epoch_length>
+DIFF_F(generic::State<validators_count, epoch_length>);
 
 enum class color { red = 31, green = 32 };
 template <typename... T>
@@ -139,7 +145,7 @@ DIFF_F(qtils::BytesIn) {
 DIFF_F(uint32_t) {
   fmt::println("{}{} != {}", indent, v1, v2);
 }
-DIFF_F(_types::CustomErrorCode) {
+DIFF_F(generic::CustomErrorCode) {
   std::string_view o[] = {
       "bad_slot",
       "unexpected_ticket",
@@ -152,35 +158,40 @@ DIFF_F(_types::CustomErrorCode) {
   fmt::println("{}{} != {}", indent, o[(int)v1], o[(int)v2]);
 }
 
-DIFF_F(_types::EpochMark) {
+template <uint32_t validators_count>
+DIFF_F(generic::EpochMark<validators_count>) {
   DIFF_M(entropy);
   DIFF_M(validators);
 }
-DIFF_F(_types::TicketEnvelope) {
+DIFF_F(generic::TicketEnvelope) {
   DIFF_M(attempt);
   DIFF_M(signature);
 }
-DIFF_F(_types::TicketBody) {
+DIFF_F(generic::TicketBody) {
   DIFF_M(id);
   DIFF_M(attempt);
 }
-DIFF_F(_types::OutputMarks) {
+template <uint32_t validators_count, uint32_t epoch_length>
+DIFF_F(generic::OutputMarks<validators_count, epoch_length>) {
   DIFF_M(epoch_mark);
   DIFF_M(tickets_mark);
 }
-DIFF_F(_types::Output) {
+template <uint32_t validators_count, uint32_t epoch_length>
+DIFF_F(generic::Output<validators_count, epoch_length>) {
   diff(indent, v1.v, v2.v, {"ok", "err"});
 }
-DIFF_F(_types::ValidatorData) {
+DIFF_F(generic::ValidatorData) {
   DIFF_M(bandersnatch);
   DIFF_M(ed25519);
   DIFF_M(bls);
   DIFF_M(metadata);
 }
-DIFF_F(_types::TicketsOrKeys) {
+template <uint32_t epoch_length>
+DIFF_F(generic::TicketsOrKeys<epoch_length>) {
   diff(indent, v1.v, v2.v, {"tickets", "keys"});
 }
-DIFF_F(_types::State) {
+template <uint32_t validators_count, uint32_t epoch_length>
+DIFF_F(generic::State<validators_count, epoch_length>) {
   DIFF_M(tau);
   DIFF_M(eta);
   DIFF_M(lambda);
@@ -195,17 +206,16 @@ DIFF_F(_types::State) {
 /**
  * Check safrole state transition against test vectors.
  */
-// template <bool full>
+template <bool full>
 void test_transition() {
-  constexpr auto full = false;
   Vectors<full> vectors;
   using types = decltype(vectors)::types;
   for (auto &path : vectors.paths) {
     auto s = path.native();
     fmt::println("{}.json", s.substr(0, s.size() - 6));
     auto testcase = vectors.read(path);
-    auto [state, output] =
-        jam::safrole::transition(testcase->pre_state, testcase->input);
+    auto [state, output] = jam::safrole::Generic<types>::transition(
+        testcase->pre_state, testcase->input);
     Indent indent{1};
     if (state != testcase->post_state) {
       ok = false;
@@ -219,9 +229,8 @@ void test_transition() {
 }
 
 int main() {
-  test_transition();
-  // test_transition<false>();
-  // test_transition<true>();
+  test_transition<false>();
+  test_transition<true>();
   if (ok) {
     fmt::println("ok");
   }
