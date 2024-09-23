@@ -41,6 +41,7 @@ namespace jam::safrole {
   template <typename types>
   struct Generic;
 
+  // [GP 0.3.6 3.7]
   auto &circlearrowleft(const auto &s, auto i) {
     return s[i % s.size()];
   }
@@ -55,7 +56,7 @@ namespace jam::safrole {
     return first;
   }
 
-  // [JAM:3.7.2]
+  // [GP 0.3.6 3.7.2]
   template <size_t X, size_t Y>
   qtils::BytesN<X + Y> frown(
       const qtils::BytesN<X> &x, const qtils::BytesN<Y> &y) {
@@ -65,12 +66,13 @@ namespace jam::safrole {
     return xy;
   }
 
+  // [GP 0.3.6 3.7.2]
   template <size_t X>
   qtils::BytesN<X + 1> doubleplus(const qtils::BytesN<X> &x, uint8_t i) {
     return frown(x, std::array{i});
   }
 
-  // [JAM:273]
+  // [GP 0.3.6 C.1.2 271]
   template <size_t N>
   qtils::BytesN<N> mathcal_E(uint64_t x) {
     qtils::BytesN<N> out;
@@ -79,20 +81,20 @@ namespace jam::safrole {
     return out;
   }
 
-  // [JAM:273]
+  // [GP 0.3.6 C.1.2 271]
   template <size_t N>
   auto de(qtils::BytesN<N> x) {
     return boost::endian::
         endian_load<uint64_t, N, boost::endian::order::little>(x.data());
   }
 
-  // [JAM:3.8.1]
+  // [GP 0.3.6 3.8.1]
   inline generic::OpaqueHash mathcal_H(qtils::BytesIn m) {
     return Blake::hash(m);
   }
 
-  // [JAM:310]
-  // [JAM:313]
+  // [GP 0.3.6 G 307]
+  // [GP 0.3.6 G 310]
   inline std::optional<generic::OpaqueHash> banderout(
       const BandersnatchSignature &signature) {
     generic::OpaqueHash out;
@@ -121,20 +123,20 @@ struct jam::safrole::Generic {
     return ctx;
   }
 
-  // [JAM:1.4.5]
+  // [GP 0.3.6 I.4.5]
   // clang-format off
   static constexpr qtils::BytesN<15> X_T = {'j','a','m','_','t','i','c','k','e','t','_','s','e','a','l'};
   // clang-format on
 
-  // [JAM:1.4.4]
+  // [GP 0.3.6 I.4.4]
   static constexpr auto E = types::epoch_length;
 
-  // [JAM:1.4.4]
+  // [GP 0.3.6 I.4.4]
   static constexpr uint32_t N = 2;
-  // [JAM:1.4.4]
+  // [GP 0.3.6 I.4.4]
   static constexpr uint32_t K = 16;
 
-  // [JAM:1.4.4]
+  // [GP 0.3.6 I.4.4]
   static constexpr uint32_t Y = E * 5 / 6;
 
   static BandersnatchKeys bandersnatch_keys(
@@ -146,6 +148,7 @@ struct jam::safrole::Generic {
     return keys;
   }
 
+  // [GP 0.3.6 G 308]
   static GammaZ mathcal_O(const BandersnatchKeys &pks) {
     if (sizeof(pks) != pks.size() * sizeof(pks[0])) {
       // BUG: static_assert
@@ -159,8 +162,7 @@ struct jam::safrole::Generic {
     return out;
   }
 
-  // [JAM:310]
-  // [JAM:313]
+  // [GP 0.3.6 G 309]
   static std::optional<typename types::OpaqueHash> bandersnatch(
       const GammaZ &gamma_z,
       qtils::BytesIn input,
@@ -181,6 +183,7 @@ struct jam::safrole::Generic {
     return out;
   }
 
+  // [GP 0.3.6 6.1 46]
   struct Epoch {
     uint32_t epoch, phase;
     Epoch(uint32_t slot) : epoch{slot / E}, phase{slot % E} {}
@@ -201,20 +204,21 @@ struct jam::safrole::Generic {
       return std::make_pair(state, typename types::Output{error});
     };
 
+    // [GP 0.3.6 5 41]
     if (H_t <= state.tau) {
       return error(Error::bad_slot);
     }
 
-    // [JAM:46]
+    // [GP 0.3.6 6.1 45]
     const auto tau_tick = H_t;
 
-    // [JAM:47]
+    // [GP 0.3.6 6.1 46]
     const Epoch epoch{state.tau}, epoch_tick{tau_tick};
     const auto &[e, m] = epoch;
     const auto &[e_tick, m_tick] = epoch_tick;
     const auto change_epoch = e_tick != e;
 
-    // [JAM:75]
+    // [GP 0.3.6 6.7 74]
     if (E_T.size() > K) {
       throw std::logic_error("not covered by test vectors");
     }
@@ -223,27 +227,27 @@ struct jam::safrole::Generic {
           state, typename types::Output{Error::unexpected_ticket});
     }
 
-    // [JAM:59]
-    // TODO: offenders
+    // [GP 0.3.6 6.3 58]
+    // TODO(turuslan): #3, wait for test vectors
     const auto phi = [](const types::ValidatorsData &k) { return k; };
-    // [JAM:58]
+    // [GP 0.3.6 6.3 57]
     const auto [gamma_tick_k, kappa_tick, lambda_tick, gamma_tick_z] = change_epoch ?
       [&](const types::ValidatorsData&gamma_tick_k) {
         return std::tuple{gamma_tick_k, gamma_k, kappa, mathcal_O(bandersnatch_keys(gamma_tick_k))};
       }(phi(iota)) :
       std::tuple{gamma_k,kappa,lambda,gamma_z};
 
-    // [JAM:67]
+    // [GP 0.3.6 6.4 66]
     const auto eta_tick_0 = mathcal_H(frown(eta_0, banderout_H_v));
 
-    // [JAM:68]
+    // [GP 0.3.6 6.4 67]
     const auto [eta_tick_1, eta_tick_2, eta_tick_3] = change_epoch
         ? std::tuple{eta_0, eta_1, eta_2}
         : std::tuple{eta_1, eta_2, eta_3};
 
     std::vector<typename types::TicketBody> n;
     for (auto &[r, p] : E_T) {
-      // [JAM:74]
+      // [GP 0.3.6 6.7 73]
       if (r >= N) {
         return error(Error::bad_ticket_attempt);
       }
@@ -252,15 +256,15 @@ struct jam::safrole::Generic {
       if (not y) {
         return error(Error::bad_ticket_proof);
       }
-      // [JAM:76]
+      // [GP 0.3.6 6.7 75]
       n.emplace_back(typename types::TicketBody{*y, r});
     }
-    // [JAM:77]
+    // [GP 0.3.6 6.7 76]
     if (not std::is_sorted(n.begin(), n.end(), TicketBodyLess{})) {
       return error(Error::bad_ticket_order);
     }
 
-    // [JAM:79]
+    // [GP 0.3.6 6.7 78]
     std::vector<typename types::TicketBody> gamma_tick_a;
     if (change_epoch) {
       gamma_tick_a = n;
@@ -271,7 +275,7 @@ struct jam::safrole::Generic {
           gamma_a.end(),
           std::back_inserter(gamma_tick_a),
           TicketBodyLess{});
-      // [JAM:78]
+      // [GP 0.3.6 6.7 77]
       if (gamma_tick_a.size() != gamma_a.size() + n.size()) {
         return error(Error::duplicate_ticket);
       }
@@ -280,7 +284,7 @@ struct jam::safrole::Generic {
       gamma_tick_a.resize(E);
     }
 
-    // [JAM:70]
+    // [GP 0.3.6 6.5 69]
     const auto Z = [](const GammaA &s) {
       typename types::TicketsBodies tickets;
       if (s.size() != E) {
@@ -299,7 +303,7 @@ struct jam::safrole::Generic {
       }
       return tickets;
     };
-    // [JAM:71]
+    // [GP 0.3.6 6.5 70]
     const auto F = [](const types::OpaqueHash &r,
                        const types::ValidatorsData &k) {
       typename types::EpochKeys keys;
@@ -310,7 +314,7 @@ struct jam::safrole::Generic {
       }
       return keys;
     };
-    // [JAM:69]
+    // [GP 0.3.6 6.5 68]
     const auto gamma_tick_s = e_tick == e + 1 && m >= Y && gamma_a.size() == E
         ? typename types::TicketsOrKeys{Z(gamma_a)}
         : e_tick == e
@@ -325,19 +329,19 @@ struct jam::safrole::Generic {
             .lambda = lambda_tick,
             .kappa = kappa_tick,
             .gamma_k = gamma_tick_k,
-            .iota = iota,  // TODO
+            // TODO(turuslan): #3, wait for test vectors
+            .iota = iota,
             .gamma_a = gamma_tick_a,
             .gamma_s = gamma_tick_s,
             .gamma_z = gamma_tick_z,
         },
         typename types::Output{typename types::OutputMarks{
-            // [JAM:72]
+            // [GP 0.3.6 6.6 71]
             .epoch_mark = change_epoch
                 ? std::make_optional(typename types::EpochMark{
                     eta_tick_1, bandersnatch_keys(gamma_tick_k)})
                 : std::nullopt,
-
-            // [JAM:73]
+            // [GP 0.3.6 6.6 72]
             .tickets_mark =
                 e_tick == e && m < Y && Y <= m_tick && gamma_a.size() == E
                 ? std::make_optional(typename types::TicketsMark{Z(gamma_a)})
