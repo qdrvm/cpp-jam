@@ -4,7 +4,4 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-include(asn1.cmake)
-
-add_subdirectory(history)
-add_subdirectory(safrole)
+asn1(history history)
