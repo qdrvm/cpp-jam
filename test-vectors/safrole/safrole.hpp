@@ -186,6 +186,9 @@ struct jam::safrole::Generic {
     Epoch(uint32_t slot) : epoch{slot / E}, phase{slot % E} {}
   };
 
+  /**
+   * Given state and input, derive next state and output.
+   */
   static std::pair<typename types::State, typename types::Output> transition(
       const types::State &state, const types::Input &input) {
     const auto &[H_t, banderout_H_v, E_T] = input;
