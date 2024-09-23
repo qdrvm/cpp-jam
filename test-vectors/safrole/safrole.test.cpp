@@ -4,15 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <gtest/gtest.h>
 #include <qtils/hex.hpp>
 
 #include "safrole.hpp"
 #include "vectors.hpp"
 
-using jam::test_vectors_safrole::Vectors;
 namespace generic = jam::test_vectors_safrole::generic;
-
-auto ok = true;
 
 struct Indent {
   int indent = 0;
@@ -206,33 +204,18 @@ DIFF_F(generic::State<validators_count, epoch_length>) {
 /**
  * Check safrole state transition against test vectors.
  */
-template <bool full>
-void test_transition() {
-  Vectors<full> vectors;
-  using types = decltype(vectors)::types;
-  for (auto &path : vectors.paths) {
-    auto s = path.native();
-    fmt::println("{}.json", s.substr(0, s.size() - 6));
-    auto testcase = vectors.read(path);
-    auto [state, output] = jam::safrole::Generic<types>::transition(
-        testcase->pre_state, testcase->input);
-    Indent indent{1};
-    if (state != testcase->post_state) {
-      ok = false;
-      diff_m(indent, state, testcase->post_state, "state");
-    }
-    if (output != testcase->output) {
-      ok = false;
-      diff_m(indent, output, testcase->output, "output");
-    }
+GTEST_VECTORS {
+  using types = Vectors::types;
+  auto testcase = Vectors::read(path);
+  auto [state, output] = jam::safrole::Generic<types>::transition(
+      testcase->pre_state, testcase->input);
+  Indent indent{1};
+  EXPECT_EQ(state, testcase->post_state);
+  if (state != testcase->post_state) {
+    diff_m(indent, state, testcase->post_state, "state");
   }
-}
-
-int main() {
-  test_transition<false>();
-  test_transition<true>();
-  if (ok) {
-    fmt::println("ok");
+  EXPECT_EQ(output, testcase->output);
+  if (output != testcase->output) {
+    diff_m(indent, output, testcase->output, "output");
   }
-  return 0;
 }

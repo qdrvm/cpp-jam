@@ -2,12 +2,12 @@
   "name": "cpp-jam",
   "version": "0.0.1",
   "dependencies": [
+    "fmt",
     "kagome-crates",
     "libb2",
-    "scale",
-    {
-      "name": "fmt",
-      "version>=": "10.2.1#2"
-    }
-  ]
+    "scale"
+  ],
+  "features": {
+    "test": { "description": "Test", "dependencies": ["gtest"]}
+  }
 }

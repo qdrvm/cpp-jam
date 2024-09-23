@@ -6,6 +6,11 @@
 
 cmake_minimum_required(VERSION 3.25)
 
+option(TESTING "Build and run test suite" ON)
+if(TESTING)
+    list(APPEND VCPKG_MANIFEST_FEATURES test)
+endif()
+
 project(cpp-jam
     VERSION 0.0.1
     LANGUAGES C CXX
@@ -13,8 +18,6 @@ project(cpp-jam
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
-option(TESTING "Build and run test suite" ON)
 
 find_package(Python3 REQUIRED)
 
@@ -30,5 +33,9 @@ add_subdirectory(src)
 
 if(TESTING)
     enable_testing()
+
+    find_package(GTest CONFIG REQUIRED)
+    set(GTEST_DEPS GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+
     add_subdirectory(test-vectors)
 endif ()
