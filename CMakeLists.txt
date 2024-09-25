@@ -29,6 +29,12 @@ find_package(fmt CONFIG REQUIRED)
 find_package(jam_crust CONFIG REQUIRED)
 find_package(scale CONFIG REQUIRED)
 
+add_library(headers INTERFACE)
+target_include_directories(headers INTERFACE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
 add_subdirectory(src)
 
 if(TESTING)
