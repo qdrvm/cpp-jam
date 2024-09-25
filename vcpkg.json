@@ -2,10 +2,7 @@
   "name": "cpp-jam",
   "version": "0.0.1",
   "dependencies": [
-    "scale",
-    {
-      "name": "fmt",
-      "version>=": "10.2.1#2"
-    }
+    "fmt",
+    "scale"
   ]
 }
