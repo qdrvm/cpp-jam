@@ -31,5 +31,5 @@ function(asn1 name)
     fmt::fmt
     test_vectors_${name}_types
   )
-  add_test(NAME test_vectors_${name}_types_test COMMAND $<TARGET_FILE:test_vectors_${name}_types_test>)
+  add_test(test_vectors_${name}_types_test test_vectors_${name}_types_test)
 endfunction()
