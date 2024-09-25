@@ -9,6 +9,30 @@
 
 #include "types.scale.hpp"
 
+#define GTEST_VECTORS                                                     \
+  template <bool full>                                                    \
+  struct GtestVectors {                                                   \
+    using Vectors = jam::test_vectors_safrole::Vectors<full>;             \
+    void test(const std::filesystem::path &path);                         \
+  };                                                                      \
+  struct Test : testing::TestWithParam<std::function<void()>> {};         \
+  TEST_P(Test, Test) { GetParam()(); }                                    \
+  INSTANTIATE_TEST_SUITE_P(Test, Test, testing::ValuesIn([] {             \
+    std::vector<std::function<void()>> params;                            \
+    auto f = [&]<bool full> {                                             \
+      using Vectors = jam::test_vectors_safrole::Vectors<full>;           \
+      Vectors vectors;                                                    \
+      for (auto &path : vectors.paths) {                                  \
+        params.emplace_back([path] { GtestVectors<full>{}.test(path); }); \
+      }                                                                   \
+    };                                                                    \
+    f.operator()<false>();                                                \
+    f.operator()<true>();                                                 \
+    return params;                                                        \
+  }()));                                                                  \
+  template <bool full>                                                    \
+  void GtestVectors<full>::test(const std::filesystem::path &path)
+
 namespace jam::test_vectors_safrole {
   template <bool is_full>
   struct Vectors {
