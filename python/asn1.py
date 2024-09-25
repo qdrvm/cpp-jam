@@ -52,6 +52,7 @@ class Type:
         self.args: list[str] = []
         self.decl: list[str] = []
         self.scale: list[str] = []
+        self.diff: list[str] = []
 
     def c_tdecl(self):
         if not self.args:
@@ -136,6 +137,15 @@ def c_scale_struct(ty: Type, members: list[str]):
         ["s << v.%s;" % x for x in members],
         ["s >> v.%s;" % x for x in members],
     )
+
+
+def c_diff(NS: str, ty: Type, lines: list[str]):
+    return [
+        *ty.c_tdecl(),
+        "DIFF_F(%s::%s) {" % (NS, ty.c_tname()),
+        *indent(lines),
+        "}",
+    ]
 
 
 def parse_types(NS: str, ARGS: list[str], path: str, key: str):
@@ -228,6 +238,9 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
             ty.scale.extend(
                 c_scale_struct(ty, [c_dash(x["name"]) for x in t["members"]])
             )
+            ty.diff = c_diff(
+                NS, ty, ["DIFF_M(%s);" % c_dash(x["name"]) for x in t["members"]]
+            )
             continue
         ty.decl = c_using(tname, asn_member(t))
 
@@ -261,11 +274,19 @@ class Gen:
             *self.g_scale,
             *self.enum_trait,
         ]
+        self.g_diff = flatten(ty.diff for ty in self.types)
+        self.g_diff = [
+            "#pragma once",
+            '#include "../diff.hpp"',
+            '#include "%s.hpp"' % OUTPUT_NAME,
+            *self.g_diff,
+        ]
 
     def write(self, name: str):
         prefix = os.path.join(TEST_VECTORS_DIR, name, OUTPUT_NAME)
         write(prefix + ".hpp", self.g_types)
         write(prefix + ".scale.hpp", self.g_scale)
+        write(prefix + ".diff.hpp", self.g_diff)
 
 
 def safrole():
