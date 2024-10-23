@@ -43,6 +43,7 @@ namespace jam::history {
     std::vector beta_tick(state.beta.size() >= H ? std::next(state.beta.begin())
                                                  : state.beta.begin(),
         state.beta.end());
+    // [GP 0.3.6 7 81]
     if (not beta_tick.empty()) {
       beta_tick.back().state_root = input.parent_state_root;
     }
