@@ -16,7 +16,7 @@ namespace jam::test_vectors_safrole {
             typename std::conditional_t<is_full, full, tiny>::Testcase> {
     using types = std::conditional_t<is_full, full, tiny>;
 
-    std::string type = is_full ? "full" : "tiny";
+    static constexpr std::string_view type = is_full ? "full" : "tiny";
 
     Vectors() {
       this->list(std::filesystem::path{"safrole"} / type);
