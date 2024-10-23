@@ -14,6 +14,9 @@
 namespace jam::history {
   namespace types = test_vectors_history;
 
+  /**
+   * The size of recent history, in blocks
+   */
   // [GP 0.3.6 I.4.4]
   constexpr uint32_t H = 8;
 
