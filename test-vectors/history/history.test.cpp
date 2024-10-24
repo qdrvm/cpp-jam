@@ -16,6 +16,9 @@ bool ok = true;
 
 /**
  * Check history state transition against test vectors.
+ * @given `pre_state`
+ * @when transition with `input`
+ * @then get expected `post_state` and `output`
  */
 void test_transition() {
   Vectors vectors;
