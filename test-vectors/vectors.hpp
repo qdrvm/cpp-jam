@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <fmt/format.h>
 #include <qtils/read_file.hpp>
 #include <scale/scale.hpp>
 #include <set>
@@ -19,10 +20,28 @@ namespace jam::test_vectors {
     std::set<std::filesystem::path> paths;
 
     void list(const std::filesystem::path &relative) {
+      auto ext_scale = ".scale", ext_json = ".json";
+      auto use_ext = ext_scale;
+      std::map<std::filesystem::path, bool> path_ok;
       for (auto &file : std::filesystem::directory_iterator{dir / relative}) {
-        if (file.path().extension() == ".scale") {
-          paths.emplace(file.path());
+        auto path = file.path(), ext = path.extension();
+        if (ext != ext_scale and ext != ext_json) {
+          continue;
         }
+        path.replace_extension(use_ext);
+        auto &ok = path_ok[path];
+        ok = ok or ext == use_ext;
+      }
+      for (auto &[path, ok] : path_ok) {
+        if (not ok) {
+          fmt::println(
+              "{}:{} warning: {} is missing, but files with other extensions are available",
+              __FILE__,
+              __LINE__,
+              path.native());
+          continue;
+        }
+        paths.emplace(path);
       }
     }
 
