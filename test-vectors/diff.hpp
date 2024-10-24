@@ -8,6 +8,11 @@
 
 #include <qtils/hex.hpp>
 
+/**
+ * Print colorful diff for objects.
+ * Used for debugging tests.
+ */
+
 struct Indent {
   int indent = 0;
   Indent operator~() const {
