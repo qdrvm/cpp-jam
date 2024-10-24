@@ -8,6 +8,10 @@
 
 #include <jam/keccak.hpp>
 
+/**
+ * Common functions used in tests
+ */
+
 namespace jam {
   // [GP 0.4.3 3.7.2]
   // https://github.com/gavofyork/graypaper/blob/v0.4.3/text/notation.tex#L132

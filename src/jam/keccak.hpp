@@ -1,9 +1,14 @@
 // https://github.com/nayuki/Bitcoin-Cryptography-Library/blob/master/cpp/Keccak256.hpp
-// Not using https://vcpkg.io/en/package/keccak-tiny from vcpkg because it only exports sha3, not keccak
+// Not using https://vcpkg.io/en/package/keccak-tiny from vcpkg because it only
+// exports sha3, not keccak
 
 #pragma once
 
 #include <qtils/bytes.hpp>
+
+/**
+ * Keccak hash
+ */
 
 namespace jam {
   struct Keccak {

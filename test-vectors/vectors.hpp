@@ -11,6 +11,10 @@
 #include <scale/scale.hpp>
 #include <set>
 
+/**
+ * Common functions for test vectors
+ */
+
 namespace jam::test_vectors {
   inline const std::filesystem::path dir =
       std::filesystem::path{PROJECT_SOURCE_DIR} / "test-vectors/jamtestvectors";
