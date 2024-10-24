@@ -294,7 +294,7 @@ def safrole():
     ARGS = ["validators-count", "epoch-length"]
     g = Gen("%s::generic" % NS, ARGS, asn_file("safrole/safrole"), "SafroleModule")
     for name in ["tiny", "full"]:
-        args = parse_const(asn_file("safrole/%s" % name), "SafroleConstants")
+        args = parse_const(asn_file("safrole/%s" % name), "Constants")
         g_args = [
             *[
                 "static constexpr uint32_t %s = %s;" % (c_dash(a), args[a])
