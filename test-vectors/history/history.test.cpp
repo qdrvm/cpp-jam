@@ -27,15 +27,15 @@ void test_transition() {
     fmt::println("{}.json", s.substr(0, s.size() - 6));
     auto testcase = vectors.read(path);
     auto [state, output] =
-        jam::history::transition(testcase->pre_state, testcase->input);
+        jam::history::transition(testcase.pre_state, testcase.input);
     Indent indent{1};
-    if (state != testcase->post_state) {
+    if (state != testcase.post_state) {
       ok = false;
-      diff_m(indent, state, testcase->post_state, "state");
+      diff_m(indent, state, testcase.post_state, "state");
     }
-    if (output != testcase->output) {
+    if (output != testcase.output) {
       ok = false;
-      diff_m(indent, output, testcase->output, "output");
+      diff_m(indent, output, testcase.output, "output");
     }
   }
 }

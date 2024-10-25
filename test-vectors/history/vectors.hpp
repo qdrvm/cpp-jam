@@ -10,8 +10,8 @@
 #include "types.scale.hpp"
 
 namespace jam::test_vectors_history {
-  struct Vectors : test_vectors::Vectors<TestCase> {
-    Vectors() {
+  struct Vectors : test_vectors::VectorsT<TestCase, Config> {
+    Vectors() : VectorsT{Config{}} {
       this->list("history/data");
     }
   };

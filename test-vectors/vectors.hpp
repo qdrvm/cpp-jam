@@ -19,9 +19,12 @@ namespace jam::test_vectors {
   inline const std::filesystem::path dir =
       std::filesystem::path{PROJECT_SOURCE_DIR} / "test-vectors/jamtestvectors";
 
-  template <typename T>
-  struct Vectors {
+  template <typename T, typename Config>
+  struct VectorsT {
+    Config config;
     std::set<std::filesystem::path> paths;
+
+    VectorsT(Config config) : config{config} {}
 
     void list(const std::filesystem::path &relative) {
       auto ext_scale = ".scale", ext_json = ".json";
@@ -49,10 +52,10 @@ namespace jam::test_vectors {
       }
     }
 
-    static auto decode(qtils::BytesIn raw) {
+    auto decode(qtils::BytesIn raw) const {
       scale::ScaleDecoderStream s{raw};
-      auto testcase = std::make_unique<T>();
-      s >> *testcase;
+      T testcase;
+      decodeConfig(s, testcase, config);
       return testcase;
     }
 
@@ -60,7 +63,7 @@ namespace jam::test_vectors {
       return qtils::readBytes(path).value();
     }
 
-    static auto read(const std::filesystem::path &path) {
+    auto read(const std::filesystem::path &path) const {
       return decode(readRaw(path));
     }
   };
@@ -74,7 +77,7 @@ namespace jam::test_vectors {
       fmt::println("{}", path.native());
       auto expected = vectors.readRaw(path);
       auto decoded = vectors.decode(expected);
-      auto reencoded = scale::encode(*decoded).value();
+      auto reencoded = scale::encode(decoded).value();
       if (reencoded != expected) {
         throw std::logic_error{"reencoded"};
       }

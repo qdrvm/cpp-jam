@@ -8,6 +8,8 @@
 
 #include <qtils/hex.hpp>
 
+#include "config-types.hpp"
+
 /**
  * Print colorful diff for objects.
  * Used for debugging tests.
@@ -60,6 +62,11 @@ void diff_m(Indent indent, const T &v1, const T &v2, std::string_view name) {
   }
   fmt::println("{}{}", indent, name);
   diff(~indent, v1, v2);
+}
+
+template <typename T, typename ConfigField>
+DIFF_F(jam::ConfigVec<T, ConfigField>) {
+  diff(indent, v1.v, v2.v);
 }
 
 template <typename T>

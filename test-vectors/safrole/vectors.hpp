@@ -11,14 +11,10 @@
 
 namespace jam::test_vectors_safrole {
   template <bool is_full>
-  struct Vectors
-      : test_vectors::Vectors<
-            typename std::conditional_t<is_full, full, tiny>::TestCase> {
-    using types = std::conditional_t<is_full, full, tiny>;
-
+  struct Vectors : test_vectors::VectorsT<TestCase, Config> {
     static constexpr std::string_view type = is_full ? "full" : "tiny";
 
-    Vectors() {
+    Vectors() : VectorsT{is_full ? config_full : config_tiny} {
       this->list(std::filesystem::path{"safrole"} / type);
     }
   };
