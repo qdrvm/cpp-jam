@@ -4,22 +4,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <test-vectors/safrole/safrole.hpp>
-#include <test-vectors/safrole/types.diff.hpp>
-#include <test-vectors/safrole/vectors.hpp>
+#include <test-vectors/history/history.hpp>
+#include <test-vectors/history/types.diff.hpp>
+#include <test-vectors/history/vectors.hpp>
 
-GTEST_VECTORS(jam::test_vectors_safrole::Vectors);
+GTEST_VECTORS(jam::test_vectors_history::Vectors);
 
 /**
- * Check safrole state transition against test vectors.
+ * Check history state transition against test vectors.
  * @given `pre_state`
  * @when transition with `input`
  * @then get expected `post_state` and `output`
  */
 TEST_P(Test, Transition) {
   auto testcase = vectors.read(path);
-  auto [state, output] = jam::safrole::transition(
-      vectors.config, testcase.pre_state, testcase.input);
+  auto [state, output] =
+      jam::history::transition(testcase.pre_state, testcase.input);
   Indent indent{1};
   EXPECT_EQ(state, testcase.post_state);
   if (state != testcase.post_state) {

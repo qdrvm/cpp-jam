@@ -7,6 +7,12 @@
 #pragma once
 
 #include <qtils/hex.hpp>
+#include <test-vectors/config-types.hpp>
+
+/**
+ * Print colorful diff for objects.
+ * Used for debugging tests.
+ */
 
 struct Indent {
   int indent = 0;
@@ -59,6 +65,11 @@ void diff_m(Indent indent, const T &v1, const T &v2, std::string_view name) {
 
 DIFF_F(uint32_t) {
   fmt::println("{}{} != {}", indent, v1, v2);
+}
+
+template <typename T, typename ConfigField>
+DIFF_F(jam::ConfigVec<T, ConfigField>) {
+  diff(indent, v1.v, v2.v);
 }
 
 template <typename T>

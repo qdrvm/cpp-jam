@@ -47,6 +47,8 @@ def indent(lines):
 
 
 class Type:
+    ignore_args = True
+
     def __init__(self, name: str):
         self.name = name
         self.args: list[str] = []
@@ -55,14 +57,14 @@ class Type:
         self.diff: list[str] = []
 
     def c_tdecl(self):
-        if not self.args:
+        if self.ignore_args or not self.args:
             return []
         return [
             "template<%s>" % ", ".join("uint32_t %s" % c_dash(x) for x in self.args)
         ]
 
     def c_targs(self):
-        if not self.args:
+        if self.ignore_args or not self.args:
             return ""
         return "<%s>" % ", ".join(c_dash(x) for x in self.args)
 
@@ -123,10 +125,11 @@ def c_scale(ty: Type, encode: list[str], decode: list[str]):
         "  return s;",
         "}",
         *ty.c_tdecl(),
-        "inline scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s, %s &v) {"
+        "scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s, %s &) = delete;"
+        % ty.c_tname(),
+        "void decodeConfig(scale::ScaleDecoderStream &s, %s &v, const auto &config) {"
         % ty.c_tname(),
         *indent(decode),
-        "  return s;",
         "}",
     ]
 
@@ -135,7 +138,7 @@ def c_scale_struct(ty: Type, members: list[str]):
     return c_scale(
         ty,
         ["s << v.%s;" % x for x in members],
-        ["s >> v.%s;" % x for x in members],
+        ["decodeConfig(s, v.%s, config);" % x for x in members],
     )
 
 
@@ -159,6 +162,8 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
                 return "qtils::BytesN<%s>" % c_dash(size)
             return "qtils::Bytes"
         if fixed:
+            if isinstance(size, str):
+                return "jam::ConfigVec<%s, ConfigField::%s>" % (T, c_dash(size))
             return "std::array<%s, %s>" % (T, c_dash(size))
         return "std::vector<%s>" % T
 
@@ -210,7 +215,7 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
                     )
                 ],
             )
-            ty.scale.extend(c_scale_struct(ty, ["v"]))
+            ty.scale += c_scale_struct(ty, ["v"])
             ty.diff = c_diff(
                 NS,
                 ty,
@@ -253,8 +258,9 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
             ty.decl = c_struct(
                 tname, [(c_dash(x["name"]), asn_member(x)) for x in t["members"]]
             )
-            ty.scale.extend(
-                c_scale_struct(ty, [c_dash(x["name"]) for x in t["members"]])
+            ty.scale += c_scale_struct(ty, [c_dash(x["name"]) for x in t["members"]])
+            ty.diff = c_diff(
+                NS, ty, ["DIFF_M(%s);" % c_dash(x["name"]) for x in t["members"]]
             )
             ty.diff = c_diff(
                 NS, ty, ["DIFF_M(%s);" % c_dash(x["name"]) for x in t["members"]]
@@ -273,14 +279,35 @@ def parse_const(path: str, key: str):
 
 
 class Gen:
-    def __init__(self, NS: str, ARGS: list[str], path: str, key: str):
+    def __init__(self, NS: str, ARGS: list[str], path: str, key: str, configs):
+        g_config = [
+            "struct ConfigField {",
+            *["  struct %s {};" % c_dash(a) for a in ARGS],
+            "};",
+            "struct Config {",
+            *["  uint32_t %s;" % c_dash(a) for a in ARGS],
+            *[
+                "  auto get(ConfigField::%s) const { return %s; }"
+                % (c_dash(a), c_dash(a))
+                for a in ARGS
+            ],
+            "};",
+        ]
+        for name, args in configs:
+            g_config += [
+                "constexpr Config config_%s {" % name,
+                *["  .%s = %s," % (c_dash(a), args[a]) for a in ARGS],
+                "};",
+            ]
         self.types, self.enum_trait = parse_types(NS, ARGS, path, key)
         self.g_types = flatten([*ty.c_tdecl(), *ty.decl] for ty in self.types)
+        self.g_types = g_config + self.g_types
         self.g_types = ["namespace %s {" % NS, *indent(self.g_types), "}"]
         self.g_types = [
             "#pragma once",
             "#include <boost/variant.hpp>",
             "#include <qtils/bytes.hpp>",
+            "#include <test-vectors/config-types.hpp>",
             *self.g_types,
         ]
         self.g_scale = flatten(ty.scale for ty in self.types)
@@ -288,6 +315,7 @@ class Gen:
         self.g_scale = [
             "#pragma once",
             "#include <scale/scale.hpp>",
+            "#include <test-vectors/config-types-scale.hpp>",
             '#include "%s.hpp"' % OUTPUT_NAME,
             *self.g_scale,
             *self.enum_trait,
@@ -295,7 +323,7 @@ class Gen:
         self.g_diff = flatten(ty.diff for ty in self.types)
         self.g_diff = [
             "#pragma once",
-            '#include "../diff.hpp"',
+            "#include <test-vectors/diff.hpp>",
             '#include "%s.hpp"' % OUTPUT_NAME,
             *self.g_diff,
         ]
@@ -308,35 +336,26 @@ class Gen:
 
 
 def safrole():
-    NS = "jam::test_vectors_safrole"
-    ARGS = ["validators-count", "epoch-length"]
-    g = Gen("%s::generic" % NS, ARGS, asn_file("safrole/safrole"), "SafroleModule")
-    for name in ["tiny", "full"]:
-        args = parse_const(asn_file("safrole/%s" % name), "SafroleConstants")
-        g_args = [
-            *[
-                "static constexpr uint32_t %s = %s;" % (c_dash(a), args[a])
-                for a in ARGS
-            ],
-            *flatten(
-                c_using(ty.name, "%s::generic::%s" % (NS, ty.c_tname()))
-                for ty in g.types
-            ),
-        ]
-        g_args = ["struct %s {" % name, *indent(g_args), "};"]
-        g.g_types.extend(
-            [
-                "namespace %s {" % NS,
-                *indent(g_args),
-                "}",
-            ]
-        )
+    g = Gen(
+        "jam::test_vectors_safrole",
+        ["validators-count", "epoch-length"],
+        asn_file("safrole/safrole"),
+        "SafroleModule",
+        [
+            (name, parse_const(asn_file("safrole/%s" % name), "Constants"))
+            for name in ["tiny", "full"]
+        ],
+    )
     g.write("safrole")
 
 
 def history():
     g = Gen(
-        "jam::test_vectors_history", [], asn_file("history/history"), "HistoryModule"
+        "jam::test_vectors_history",
+        [],
+        asn_file("history/history"),
+        "HistoryModule",
+        [],
     )
     g.write("history")
 

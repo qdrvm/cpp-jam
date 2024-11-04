@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <test-vectors/safrole/vectors.hpp>
+#include <test-vectors/history/vectors.hpp>
 
-GTEST_VECTORS(jam::test_vectors_safrole::Vectors);
+GTEST_VECTORS(jam::test_vectors_history::Vectors);
 
 /**
  * Check python generated scale encoding/decoding against test vectors.
