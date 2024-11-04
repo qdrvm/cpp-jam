@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "vectors.hpp"
+#include <test-vectors/safrole/vectors.hpp>
 
 using jam::test_vectors::test_reencode;
 using jam::test_vectors_safrole::Vectors;

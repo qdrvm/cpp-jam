@@ -7,8 +7,7 @@
 #pragma once
 
 #include <scale/scale.hpp>
-
-#include "config-types.hpp"
+#include <test-vectors/config-types.hpp>
 
 namespace scale {
   template <typename T>

@@ -7,9 +7,8 @@
 #pragma once
 
 #include <qtils/option_take.hpp>
-
-#include "../common.hpp"
-#include "types.hpp"
+#include <test-vectors/common.hpp>
+#include <test-vectors/history/types.hpp>
 
 namespace jam::history {
   namespace types = test_vectors_history;

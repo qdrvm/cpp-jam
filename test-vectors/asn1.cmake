@@ -21,6 +21,7 @@ function(asn1 name)
   add_library(test_vectors_${name}_types INTERFACE ${OUTPUT})
   target_link_libraries(test_vectors_${name}_types INTERFACE
     scale::scale
+    test_vectors_headers
   )
 
   add_executable(test_vectors_${name}_types_test

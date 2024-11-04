@@ -286,7 +286,7 @@ class Gen:
             "#pragma once",
             "#include <boost/variant.hpp>",
             "#include <qtils/bytes.hpp>",
-            '#include "../config-types.hpp"',
+            "#include <test-vectors/config-types.hpp>",
             *self.g_types,
         ]
         self.g_scale = flatten(ty.scale for ty in self.types)
@@ -294,7 +294,7 @@ class Gen:
         self.g_scale = [
             "#pragma once",
             "#include <scale/scale.hpp>",
-            '#include "../config-types-scale.hpp"',
+            "#include <test-vectors/config-types-scale.hpp>",
             '#include "%s.hpp"' % OUTPUT_NAME,
             *self.g_scale,
             *self.enum_trait,
@@ -302,7 +302,7 @@ class Gen:
         self.g_diff = flatten(ty.diff for ty in self.types)
         self.g_diff = [
             "#pragma once",
-            '#include "../diff.hpp"',
+            "#include <test-vectors/diff.hpp>",
             '#include "%s.hpp"' % OUTPUT_NAME,
             *self.g_diff,
         ]

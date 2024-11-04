@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "../vectors.hpp"
-#include "types.scale.hpp"
+#include <test-vectors/safrole/types.scale.hpp>
+#include <test-vectors/vectors.hpp>
 
 namespace jam::test_vectors_safrole {
   template <bool is_full>

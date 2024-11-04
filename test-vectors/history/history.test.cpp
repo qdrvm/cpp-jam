@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "history.hpp"
-#include "types.diff.hpp"
-#include "vectors.hpp"
+#include <test-vectors/history/history.hpp>
+#include <test-vectors/history/types.diff.hpp>
+#include <test-vectors/history/vectors.hpp>
 
 using jam::test_vectors_history::Vectors;
 

@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "../vectors.hpp"
-#include "types.scale.hpp"
+#include <test-vectors/history/types.scale.hpp>
+#include <test-vectors/vectors.hpp>
 
 namespace jam::test_vectors_history {
   struct Vectors : test_vectors::VectorsT<TestCase, Config> {

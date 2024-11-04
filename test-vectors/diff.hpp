@@ -7,8 +7,7 @@
 #pragma once
 
 #include <qtils/hex.hpp>
-
-#include "config-types.hpp"
+#include <test-vectors/config-types.hpp>
 
 /**
  * Print colorful diff for objects.
