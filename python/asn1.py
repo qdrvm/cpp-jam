@@ -2,26 +2,24 @@
 
 import asn1tools
 import os.path
+import sys
+
 
 DIR = os.path.dirname(__file__)
 TEST_VECTORS_DIR = os.path.join(DIR, "../test-vectors")
 OUTPUT_NAME = "types"
-OUTPUT_DIR = os.path.join(TEST_VECTORS_DIR, "safrole")
-SAFROLE_DIR = os.path.join(TEST_VECTORS_DIR, "jamtestvectors/safrole")
-ARGS = ["validators-count", "epoch-length"]
-NS = "jam::test_vectors_safrole"
 
 
 def flatten(aaa: list[list]):
     return [a for aa in aaa for a in aa]
 
 
-def safrole_file(name: str):
-    return os.path.join(SAFROLE_DIR, name + ".asn")
+def asn_file(name: str):
+    return os.path.join(TEST_VECTORS_DIR, "jamtestvectors", name + ".asn")
 
 
-def write(ext: str, lines: list[str]):
-    with open(os.path.join(OUTPUT_DIR, OUTPUT_NAME + ext), "w") as f:
+def write(path: str, lines: list[str]):
+    with open(path, "w") as f:
         f.writelines(line + "\n" for line in lines)
 
 
@@ -33,7 +31,7 @@ def c_struct(name: str, members):
     return [
         "struct %s {" % name,
         *(("  %s %s;" % (t, k) for k, t in members)),
-        "  bool operator==(const %s &)const = default;" % name,
+        "  bool operator==(const %s &) const = default;" % name,
         "};",
     ]
 
@@ -49,19 +47,24 @@ def indent(lines):
 
 
 class Type:
+    ignore_args = True
+
     def __init__(self, name: str):
         self.name = name
         self.args: list[str] = []
         self.decl: list[str] = []
         self.scale: list[str] = []
+        self.diff: list[str] = []
 
     def c_tdecl(self):
-        if not self.args:
+        if self.ignore_args or not self.args:
             return []
-        return ["template<%s>" % ", ".join("uint32_t %s" % c_dash(x) for x in self.args)]
+        return [
+            "template<%s>" % ", ".join("uint32_t %s" % c_dash(x) for x in self.args)
+        ]
 
     def c_targs(self):
-        if not self.args:
+        if self.ignore_args or not self.args:
             return ""
         return "<%s>" % ", ".join(c_dash(x) for x in self.args)
 
@@ -98,7 +101,7 @@ def asn_deps(types: dict):
     return deps1, deps2
 
 
-def asn_args(types: dict, deps2: dict[str, set[str]]):
+def asn_args(ARGS: list[str], types: dict, deps2: dict[str, set[str]]):
     args = {
         k: {
             s[0]
@@ -122,10 +125,11 @@ def c_scale(ty: Type, encode: list[str], decode: list[str]):
         "  return s;",
         "}",
         *ty.c_tdecl(),
-        "inline scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s, %s &v) {"
+        "scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s, %s &) = delete;"
+        % ty.c_tname(),
+        "void decodeConfig(scale::ScaleDecoderStream &s, %s &v, const auto &config) {"
         % ty.c_tname(),
         *indent(decode),
-        "  return s;",
         "}",
     ]
 
@@ -134,13 +138,22 @@ def c_scale_struct(ty: Type, members: list[str]):
     return c_scale(
         ty,
         ["s << v.%s;" % x for x in members],
-        ["s >> v.%s;" % x for x in members],
+        ["decodeConfig(s, v.%s, config);" % x for x in members],
     )
 
 
-def parse_types(path: str):
+def c_diff(NS: str, ty: Type, lines: list[str]):
+    return [
+        *ty.c_tdecl(),
+        "DIFF_F(%s::%s) {" % (NS, ty.c_tname()),
+        *indent(lines),
+        "}",
+    ]
+
+
+def parse_types(NS: str, ARGS: list[str], path: str, key: str):
     def asn_sequence_of(t):
-        (size,) = t["size"]
+        (size,) = t.get("size", (None,))
         fixed = isinstance(size, (int, str))
         T = t["element"]["type"]
         assert T in asn_types
@@ -149,10 +162,14 @@ def parse_types(path: str):
                 return "qtils::BytesN<%s>" % c_dash(size)
             return "qtils::Bytes"
         if fixed:
+            if isinstance(size, str):
+                return "jam::ConfigVec<%s, ConfigField::%s>" % (T, c_dash(size))
             return "std::array<%s, %s>" % (T, c_dash(size))
         return "std::vector<%s>" % T
 
     def asn_member(t):
+        if t["type"] == "OCTET STRING":
+            t = dict(type="SEQUENCE OF", element=dict(type="U8"), size=t["size"])
         if t["type"] == "SEQUENCE OF":
             r = asn_sequence_of(t)
         elif t["type"] in asn_types:
@@ -163,10 +180,12 @@ def parse_types(path: str):
             return "std::optional<%s>" % r
         return r
 
-    asn_types: dict = asn1tools.parse_files([path])["SafroleModule"]["types"]
+    asn_types: dict = asn1tools.parse_files([path])[key]["types"]
+    if "U8" not in asn_types:
+        asn_types["U8"] = dict(type="INTEGER")
     deps1, deps2 = asn_deps(asn_types)
     types = {tname: Type(tname) for tname in asn_types}
-    for tname, args in asn_args(asn_types, deps2).items():
+    for tname, args in asn_args(ARGS, asn_types, deps2).items():
         types[tname].args = args
     enum_trait = []
     for tname, t in asn_types.items():
@@ -177,7 +196,15 @@ def parse_types(path: str):
         if tname == "U32":
             ty.decl = c_using(tname, "uint32_t")
             continue
+        if t["type"] == "NULL":
+            t = dict(type="SEQUENCE", members=[])
         if t["type"] == "CHOICE":
+            if tname == "MmrPeak":
+                assert [x["name"] for x in t["members"]] == ["none", "some"]
+                ty.decl = c_using(
+                    tname, "std::optional<%s>" % asn_member(t["members"][1])
+                )
+                continue
             ty.decl = c_struct(
                 tname,
                 [
@@ -188,7 +215,7 @@ def parse_types(path: str):
                     )
                 ],
             )
-            ty.scale.extend(c_scale_struct(ty, ["v"]))
+            ty.scale += c_scale_struct(ty, ["v"])
             continue
         if t["type"] == "ENUMERATED":
             values = [x[1] for x in t["values"]]
@@ -198,14 +225,13 @@ def parse_types(path: str):
                 *("  %s," % c_dash(x[0]) for x in t["values"]),
                 "};",
             ]
-            ns = "%s::generic" % NS
             enum_trait.append(
                 "SCALE_DEFINE_ENUM_VALUE_LIST(%s, %s, %s)"
                 % (
-                    ns,
+                    NS,
                     ty.name,
                     ", ".join(
-                        "%s::%s::%s" % (ns, ty.name, c_dash(x[0])) for x in t["values"]
+                        "%s::%s::%s" % (NS, ty.name, c_dash(x[0])) for x in t["values"]
                     ),
                 )
             )
@@ -214,8 +240,9 @@ def parse_types(path: str):
             ty.decl = c_struct(
                 tname, [(c_dash(x["name"]), asn_member(x)) for x in t["members"]]
             )
-            ty.scale.extend(
-                c_scale_struct(ty, [c_dash(x["name"]) for x in t["members"]])
+            ty.scale += c_scale_struct(ty, [c_dash(x["name"]) for x in t["members"]])
+            ty.diff = c_diff(
+                NS, ty, ["DIFF_M(%s);" % c_dash(x["name"]) for x in t["members"]]
             )
             continue
         ty.decl = c_using(tname, asn_member(t))
@@ -224,49 +251,94 @@ def parse_types(path: str):
     return [types[k] for k in order], enum_trait
 
 
-def parse_const(path: str):
-    values: dict = asn1tools.parse_files([path])["SafroleConstants"]["values"]
+def parse_const(path: str, key: str):
+    values: dict = asn1tools.parse_files([path])[key]["values"]
     assert all(v["type"] == "INTEGER" for v in values.values())
     return {k: v["value"] for k, v in values.items()}
 
 
-types, enum_trait = parse_types(safrole_file("safrole"))
-
-
-g_types = flatten([*ty.c_tdecl(), *ty.decl] for ty in types)
-g_types = ["namespace %s::generic {" % NS, *indent(g_types), "}"]
-for name in ["tiny", "full"]:
-    args = parse_const(safrole_file(name))
-    g_args = [
-        *["static constexpr uint32_t %s = %s;" % (c_dash(a), args[a]) for a in ARGS],
-        *flatten(
-            c_using(ty.name, "%s::generic::%s" % (NS, ty.c_tname())) for ty in types
-        ),
-    ]
-    g_args = ["struct %s {" % name, *indent(g_args), "};"]
-    g_types.extend(
-        [
-            "namespace %s {" % NS,
-            *indent(g_args),
-            "}",
+class Gen:
+    def __init__(self, NS: str, ARGS: list[str], path: str, key: str, configs):
+        g_config = [
+            "struct ConfigField {",
+            *["  struct %s {};" % c_dash(a) for a in ARGS],
+            "};",
+            "struct Config {",
+            *["  uint32_t %s;" % c_dash(a) for a in ARGS],
+            *[
+                "  auto get(ConfigField::%s) const { return %s; }"
+                % (c_dash(a), c_dash(a))
+                for a in ARGS
+            ],
+            "};",
         ]
+        for name, args in configs:
+            g_config += [
+                "constexpr Config config_%s {" % name,
+                *["  .%s = %s," % (c_dash(a), args[a]) for a in ARGS],
+                "};",
+            ]
+        self.types, self.enum_trait = parse_types(NS, ARGS, path, key)
+        self.g_types = flatten([*ty.c_tdecl(), *ty.decl] for ty in self.types)
+        self.g_types = g_config + self.g_types
+        self.g_types = ["namespace %s {" % NS, *indent(self.g_types), "}"]
+        self.g_types = [
+            "#pragma once",
+            "#include <boost/variant.hpp>",
+            "#include <qtils/bytes.hpp>",
+            "#include <test-vectors/config-types.hpp>",
+            *self.g_types,
+        ]
+        self.g_scale = flatten(ty.scale for ty in self.types)
+        self.g_scale = ["namespace %s {" % NS, *indent(self.g_scale), "}"]
+        self.g_scale = [
+            "#pragma once",
+            "#include <scale/scale.hpp>",
+            "#include <test-vectors/config-types-scale.hpp>",
+            '#include "%s.hpp"' % OUTPUT_NAME,
+            *self.g_scale,
+            *self.enum_trait,
+        ]
+        self.g_diff = flatten(ty.diff for ty in self.types)
+        self.g_diff = [
+            "#pragma once",
+            "#include <test-vectors/diff.hpp>",
+            '#include "%s.hpp"' % OUTPUT_NAME,
+            *self.g_diff,
+        ]
+
+    def write(self, name: str):
+        prefix = os.path.join(TEST_VECTORS_DIR, name, OUTPUT_NAME)
+        write(prefix + ".hpp", self.g_types)
+        write(prefix + ".scale.hpp", self.g_scale)
+        write(prefix + ".diff.hpp", self.g_diff)
+
+
+def safrole():
+    g = Gen(
+        "jam::test_vectors_safrole",
+        ["validators-count", "epoch-length"],
+        asn_file("safrole/safrole"),
+        "SafroleModule",
+        [
+            (name, parse_const(asn_file("safrole/%s" % name), "Constants"))
+            for name in ["tiny", "full"]
+        ],
     )
-g_types = [
-    "#pragma once",
-    "#include <boost/variant.hpp>",
-    "#include <qtils/bytes.hpp>",
-    *g_types,
-]
+    g.write("safrole")
 
-g_scale = flatten(ty.scale for ty in types)
-g_scale = ["namespace %s::generic {" % NS, *indent(g_scale), "}"]
-g_scale = [
-    "#pragma once",
-    "#include <scale/scale.hpp>",
-    '#include "%s.hpp"' % OUTPUT_NAME,
-    *g_scale,
-    *enum_trait,
-]
 
-write(".hpp", g_types)
-write(".scale.hpp", g_scale)
+def history():
+    g = Gen(
+        "jam::test_vectors_history",
+        [],
+        asn_file("history/history"),
+        "HistoryModule",
+        [],
+    )
+    g.write("history")
+
+
+if __name__ == "__main__":
+    for arg in sys.argv[1:]:
+        dict(safrole=safrole, history=history)[arg]()
