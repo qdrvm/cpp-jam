@@ -7,6 +7,7 @@
 #pragma once
 
 #include <qtils/hex.hpp>
+
 #include <test-vectors/config-types.hpp>
 
 /**

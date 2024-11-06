@@ -7,6 +7,7 @@
 #pragma once
 
 #include <scale/scale.hpp>
+
 #include <test-vectors/config-types.hpp>
 
 namespace scale {

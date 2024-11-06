@@ -6,11 +6,12 @@
 
 #pragma once
 
+#include <set>
+
 #include <fmt/format.h>
 #include <gtest/gtest.h>
 #include <qtils/read_file.hpp>
 #include <scale/scale.hpp>
-#include <set>
 
 /**
  * Common functions for test vectors
