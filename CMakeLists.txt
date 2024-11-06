@@ -24,7 +24,6 @@ project(morum
     VERSION 0.1.0
     LANGUAGES C CXX
 )
-
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -75,7 +74,6 @@ if (MORUM_UBSAN)
     add_compile_options(-fsanitize=undefined -fno-sanitize-recovery=undefined)
     add_link_options(-fsanitize=undefined)
 endif()
-
 if (MORUM_TSAN)
     add_compile_options(-fsanitize=thread)
     add_link_options(-fsanitize=thread)
