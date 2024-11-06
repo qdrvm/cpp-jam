@@ -321,11 +321,11 @@ int main() {
   PerStepStats avg{};
   PerStepStats max{};
   PerStepStats min{
-      Dur::max(),
-      Dur::max(),
-      Dur::max(),
-      Dur::max(),
-      Dur::max(),
+      {Dur::max()},
+      {Dur::max()},
+      {Dur::max()},
+      {Dur::max()},
+      {Dur::max()},
   };
 
   for (auto &stat : stats) {
