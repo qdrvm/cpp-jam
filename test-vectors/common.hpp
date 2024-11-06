@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <stdexcept>
+
 #include <boost/endian/conversion.hpp>
 #include <jam/blake.hpp>
 #include <jam/keccak.hpp>

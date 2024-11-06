@@ -6,10 +6,12 @@
 
 #pragma once
 
+#include <algorithm>
+#include <unordered_map>
+
 #include <jam/bandersnatch.hpp>
 #include <test-vectors/common.hpp>
 #include <test-vectors/safrole/types.hpp>
-#include <unordered_map>
 
 namespace jam::safrole {
   namespace types = test_vectors_safrole;
@@ -140,11 +142,14 @@ namespace jam::safrole {
       return k_tick;
     };
     // [GP 0.3.6 6.3 57]
-    const auto [gamma_tick_k, kappa_tick, lambda_tick, gamma_tick_z] = change_epoch ?
-      [&](const types::ValidatorsData&gamma_tick_k) {
-        return std::tuple{gamma_tick_k, gamma_k, kappa, mathcal_O(config,bandersnatch_keys(gamma_tick_k))};
-      }(phi(iota)) :
-      std::tuple{gamma_k,kappa,lambda,gamma_z};
+    const auto [gamma_tick_k, kappa_tick, lambda_tick, gamma_tick_z] =
+        change_epoch ? [&](const types::ValidatorsData &gamma_tick_k) {
+          return std::tuple{gamma_tick_k,
+              gamma_k,
+              kappa,
+              mathcal_O(config, bandersnatch_keys(gamma_tick_k))};
+        }(phi(iota))
+                     : std::tuple{gamma_k, kappa, lambda, gamma_z};
 
     // [GP 0.3.6 6.4 66]
     const auto eta_tick_0 = mathcal_H(frown(eta_0, banderout_H_v));

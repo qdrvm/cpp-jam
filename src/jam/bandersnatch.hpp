@@ -6,8 +6,10 @@
 
 #pragma once
 
-#include <jam_crust.h>
+#include <memory>
 #include <optional>
+
+#include <jam_crust.h>
 #include <qtils/bytes.hpp>
 
 namespace jam::bandersnatch {
