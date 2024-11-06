@@ -2,10 +2,12 @@ vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
 vcpkg_from_github(
   OUT_SOURCE_PATH SOURCE_PATH
   REPO qdrvm/qtils
-  REF 665971b1774b0b3e6b0bdba864480e85a5c7d1d5
-  SHA512 23f443e48c66d8c3a20c419597c24717ef330f967b81ba3c7ad90575c53a6e321cd7d5ecd629ce772b1852f72c43a0b2e3d4a0ab1f7776a8ec9c7294b82b3c3d
+  REF eb5910c1c85e83b1c782f93e4fc86f0de8100676
+  SHA512 fb0d03bc625109fb39508b6aa0dd1d5958118d6699215b4688966fe52f1e86465e873cd178bedd335e2c4258e2ec59fce07eb949c17ed60199f1b0ef0e020ae6
 )
-vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
+vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}"
+  OPTIONS
+    -DHUNTER_ENABLED=OFF)
 vcpkg_cmake_install()
 vcpkg_cmake_config_fixup(PACKAGE_NAME "qtils")
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")

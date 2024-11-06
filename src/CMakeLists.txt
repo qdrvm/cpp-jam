@@ -4,4 +4,4 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-add_subdirectory(jam)
+add_subdirectory(merkle_tree)
