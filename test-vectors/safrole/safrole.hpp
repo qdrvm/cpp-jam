@@ -147,7 +147,8 @@ namespace jam::safrole {
           return std::tuple{gamma_tick_k,
               gamma_k,
               kappa,
-              mathcal_O(config, bandersnatch_keys(gamma_tick_k))};
+              mathcal_O(config, bandersnatch_keys(gamma_tick_k)),
+          };
         }(phi(iota))
                      : std::tuple{gamma_k, kappa, lambda, gamma_z};
 
