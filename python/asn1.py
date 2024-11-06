@@ -216,6 +216,15 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
                 ],
             )
             ty.scale += c_scale_struct(ty, ["v"])
+            ty.diff = c_diff(
+                NS,
+                ty,
+                [
+                    "diff(indent, v1.v, v2.v, {",
+                    *('  "%s",' % c_dash(x["name"]) for x in t["members"]),
+                    "});",
+                ],
+            )
             continue
         if t["type"] == "ENUMERATED":
             values = [x[1] for x in t["values"]]
@@ -225,6 +234,15 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
                 *("  %s," % c_dash(x[0]) for x in t["values"]),
                 "};",
             ]
+            ty.diff = c_diff(
+                NS,
+                ty,
+                [
+                    "diff(indent, v1, v2, {",
+                    *('  "%s",' % c_dash(x[0]) for x in t["values"]),
+                    "});",
+                ],
+            )
             enum_trait.append(
                 "SCALE_DEFINE_ENUM_VALUE_LIST(%s, %s, %s)"
                 % (
@@ -241,6 +259,9 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
                 tname, [(c_dash(x["name"]), asn_member(x)) for x in t["members"]]
             )
             ty.scale += c_scale_struct(ty, [c_dash(x["name"]) for x in t["members"]])
+            ty.diff = c_diff(
+                NS, ty, ["DIFF_M(%s);" % c_dash(x["name"]) for x in t["members"]]
+            )
             ty.diff = c_diff(
                 NS, ty, ["DIFF_M(%s);" % c_dash(x["name"]) for x in t["members"]]
             )

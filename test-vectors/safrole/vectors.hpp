@@ -10,12 +10,20 @@
 #include <test-vectors/vectors.hpp>
 
 namespace jam::test_vectors_safrole {
-  template <bool is_full>
   struct Vectors : test_vectors::VectorsT<TestCase, Config> {
-    static constexpr std::string_view type = is_full ? "full" : "tiny";
+    std::string_view type;
 
-    Vectors() : VectorsT{is_full ? config_full : config_tiny} {
+    explicit Vectors(bool is_full)
+        : VectorsT{is_full ? config_full : config_tiny},
+          type{is_full ? "full" : "tiny"} {
       this->list(std::filesystem::path{"safrole"} / type);
+    }
+
+    static std::vector<std::shared_ptr<Vectors>> vectors() {
+      return {
+          std::make_shared<Vectors>(false),
+          std::make_shared<Vectors>(true),
+      };
     }
   };
 }  // namespace jam::test_vectors_safrole

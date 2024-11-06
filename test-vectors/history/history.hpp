@@ -7,6 +7,7 @@
 #pragma once
 
 #include <qtils/option_take.hpp>
+
 #include <test-vectors/common.hpp>
 #include <test-vectors/history/types.hpp>
 

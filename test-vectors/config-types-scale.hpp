@@ -7,6 +7,7 @@
 #pragma once
 
 #include <scale/scale.hpp>
+
 #include <test-vectors/config-types.hpp>
 
 namespace scale {
@@ -73,7 +74,7 @@ namespace jam {
   void decodeConfig(scale::ScaleDecoderStream &s,
       ConfigVec<T, ConfigField> &v,
       const auto &config) {
-    auto n = config.get(ConfigField{});
+    auto n = v.configSize(config);
     v.v.resize(0);
     v.v.reserve(n);
     for (size_t i = 0; i < n; ++i) {

@@ -6,14 +6,36 @@
 
 #pragma once
 
+#include <set>
+
 #include <fmt/format.h>
+#include <gtest/gtest.h>
 #include <qtils/read_file.hpp>
 #include <scale/scale.hpp>
-#include <set>
 
 /**
  * Common functions for test vectors
  */
+
+#define GTEST_VECTORS(T)                                                      \
+  struct Test : jam::test_vectors::TestT<T> {};                               \
+  INSTANTIATE_TEST_SUITE_P(Test, Test, testing::ValuesIn([] {                 \
+    std::vector<std::pair<std::shared_ptr<T>, std::filesystem::path>> params; \
+    for (auto &vectors : T::vectors()) {                                      \
+      for (auto &path : vectors->paths) {                                     \
+        params.emplace_back(vectors, path);                                   \
+      }                                                                       \
+    }                                                                         \
+    return params;                                                            \
+  }()));
+
+#define GTEST_VECTORS_REENCODE                       \
+  TEST_P(Test, Reencode) {                           \
+    auto expected = vectors.readRaw(path);           \
+    auto decoded = vectors.decode(expected);         \
+    auto reencoded = scale::encode(decoded).value(); \
+    EXPECT_EQ(reencoded, expected);                  \
+  }
 
 namespace jam::test_vectors {
   inline const std::filesystem::path dir =
@@ -42,7 +64,8 @@ namespace jam::test_vectors {
       for (auto &[path, ok] : path_ok) {
         if (not ok) {
           fmt::println(
-              "{}:{} warning: {} is missing, but files with other extensions are available",
+              "{}:{} warning: {} is missing, but files with other extensions "
+              "are available",
               __FILE__,
               __LINE__,
               path.native());
@@ -68,19 +91,10 @@ namespace jam::test_vectors {
     }
   };
 
-  /**
-   * Check python generated scale encoding/decoding against test vectors.
-   */
   template <typename T>
-  void test_reencode(const T &vectors = {}) {
-    for (auto &path : vectors.paths) {
-      fmt::println("{}", path.native());
-      auto expected = vectors.readRaw(path);
-      auto decoded = vectors.decode(expected);
-      auto reencoded = scale::encode(decoded).value();
-      if (reencoded != expected) {
-        throw std::logic_error{"reencoded"};
-      }
-    }
-  }
+  struct TestT : testing::TestWithParam<
+                     std::pair<std::shared_ptr<T>, std::filesystem::path>> {
+    const T &vectors = *this->GetParam().first;
+    const std::filesystem::path &path = this->GetParam().second;
+  };
 }  // namespace jam::test_vectors

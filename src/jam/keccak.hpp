@@ -89,7 +89,7 @@ namespace jam {
     void update(uint8_t byte) {
       int j = blockOff >> 3;
       state[j % 5][j / 5] ^= static_cast<uint64_t>(byte)
-          << ((blockOff & 7) << 3);
+                          << ((blockOff & 7) << 3);
       blockOff++;
       if (blockOff == BLOCK_SIZE) {
         absorb();
