@@ -64,7 +64,8 @@ namespace jam::test_vectors {
       for (auto &[path, ok] : path_ok) {
         if (not ok) {
           fmt::println(
-              "{}:{} warning: {} is missing, but files with other extensions are available",
+              "{}:{} warning: {} is missing, but files with other extensions "
+              "are available",
               __FILE__,
               __LINE__,
               path.native());

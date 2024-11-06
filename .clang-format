@@ -7,12 +7,11 @@
 BasedOnStyle: Google
 
 AlignAfterOpenBracket: DontAlign
-AlignOperands: DontAlign
+AlignOperands: AlignAfterOperator
 AllowShortFunctionsOnASingleLine: Empty
 BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBinaryOperators: NonAssignment
-BreakStringLiterals: false
 DerivePointerAlignment: false
 FixNamespaceComments: true
 IncludeBlocks: Preserve
@@ -23,5 +22,12 @@ PointerAlignment: Right
 QualifierAlignment: Custom
 QualifierOrder: ['inline', 'static', 'constexpr', 'const', 'volatile', 'type', 'restrict']
 ReferenceAlignment: Right
+ReflowComments: true
 ShortNamespaceLines: 0
 SortIncludes: CaseSensitive
+
+# use "// clang-format off" + "// clang-format on"
+BreakStringLiterals: true
+
+# comment if not supported
+InsertNewlineAtEOF: true

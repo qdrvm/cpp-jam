@@ -156,9 +156,9 @@ namespace jam::safrole {
     const auto eta_tick_0 = mathcal_H(frown(eta_0, banderout_H_v));
 
     // [GP 0.3.6 6.4 67]
-    const auto [eta_tick_1, eta_tick_2, eta_tick_3] = change_epoch
-        ? std::tuple{eta_0, eta_1, eta_2}
-        : std::tuple{eta_1, eta_2, eta_3};
+    const auto [eta_tick_1, eta_tick_2, eta_tick_3] =
+        change_epoch ? std::tuple{eta_0, eta_1, eta_2}
+                     : std::tuple{eta_1, eta_2, eta_3};
 
     std::vector<types::TicketBody> n;
     for (auto &[r, p] : E_T) {
@@ -230,8 +230,9 @@ namespace jam::safrole {
       return keys;
     };
     // [GP 0.3.6 6.5 68]
-    const auto gamma_tick_s = e_tick == e + 1 && m >= Y && gamma_a.size() == E
-        ? types::TicketsOrKeys{Z(gamma_a)}
+    const auto gamma_tick_s =
+        e_tick == e + 1 && m >= Y && gamma_a.size() == E
+            ? types::TicketsOrKeys{Z(gamma_a)}
         : e_tick == e ? gamma_s
                       : types::TicketsOrKeys{F(eta_tick_2, kappa_tick)};
 
@@ -257,8 +258,8 @@ namespace jam::safrole {
             // [GP 0.3.6 6.6 72]
             .tickets_mark =
                 e_tick == e && m < Y && Y <= m_tick && gamma_a.size() == E
-                ? std::make_optional(types::TicketsMark{Z(gamma_a)})
-                : std::nullopt,
+                    ? std::make_optional(types::TicketsMark{Z(gamma_a)})
+                    : std::nullopt,
         }},
     };
   }
