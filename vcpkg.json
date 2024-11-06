@@ -1,6 +1,35 @@
 {
-  "name": "cpp-jam",
-  "version": "0.0.1",
+  "name": "morum",
+  "version": "0.1.0",
+  "features": {
+    "test": {
+      "description": "Build tests",
+      "dependencies": [
+        {
+          "name": "gtest",
+          "version>=": "1.15.2"
+        }
+      ]
+    },
+    "benchmark": {
+      "description": "Build benchmarks",
+      "dependencies": [
+        {
+          "name": "benchmark",
+          "version>=": "1.9.0"
+        }
+      ]
+    },
+    "tracy": {
+      "description": "Enable tracy",
+      "dependencies": [
+        {
+          "name": "tracy",
+          "version>=": "0.11.1"
+        }
+      ]
+    }
+  },
   "dependencies": [
     "qtils",
     "scale",
@@ -12,9 +41,20 @@
     "boost-program-options",
     "boost-asio",
     "boost-beast",
-    "prometheus-cpp"
-  ],
-  "features": {
-    "test": { "description": "Test", "dependencies": ["gtest"]}
-  }
+    "prometheus-cpp",
+    "qtils",
+    {
+      "name": "fmt",
+      "version>=": "10.2.1#2"
+    },
+    {
+      "name": "rocksdb",
+      "version>=": "9.7.2"
+    },
+    {
+      "name": "nlohmann-json",
+      "version>=": "3.11.3"
+    },
+    "blake2"
+  ]
 }

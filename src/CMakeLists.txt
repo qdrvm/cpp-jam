@@ -24,3 +24,5 @@ add_subdirectory(metrics)
 # Clocks and time subsystem
 add_subdirectory(clock)
 
+# Merkle tree DB
+add_subdirectory(merkle_tree)
