@@ -6,22 +6,28 @@
 
 #pragma once
 
-#include <cassert>
 #include <concepts>
+#include <cstddef>
+#include <cstdint>
 #include <expected>
-#include <generator>
 #include <memory>
 #include <optional>
+#include <span>
 #include <unordered_map>
 #include <utility>
+#include <variant>
 
+#include <qtils/assert.hpp>
 #include <qtils/bytes.hpp>
+#include <qtils/optional_ref.hpp>
 
 #include <morum/common.hpp>
-#include <morum/storage_adapter.hpp>
 #include <morum/tree_node.hpp>
 
 namespace morum {
+
+  class StorageAdapter;
+
   // used to store trie keys in an std::map, for example
   struct TrieKeyOrder {
     bool operator()(const morum::Hash32 &a, const morum::Hash32 &b) const {
@@ -40,7 +46,7 @@ namespace morum {
   };
 
   /**
-   * An interface to load nodes from 
+   * An interface to load nodes from
    */
   class NodeLoader {
    public:
@@ -117,11 +123,13 @@ namespace morum {
       qtils::BitSpan<> path;
     };
 
-    static void empty_visitor(const TreeNode &, qtils::ByteSpan, qtils::ByteSpan, qtils::BitSpan<>) {
-    }
+    static void empty_visitor(
+        const TreeNode &, qtils::ByteSpan, qtils::ByteSpan, qtils::BitSpan<>) {}
 
-    template <std::invocable<const TreeNode &, qtils::ByteSpan, qtils::ByteSpan, qtils::BitSpan<>>
-                  Visitor = decltype(empty_visitor)>
+    template <std::invocable<const TreeNode &,
+                  qtils::ByteSpan,
+                  qtils::ByteSpan,
+                  qtils::BitSpan<>> Visitor = decltype(empty_visitor)>
     Hash32 calculate_hash(const Visitor &visitor = empty_visitor) const {
       if (empty()) {
         return ZeroHash32;
@@ -144,7 +152,8 @@ namespace morum {
 
     // if the value is cached, it means it's 'dirty' and should be written to
     // the DB
-    std::optional<qtils::ByteSpan> get_cached_value(const ValueHash &hash) const {
+    std::optional<qtils::ByteSpan> get_cached_value(
+        const ValueHash &hash) const {
       auto it = value_cache_.find(hash);
       if (it != value_cache_.end()) {
         return it->second;
@@ -175,8 +184,10 @@ namespace morum {
     void replace_leaf_with_branch(
         size_t path_len, size_t old_leaf_idx, size_t new_leaf_idx);
 
-    template <
-        std::invocable<const TreeNode &, qtils::ByteSpan, qtils::ByteSpan, qtils::BitSpan<>> Visitor>
+    template <std::invocable<const TreeNode &,
+        qtils::ByteSpan,
+        qtils::ByteSpan,
+        qtils::BitSpan<>> Visitor>
     Hash32 calculate_hash(const TreeNode &n,
         const Visitor &visitor,
         qtils::BitSpan<uint8_t> path) const {

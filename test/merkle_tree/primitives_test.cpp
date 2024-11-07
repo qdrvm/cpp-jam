@@ -1,26 +1,33 @@
-#include <morum/common.hpp>
-#include <morum/merkle_tree.hpp>
-#include <morum/nomt_backend.hpp>
+#include <ranges>
+#include <span>
+#include <cstddef>
 
-void test_node_consistency(morum::Page &page,
-                           qtils::BitSpan<> path,
-                           morum::RawNode node) {
+#include <qtils/assert.hpp>
+#include <qtils/bytes.hpp>
+#include <qtils/optional_ref.hpp>
+
+#include <morum/common.hpp>
+#include <morum/nomt_backend.hpp>
+#include <morum/tree_node.hpp>
+
+void test_node_consistency(
+    morum::Page &page, qtils::BitSpan<> path, morum::RawNode node) {
   for (auto [level, bit] : path.skip_first(1) | std::views::enumerate) {
     auto &node = page.get_node_unchecked(path.subspan(0, level + 1));
-    node.branch = morum::RawBranch{bit ? morum::ZeroHash32 : morum::Hash32{0, 1},
-                                   bit ? morum::Hash32{1} : morum::ZeroHash32};
+    node.branch =
+        morum::RawBranch{bit ? morum::ZeroHash32 : morum::Hash32{0, 1},
+            bit ? morum::Hash32{1} : morum::ZeroHash32};
   }
   auto &node_place = page.get_node_unchecked(path);
   node_place = node;
   [[maybe_unused]] auto placed_node = page.get_node(path);
   QTILS_ASSERT_HAS_VALUE(placed_node);
   QTILS_ASSERT((placed_node->is_branch() && node.is_branch())
-               || (placed_node->is_leaf() && node.is_leaf()));
-  QTILS_ASSERT_RANGE_EQ(
-      (morum::ByteSpan{reinterpret_cast<uint8_t *>(&node),
-                       sizeof(morum::RawNode)}),
-      (morum::ByteSpan{reinterpret_cast<uint8_t *>(&*placed_node),
-                       sizeof(morum::RawNode)}));
+      || (placed_node->is_leaf() && node.is_leaf()));
+  QTILS_ASSERT_RANGE_EQ((morum::ByteSpan{reinterpret_cast<uint8_t *>(&node),
+                            sizeof(morum::RawNode)}),
+      (morum::ByteSpan{
+          reinterpret_cast<uint8_t *>(&*placed_node), sizeof(morum::RawNode)}));
 }
 
 int main() {
@@ -51,28 +58,28 @@ int main() {
   for (size_t depth = 1; depth < 6; depth++) {
     morum::Page page{};
     morum::ByteArray<32> path{0b0000'0000};
-    test_node_consistency(
-        page,
+    test_node_consistency(page,
         qtils::BitSpan<>{path, 0, depth},
-        morum::RawNode{.leaf = morum::Leaf{
-            morum::Leaf::EmbeddedTag{}, morum::ByteArray<31>{0xAB}, {}}});
+        morum::RawNode{
+            .leaf = morum::Leaf{
+                morum::Leaf::EmbeddedTag{}, morum::ByteArray<31>{0xAB}, {}}});
   }
   for (size_t depth = 1; depth < 6; depth++) {
     morum::Page page{};
     qtils::ByteArray<32> path{0b1111'1111};
-    test_node_consistency(
-        page,
+    test_node_consistency(page,
         qtils::BitSpan<>{path, 0, depth},
-        morum::RawNode{.leaf = morum::Leaf{
-            morum::Leaf::EmbeddedTag{}, morum::ByteArray<31>{0xAB}, {}}});
+        morum::RawNode{
+            .leaf = morum::Leaf{
+                morum::Leaf::EmbeddedTag{}, morum::ByteArray<31>{0xAB}, {}}});
   }
   for (size_t depth = 1; depth < 6; depth++) {
     morum::Page page{};
     qtils::ByteArray<32> path{0b1010'1010};
-    test_node_consistency(
-        page,
+    test_node_consistency(page,
         qtils::BitSpan<>{path, 0, depth},
-        morum::RawNode{.leaf = morum::Leaf{
-            morum::Leaf::EmbeddedTag{}, morum::ByteArray<31>{0xAB}, {}}});
+        morum::RawNode{
+            .leaf = morum::Leaf{
+                morum::Leaf::EmbeddedTag{}, morum::ByteArray<31>{0xAB}, {}}});
   }
 }
