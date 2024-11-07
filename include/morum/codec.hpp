@@ -6,13 +6,15 @@
 
 #pragma once
 
+#include <array> 
 #include <concepts>
 #include <cstdint>
+#include <cstddef>
+#include <span>
 #include <tuple>
 #include <vector>
-#include <span>
 
-#include <morum/common.hpp>
+#include <qtils/assert.hpp> 
 
 namespace morum {
 
@@ -33,10 +35,10 @@ namespace morum {
     std::vector<uint8_t> data;
   };
 
-  template<size_t N>
+  template <size_t N>
   struct ArrayStream {
     void append(uint8_t b) {
-      assert(current < N);
+      QTILS_ASSERT_LESS(current, N);
       data[current] = b;
       current++;
     }
@@ -47,14 +49,13 @@ namespace morum {
 
   struct SpanStream {
     uint8_t read_byte() {
-      assert(current < data.size_bytes());
+      QTILS_ASSERT_LESS(current, data.size_bytes());
       return data[current++];
     }
 
     std::span<uint8_t> data;
     size_t current = 0;
   };
-
 
   template <OutStream S, Encodable... Ts>
     requires(sizeof...(Ts) > 1)
@@ -78,7 +79,7 @@ namespace morum {
   }
 
   template <InStream S, std::unsigned_integral I>
-  void decode_integer_fixed(S &stream, I& integer, size_t len) {
+  void decode_integer_fixed(S &stream, I &integer, size_t len) {
     integer = 0;
     for (size_t i = 0; i < len; i++) {
       uint8_t byte = stream.read_byte();

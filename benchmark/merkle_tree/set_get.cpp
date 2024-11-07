@@ -1,10 +1,22 @@
+#include <cstddef>
+#include <expected>
+#include <filesystem>
+#include <memory>
+#include <optional>
 #include <random>
+#include <ranges>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include <benchmark/benchmark.h>
+#include <client/TracyScoped.hpp>
 #include <tracy/Tracy.hpp>
 
-#include <morum/merkle_tree.hpp>
 #include <morum/archive_backend.hpp>
+#include <morum/common.hpp>
+#include <morum/merkle_tree.hpp>
+#include <morum/storage_adapter.hpp>
 
 constexpr unsigned seed = 42;
 static std::mt19937_64 rand_engine{seed};
@@ -73,7 +85,7 @@ static void BM_SetGet(benchmark::State &state) {
 
 BENCHMARK(BM_SetGet);
 
-template<typename F>
+template <typename F>
 struct FinalAction {
   ~FinalAction() {
     f();
@@ -89,11 +101,9 @@ int main(int argc, char **argv) {
     argc = 1;
     argv = &args_default;
   }
-  
+
   auto db = morum::open_db("./test_db").value();
-  FinalAction cleanup{[]() {
-      std::filesystem::remove_all("./test_db");
-  }};
+  FinalAction cleanup{[]() { std::filesystem::remove_all("./test_db"); }};
 
   trie_db = std::make_unique<morum::ArchiveTrieDb>(
       std::make_shared<morum::RocksDbFamilyAdapter>(

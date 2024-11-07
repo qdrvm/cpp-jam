@@ -1,12 +1,29 @@
+#include <algorithm>
+#include <array>
+#include <cctype>
+#include <cstdint>
+#include <cstddef>
+#include <expected>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <ranges>
+#include <source_location>
+#include <span>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
+#include <iterator>
 
 #include <nlohmann/json.hpp>
+#include <qtils/assert.hpp>
 
-#include <morum/merkle_tree.hpp>
 #include <morum/archive_backend.hpp>
 #include <morum/calculate_root_in_memory.hpp>
+#include <morum/merkle_tree.hpp>
+#include <morum/common.hpp>
 
 uint8_t unhex(char c) {
   if (isdigit(c)) {
@@ -16,7 +33,7 @@ uint8_t unhex(char c) {
 }
 
 char hex(uint8_t i) {
-  assert(i < 16);
+  QTILS_ASSERT_LESS(i, 16);
   if (i < 10) {
     return i + '0';
   }
@@ -25,7 +42,7 @@ char hex(uint8_t i) {
 
 template <std::output_iterator<unsigned char> It>
 void unhex(std::string_view hex, It it) {
-  assert(hex.size() % 2 == 0);
+  QTILS_ASSERT_EQ(hex.size() % 2, 0);
   for (size_t i = 0; i < hex.size(); i += 2) {
     *it = unhex(hex[i + 1]) | (unhex(hex[i]) << 4);
     it++;
@@ -48,7 +65,8 @@ int main() {
       / "../../test-vectors/jamtestvectors/trie/trie.json";
   std::ifstream test_cases_file{file_path};
   if (!test_cases_file.good()) {
-    std::cerr << "Test vectors are not found; Try running git submodule update --init.\n";
+    std::cerr
+        << "Test vectors are not found; Try running git submodule update --init.\n";
     return -1;
   }
   auto test_cases = nlohmann::json::parse(test_cases_file);
@@ -58,7 +76,8 @@ int main() {
   size_t test_idx{start_from};
   int status = 0;
   for (auto test_case : test_cases | std::views::drop(start_from)) {
-    morum::MerkleTree tree{std::make_unique<morum::FlatPagedNodeStorage>(), std::make_shared<morum::NoopNodeLoader>()};
+    morum::MerkleTree tree{std::make_unique<morum::FlatPagedNodeStorage>(),
+        std::make_shared<morum::NoopNodeLoader>()};
     std::vector<std::pair<morum::Hash32, morum::ByteVector>> state;
     for (auto &[k, v] : test_case["input"].items()) {
       morum::Hash32 key;
@@ -71,8 +90,7 @@ int main() {
           tree.set(key, morum::ByteVector{value}).has_value();
       QTILS_ASSERT(res);
     }
-    std::ranges::sort(
-        state,
+    std::ranges::sort(state,
         morum::TrieKeyOrder{},
         [](const auto &pair) -> const morum::Hash32 & { return pair.first; });
     for (auto &[k, v] : state) {
