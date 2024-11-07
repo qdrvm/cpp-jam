@@ -2,7 +2,6 @@
 
 #include <expected>
 #include <filesystem>
-#include <generator>
 #include <memory>
 
 #include <morum/common.hpp>
@@ -30,10 +29,12 @@ namespace morum {
     virtual std::expected<std::optional<size_t>, StorageError> read_to(
         qtils::ByteSpan key, qtils::ByteSpanMut value) const = 0;
 
-    virtual std::expected<void, StorageError> remove(qtils::ByteSpan key) const = 0;
+    virtual std::expected<void, StorageError> remove(
+        qtils::ByteSpan key) const = 0;
 
     /**
-     * Batches are supposed to provide a way to write several entries atomically.
+     * Batches are supposed to provide a way to write several entries
+     * atomically.
      */
     class Batch {
      public:
@@ -61,12 +62,14 @@ namespace morum {
 
   std::string_view to_string(ColumnFamily family);
 
-  inline std::generator<ColumnFamily> column_families() {
-    co_yield ColumnFamily::DEFAULT;
-    co_yield ColumnFamily::TREE_NODE;
-    co_yield ColumnFamily::TREE_VALUE;
-    co_yield ColumnFamily::FLAT_KV;
-    co_yield ColumnFamily::TREE_PAGE;
+  inline std::array<ColumnFamily, 5> column_families() {
+    return {
+        ColumnFamily::DEFAULT,
+        ColumnFamily::TREE_NODE,
+        ColumnFamily::TREE_VALUE,
+        ColumnFamily::FLAT_KV,
+        ColumnFamily::TREE_PAGE,
+    };
   }
 
   struct RocksDbAdapter {
