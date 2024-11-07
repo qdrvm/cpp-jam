@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <ranges>
+
 #include <morum/archive_backend.hpp>
 #include <morum/common.hpp>
 #include <morum/merkle_tree.hpp>
@@ -71,12 +73,13 @@ namespace morum {
       QTILS_ASSERT(path.size_bits() <= PAGE_LEVELS);
       RawNode *current = &nodes[path[0]];
       size_t offset{path[0]};
-      for (auto [level, bit] : path.skip_first(1) | std::views::enumerate) {
+      for (size_t level = 1; level < path.size_bits(); ++level) {
+        auto bit = path[level];
         if (current->is_leaf() || !current->branch.has_child(bit)) {
           return std::nullopt;
         }
-        offset = offset | (bit << (level + 1));
-        size_t level_offset = (1 << (level + 2)) - 2;
+        offset = offset | (bit << (level));
+        size_t level_offset = (1 << (level + 1)) - 2;
         current = &nodes[level_offset + offset];
       }
       return *current;

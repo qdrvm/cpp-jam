@@ -77,7 +77,13 @@ morum::ByteVector random_vector(size_t min_size = 1, size_t max_size = 128) {
 }
 
 template <typename Duration>
-struct NiceDuration : Duration {};
+struct NiceDuration : Duration {
+  NiceDuration(): Duration() {}
+  NiceDuration(Duration d): Duration{d} {}
+};
+
+template <typename Duration>
+NiceDuration(const Duration&) -> NiceDuration<Duration>;
 
 template <typename Duration>
 struct std::formatter<NiceDuration<Duration>> {
@@ -142,7 +148,7 @@ int main() {
 
   std::vector<PerStepStats> stats{};
 
-  constexpr int STEPS_NUM = 100;
+  constexpr int STEPS_NUM = 10;
   constexpr int INSERTION_NUM = 10000;
 
   stats.resize(STEPS_NUM);

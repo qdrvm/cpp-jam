@@ -1,5 +1,3 @@
-#include <ranges>
-#include <span>
 #include <cstddef>
 
 #include <qtils/assert.hpp>
@@ -12,8 +10,9 @@
 
 void test_node_consistency(
     morum::Page &page, qtils::BitSpan<> path, morum::RawNode node) {
-  for (auto [level, bit] : path.skip_first(1) | std::views::enumerate) {
-    auto &node = page.get_node_unchecked(path.subspan(0, level + 1));
+  for (size_t level = 1; level < path.size_bits(); ++level) {
+    auto bit = path[level];
+    auto &node = page.get_node_unchecked(path.subspan(0, level));
     node.branch =
         morum::RawBranch{bit ? morum::ZeroHash32 : morum::Hash32{0, 1},
             bit ? morum::Hash32{1} : morum::ZeroHash32};
