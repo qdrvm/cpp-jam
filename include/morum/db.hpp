@@ -90,12 +90,14 @@ namespace morum {
   std::string_view to_string_nocheck(ColumnFamilyId family);
   std::optional<std::string_view> to_string(ColumnFamilyId family);
 
-  inline std::generator<ColumnFamilyId> column_families() {
-    co_yield ColumnFamilyId::DEFAULT;
-    co_yield ColumnFamilyId::TREE_NODE;
-    co_yield ColumnFamilyId::TREE_VALUE;
-    co_yield ColumnFamilyId::FLAT_KV;
-    co_yield ColumnFamilyId::TREE_PAGE;
+  inline std::array<ColumnFamilyId, 5> column_families() {
+    return {
+        ColumnFamilyId::DEFAULT,
+        ColumnFamilyId::TREE_NODE,
+        ColumnFamilyId::TREE_VALUE,
+        ColumnFamilyId::FLAT_KV,
+        ColumnFamilyId::TREE_PAGE,
+    };
   }
 
   class RocksDb final : public ColumnFamilyStorage<ColumnFamilyId>,
