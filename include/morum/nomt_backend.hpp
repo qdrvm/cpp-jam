@@ -14,7 +14,8 @@
 namespace morum {
 
   /**
-   * This branch representation doesn't store any additional data contrary to Branch.
+   * This branch representation doesn't store any additional data contrary to
+   * Branch.
    */
   struct RawBranch {
     // mind that the left hash must have the first bit set to 0
@@ -31,7 +32,8 @@ namespace morum {
   };
 
   /**
-   * This node representation doesn't store any additional data contrary to TreeNode.
+   * This node representation doesn't store any additional data contrary to
+   * TreeNode.
    */
   union RawNode {
     std::monostate unitialized;
@@ -109,7 +111,7 @@ namespace morum {
   class NearlyOptimalNodeStorage
       : public std::enable_shared_from_this<NearlyOptimalNodeStorage> {
    public:
-    explicit NearlyOptimalNodeStorage(std::shared_ptr<StorageAdapter> storage)
+    explicit NearlyOptimalNodeStorage(std::shared_ptr<KeyValueStorage> storage)
         : storage_{storage} {
       QTILS_ASSERT(storage != nullptr);
     }
@@ -178,7 +180,8 @@ namespace morum {
       auto key = get_page_key(path);
       QTILS_UNWRAP(auto res,
           storage_->read_to(key.span(),
-              qtils::ByteSpanMut{reinterpret_cast<uint8_t *>(&**page), sizeof(Page)}));
+              qtils::ByteSpanMut{
+                  reinterpret_cast<uint8_t *>(&**page), sizeof(Page)}));
       if (!res) {
         MORUM_TRACE("load page directly, at path {}, key {}, none found",
             path,
@@ -190,14 +193,6 @@ namespace morum {
           path,
           key.span());
       return page;
-    }
-
-    std::expected<void, StorageError> store_page(
-        qtils::BitSpan<> path, const Page &page) {
-      auto key = get_page_key(path);
-      MORUM_TRACE("store page at path {}, key {}", path, key.span());
-      return storage_->write(key.span(),
-          qtils::ByteSpan{reinterpret_cast<const uint8_t *>(&page), sizeof(page)});
     }
 
     static size_t get_node_idx(qtils::BitSpan<> path) {
@@ -285,31 +280,34 @@ namespace morum {
     }
 
     std::expected<void, StorageError> submit_batch(
-        std::unique_ptr<WriteBatch> batch) {
+        std::unique_ptr<WriteBatch> batch,
+        ColumnFamilyStorage<ColumnFamilyId>::Batch &db_batch) {
       QTILS_ASSERT(batch != nullptr);
-      auto storage_batch = storage_->start_batch();
       if (batch->root_node) {
         if (batch->root_node->is_branch()) {
-          QTILS_UNWRAP_void(storage_batch->write(qtils::ByteSpan{},
+          QTILS_UNWRAP_void(db_batch.write(ColumnFamilyId::TREE_PAGE,
+              qtils::ByteSpan{},
               serialize_branch(batch->root_node->branch.left,
                   batch->root_node->branch.right)));
         } else {
-          QTILS_UNWRAP_void(storage_batch->write(qtils::ByteSpan{},
+          QTILS_UNWRAP_void(db_batch.write(ColumnFamilyId::TREE_PAGE,
+              qtils::ByteSpan{},
               serialize_leaf(batch->root_node->leaf.get_key(),
                   batch->root_node->leaf.hash_or_value())));
         }
       }
 
       for (auto &[key, page] : batch->page_cache) {
-        QTILS_UNWRAP_void(storage_batch->write(
-            qtils::ByteSpan{key.data(), key[0]}, page.as_bytes()));
+        QTILS_UNWRAP_void(db_batch.write(ColumnFamilyId::TREE_PAGE,
+            qtils::ByteSpan{key.data(), key[0]},
+            page.as_bytes()));
       }
-      QTILS_UNWRAP_void(storage_->write_batch(std::move(storage_batch)));
       return {};
     }
 
    private:
-    static qtils::FixedByteVector<sizeof(Hash32) + 1> get_page_key(qtils::BitSpan<> path) {
+    static qtils::FixedByteVector<sizeof(Hash32) + 1> get_page_key(
+        qtils::BitSpan<> path) {
       path = path.subspan(0, (path.size_bits() / PAGE_LEVELS) * PAGE_LEVELS);
       qtils::FixedByteVector<sizeof(Hash32) + 1> key_storage{};
       key_storage.data[0] = path.size_bits();
@@ -318,7 +316,7 @@ namespace morum {
       return key_storage;
     }
 
-    std::shared_ptr<StorageAdapter> storage_;
+    std::shared_ptr<KeyValueStorage> storage_;
   };
 
   class NomtDb {
@@ -339,11 +337,13 @@ namespace morum {
       Clock::duration value_batch_write_duration{};
     };
 
-    explicit NomtDb(std::shared_ptr<NearlyOptimalNodeStorage> page_storage,
-        std::shared_ptr<StorageAdapter> value_storage)
-        : value_storage_{value_storage}, page_storage_{page_storage} {
+    explicit NomtDb(
+        std::shared_ptr<ColumnFamilyStorage<ColumnFamilyId>> storage)
+        : storage_{storage},
+          page_storage_{std::make_shared<NearlyOptimalNodeStorage>(
+              storage->get_column_family(ColumnFamilyId::TREE_PAGE))} {
+      QTILS_ASSERT(storage_ != nullptr);
       QTILS_ASSERT(page_storage != nullptr);
-      QTILS_ASSERT(value_storage_ != nullptr);
     }
 
     void reset_metrics() {
@@ -423,48 +423,50 @@ namespace morum {
 
     std::expected<Hash32, StorageError> get_root_and_store(
         const MerkleTree &tree) {
-      auto node_batch = page_storage_->start_writing();
-      auto value_batch = value_storage_->start_batch();
+      auto page_batch = page_storage_->start_writing();
+      auto total_batch = storage_->start_batch();
 
-      auto hash = tree.calculate_hash(
-          [&](const TreeNode &n, qtils::ByteSpan, qtils::ByteSpan hash, qtils::BitSpan<> path) {
-            morum::Hash32 hash_copy;
-            std::ranges::copy(hash, hash_copy.begin());
-            hash_copy[0] &= 0xFE;
-            RawNode raw_node{};
-            if (n.is_leaf()) {
-              raw_node.leaf = n.as_leaf();
-            } else {
-              raw_node.branch.left = n.as_branch().get_left_hash_raw();
-              raw_node.branch.right = n.as_branch().get_right_hash_raw();
-              QTILS_ASSERT(raw_node.branch.left != Branch::NoHash);
-              QTILS_ASSERT(raw_node.branch.right != Branch::NoHash);
-            }
-            MORUM_TRACE("store node hash {} path {}", hash, path);
-            [[maybe_unused]] auto res = node_batch->set(path, raw_node);
-            QTILS_ASSERT(res);
+      auto hash = tree.calculate_hash([&](const TreeNode &n,
+                                          qtils::ByteSpan,
+                                          qtils::ByteSpan hash,
+                                          qtils::BitSpan<> path) {
+        morum::Hash32 hash_copy;
+        std::ranges::copy(hash, hash_copy.begin());
+        hash_copy[0] &= 0xFE;
+        RawNode raw_node{};
+        if (n.is_leaf()) {
+          raw_node.leaf = n.as_leaf();
+        } else {
+          raw_node.branch.left = n.as_branch().get_left_hash_raw();
+          raw_node.branch.right = n.as_branch().get_right_hash_raw();
+          QTILS_ASSERT(raw_node.branch.left != Branch::NoHash);
+          QTILS_ASSERT(raw_node.branch.right != Branch::NoHash);
+        }
+        MORUM_TRACE("store node hash {} path {}", hash, path);
+        [[maybe_unused]] auto res = page_batch->set(path, raw_node);
+        QTILS_ASSERT(res);
 
-            if (n.is_leaf()) {
-              auto h_or_v = n.as_leaf().hash_or_value();
-              if (auto *hash = std::get_if<morum::HashRef>(&h_or_v); hash) {
-                if (auto value_opt = tree.get_cached_value(hash->get());
-                    value_opt) {
-                  value_batch->write(hash->get(), value_opt.value()).value();
-                }
-              }
+        if (n.is_leaf()) {
+          auto h_or_v = n.as_leaf().hash_or_value();
+          if (auto *hash = std::get_if<morum::HashRef>(&h_or_v); hash) {
+            if (auto value_opt = tree.get_cached_value(hash->get());
+                value_opt) {
+              total_batch->write(ColumnFamilyId::TREE_VALUE, hash->get(), value_opt.value()).value();
             }
-          });
+          }
+        }
+      });
       hash[0] &= 0xFE;
 
       auto page_batch_start = Clock::now();
       [[maybe_unused]] auto res =
-          page_storage_->submit_batch(std::move(node_batch));
+          page_storage_->submit_batch(std::move(page_batch), *total_batch);
       QTILS_ASSERT_HAS_VALUE(res);
       metrics_.page_batch_write_duration += Clock::now() - page_batch_start;
 
       auto value_batch_start = Clock::now();
       [[maybe_unused]] auto res2 =
-          value_storage_->write_batch(std::move(value_batch));
+          storage_->write_batch(std::move(total_batch));
       QTILS_ASSERT_HAS_VALUE(res2);
       metrics_.value_batch_write_duration += Clock::now() - value_batch_start;
 
@@ -472,7 +474,7 @@ namespace morum {
     }
 
    private:
-    std::shared_ptr<StorageAdapter> value_storage_;
+    std::shared_ptr<ColumnFamilyStorage<ColumnFamilyId>> storage_;
     std::shared_ptr<NearlyOptimalNodeStorage> page_storage_;
 
     mutable Metrics metrics_{};

@@ -15,8 +15,8 @@
 
 #include <morum/archive_backend.hpp>
 #include <morum/common.hpp>
+#include <morum/db.hpp>
 #include <morum/merkle_tree.hpp>
-#include <morum/storage_adapter.hpp>
 
 constexpr unsigned seed = 42;
 static std::mt19937_64 rand_engine{seed};
@@ -102,14 +102,10 @@ int main(int argc, char **argv) {
     argv = &args_default;
   }
 
-  auto db = morum::open_db("./test_db").value();
+  auto db = std::shared_ptr{morum::open_db("./test_db").value()};
   FinalAction cleanup{[]() { std::filesystem::remove_all("./test_db"); }};
 
-  trie_db = std::make_unique<morum::ArchiveTrieDb>(
-      std::make_shared<morum::RocksDbFamilyAdapter>(
-          *db, morum::ColumnFamily::TREE_NODE),
-      std::make_shared<morum::RocksDbFamilyAdapter>(
-          *db, morum::ColumnFamily::TREE_VALUE));
+  trie_db = std::make_unique<morum::ArchiveTrieDb>(db);
 
   auto tree = trie_db->empty_tree();
   constexpr int INSERTION_NUM = 5000;

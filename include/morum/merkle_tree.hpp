@@ -26,7 +26,7 @@
 
 namespace morum {
 
-  class StorageAdapter;
+  class KeyValueStorage;
 
   // used to store trie keys in an std::map, for example
   struct TrieKeyOrder {
@@ -231,7 +231,7 @@ namespace morum {
     // const methods
     mutable std::shared_ptr<NodeStorage> nodes_;
     mutable std::shared_ptr<NodeLoader> loader_;
-    mutable std::shared_ptr<StorageAdapter> value_storage_;
+    mutable std::shared_ptr<KeyValueStorage> value_storage_;
     mutable std::unordered_map<ValueHash, qtils::Bytes> value_cache_;
   };
 

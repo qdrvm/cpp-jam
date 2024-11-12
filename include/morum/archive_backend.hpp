@@ -9,8 +9,8 @@
 #include <qtils/unwrap.hpp>
 
 #include <morum/common.hpp>
+#include <morum/db.hpp>
 #include <morum/merkle_tree.hpp>
-#include <morum/storage_adapter.hpp>
 
 namespace morum {
 
@@ -94,7 +94,7 @@ namespace morum {
 
   class ArchiveNodeLoader final : public NodeLoader {
    public:
-    explicit ArchiveNodeLoader(std::shared_ptr<StorageAdapter> node_storage)
+    explicit ArchiveNodeLoader(std::shared_ptr<KeyValueStorage> node_storage)
         : node_storage{std::move(node_storage)} {}
 
     std::expected<std::optional<TreeNode>, StorageError> load(
@@ -113,14 +113,17 @@ namespace morum {
     }
 
    private:
-    std::shared_ptr<StorageAdapter> node_storage;
+    std::shared_ptr<KeyValueStorage> node_storage;
   };
 
   class ArchiveTrieDb {
    public:
-    explicit ArchiveTrieDb(std::shared_ptr<StorageAdapter> node_storage,
-        std::shared_ptr<StorageAdapter> value_storage)
-        : node_storage_{node_storage}, value_storage_{value_storage} {
+    explicit ArchiveTrieDb(
+        std::shared_ptr<ColumnFamilyStorage<ColumnFamilyId>> storage)
+        : storage_{storage},
+          node_storage_{storage_->get_column_family(ColumnFamilyId::TREE_NODE)},
+          value_storage_{storage_->get_column_family(ColumnFamilyId::TREE_VALUE)} {
+      QTILS_ASSERT(storage_ != nullptr);
       QTILS_ASSERT(node_storage_ != nullptr);
       QTILS_ASSERT(value_storage_ != nullptr);
     }
@@ -145,8 +148,7 @@ namespace morum {
 
     std::expected<Hash32, StorageError> get_root_and_store(
         const MerkleTree &tree) {
-      auto node_batch = node_storage_->start_batch();
-      auto value_batch = value_storage_->start_batch();
+      auto batch = storage_->start_batch();
 
       auto hash = tree.calculate_hash([&](const morum::TreeNode &n,
                                           qtils::ByteSpan serialized,
@@ -155,7 +157,8 @@ namespace morum {
         morum::Hash32 hash_copy;
         std::ranges::copy(hash, hash_copy.begin());
         hash_copy[0] &= 0xFE;
-        [[maybe_unused]] auto res = node_batch->write(hash_copy, serialized);
+        [[maybe_unused]] auto res =
+            batch->write(ColumnFamilyId::TREE_NODE, hash_copy, serialized);
         QTILS_ASSERT(res);
         if (n.is_leaf()) {
           // cached_nodes_.emplace(hash_copy, n);
@@ -169,26 +172,27 @@ namespace morum {
           if (auto *hash = std::get_if<morum::HashRef>(&h_or_v); hash) {
             if (auto value_opt = tree.get_cached_value(hash->get());
                 value_opt) {
-              value_batch->write(hash->get(), value_opt.value()).value();
+              batch
+                  ->write(ColumnFamilyId::TREE_VALUE,
+                      hash->get(),
+                      value_opt.value())
+                  .value();
             }
           }
         }
       });
       hash[0] &= 0xFE;
 
-      [[maybe_unused]] auto res =
-          node_storage_->write_batch(std::move(node_batch));
+      [[maybe_unused]] auto res = storage_->write_batch(std::move(batch));
       QTILS_ASSERT_HAS_VALUE(res);
-      [[maybe_unused]] auto res2 =
-          value_storage_->write_batch(std::move(value_batch));
-      QTILS_ASSERT_HAS_VALUE(res2);
 
       return hash;
     }
 
    private:
-    std::shared_ptr<StorageAdapter> node_storage_;
-    std::shared_ptr<StorageAdapter> value_storage_;
+    std::shared_ptr<ColumnFamilyStorage<ColumnFamilyId>> storage_;
+    std::shared_ptr<KeyValueStorage> node_storage_;
+    std::shared_ptr<KeyValueStorage> value_storage_;
   };
 
 }  // namespace morum
