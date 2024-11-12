@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <algorithm>
+
 #include <morum/merkle_tree.hpp>
 
 #include <algorithm>
 #include <filesystem>
 #include <format>
 #include <functional>
-#include <generator>
 #include <iterator>
 #include <memory>
 #include <ranges>

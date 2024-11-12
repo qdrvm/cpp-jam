@@ -9,8 +9,8 @@
 #include <utility>
 
 #include <qtils/bytes.hpp>
-#include <qtils/optional_ref.hpp>
 #include <qtils/cxx/forward_like.hpp>
+#include <qtils/optional_ref.hpp>
 
 #include <morum/common.hpp>
 
@@ -65,8 +65,8 @@ namespace morum {
       left_hash[0] &= 0xFE;  // the first bit in a branch must be zero
     }
 
-    explicit Branch(
-        qtils::OptionalRef<const Hash32> left, qtils::OptionalRef<const Hash32> right)
+    explicit Branch(qtils::OptionalRef<const Hash32> left,
+        qtils::OptionalRef<const Hash32> right)
         : left_hash{left ? *left : NoHash},
           right_hash{right ? *right : NoHash},
           left_idx{NoId},
@@ -225,7 +225,9 @@ namespace morum {
     using EmbeddedTag = Tag<Type::EmbeddedValue>;
     using HashedTag = Tag<Type::HashedValue>;
 
-    Leaf(Tag<Type::EmbeddedValue>, const ByteArray<31> &key, qtils::ByteSpan value)
+    Leaf(Tag<Type::EmbeddedValue>,
+        const ByteArray<31> &key,
+        qtils::ByteSpan value)
         : type{Type::EmbeddedValue},
           value_size{static_cast<uint8_t>(value.size_bytes())},
           key{key},
@@ -293,6 +295,8 @@ namespace morum {
       // first bit of a node denotes its type
       return (reinterpret_cast<const uint8_t *>(&node)[0] & 1) == 1;
     }
+#if defined(__cpp_explicit_this_parameter) \
+    && __cpp_explicit_this_parameter >= 202110L
 
     auto &&as_branch(this auto &self) {
       QTILS_ASSERT(self.is_branch());
@@ -303,7 +307,29 @@ namespace morum {
       QTILS_ASSERT(self.is_leaf());
       return qtils::cxx23::forward_like<decltype(self)>(self.node.leaf);
     }
+#else
 
+    auto &as_branch() {
+      QTILS_ASSERT(is_branch());
+      return node.branch;
+    }
+
+    const auto &as_branch() const {
+      QTILS_ASSERT(is_branch());
+      return node.branch;
+    }
+
+    auto &as_leaf() {
+      QTILS_ASSERT(is_leaf());
+      return node.leaf;
+    }
+
+    const auto &as_leaf() const {
+      QTILS_ASSERT(is_leaf());
+      return node.leaf;
+    }
+
+#endif
    private:
     // first bit of a node denotes its type
     union {
@@ -312,7 +338,7 @@ namespace morum {
     } node;
   };
 
-  // branches are larger because they store additional information required for 
+  // branches are larger because they store additional information required for
   static_assert(sizeof(Branch) == 128);
   static_assert(sizeof(Leaf) == 64);
   static_assert(sizeof(TreeNode) == 128);
