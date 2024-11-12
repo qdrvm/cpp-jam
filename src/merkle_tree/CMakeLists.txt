@@ -1,4 +1,4 @@
-add_library(merkle_tree merkle_tree.cpp db.cpp)
+add_library(merkle_tree merkle_tree.cpp db.cpp archive_backend.cpp nomt_backend.cpp)
 target_include_directories(merkle_tree 
     PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
