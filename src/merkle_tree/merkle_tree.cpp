@@ -20,15 +20,10 @@
 #include <vector>
 
 #include <blake2.h>
-#include <rocksdb/db.h>
-#include <rocksdb/options.h>
-#include <rocksdb/slice.h>
-#include <rocksdb/status.h>
-#include <rocksdb/write_batch.h>
 #include <qtils/unwrap.hpp>
 
 #include <morum/common.hpp>
-#include <morum/storage_adapter.hpp>
+#include <morum/db.hpp>
 #include <morum/tree_node.hpp>
 
 namespace morum {
@@ -106,156 +101,6 @@ namespace morum {
       return Leaf{Leaf::EmbeddedTag{}, key, bytes.subspan(32, value_size)};
     }
     return Leaf{Leaf::HashedTag{}, key, bytes.subspan<32, 32>()};
-  }
-
-  template <typename T>
-  std::expected<T, StorageError> wrap_status(
-      T &&t, const rocksdb::Status &status) {
-    if (!status.ok()) {
-      return std::unexpected(StorageError{status.ToString()});
-    }
-    return t;
-  }
-
-  std::expected<void, StorageError> wrap_status(const rocksdb::Status &status) {
-    if (!status.ok()) {
-      return std::unexpected(StorageError{status.ToString()});
-    }
-    return {};
-  }
-
-  std::string_view to_string(ColumnFamily family) {
-    switch (family) {
-      case ColumnFamily::DEFAULT:
-        return rocksdb::kDefaultColumnFamilyName;
-      case ColumnFamily::TREE_NODE:
-        return "tree_node";
-      case ColumnFamily::TREE_VALUE:
-        return "tree_value";
-      case ColumnFamily::FLAT_KV:
-        return "flat_kv";
-      case ColumnFamily::TREE_PAGE:
-        return "tree_page";
-    }
-    std::unreachable();
-  }
-
-  std::expected<std::unique_ptr<RocksDbAdapter>, StorageError> open_db(
-      const std::filesystem::path &path) {
-    rocksdb::DB *db{};
-    rocksdb::Options options;
-    options.create_if_missing = true;
-    options.create_missing_column_families = true;
-    // options.statistics = rocksdb::CreateDBStatistics();
-    // options.stats_dump_period_sec = 1;
-    // options.persist_stats_to_disk = true;
-
-    std::vector<rocksdb::ColumnFamilyHandle *> handles;
-    std::vector<rocksdb::ColumnFamilyDescriptor> desc;
-    for (auto family : column_families()) {
-      desc.emplace_back(
-          std::string{to_string(family)}, rocksdb::ColumnFamilyOptions{});
-    }
-
-    QTILS_UNWRAP_void(wrap_status(
-        rocksdb::DB::Open(options, path.c_str(), desc, &handles, &db)));
-    return std::make_unique<RocksDbAdapter>(db, std::move(handles));
-  }
-
-  RocksDbAdapter::~RocksDbAdapter() {
-    for (auto &handle : handles) {
-      auto status = db->DestroyColumnFamilyHandle(handle);
-      QTILS_ASSERT(status.ok());
-    }
-    auto status = db->Close();
-    QTILS_ASSERT(status.ok());
-    delete db;
-  }
-
-  RocksDbFamilyAdapter::RocksDbFamilyAdapter(
-      const RocksDbAdapter &adapter, ColumnFamily family)
-      : db{adapter.db},
-        handle{adapter.handles.at(std::to_underlying(family))} {}
-
-  std::expected<void, StorageError> RocksDbFamilyAdapter::write(
-      qtils::ByteSpan key, qtils::ByteSpan value) {
-    rocksdb::WriteBatch updates;
-    QTILS_UNWRAP_void(wrap_status(updates.Put(handle,
-        rocksdb::Slice{qtils::to_string_view(key)},
-        rocksdb::Slice{qtils::to_string_view(value)})));
-    QTILS_UNWRAP_void(
-        wrap_status(db->Write(rocksdb::WriteOptions{}, &updates)));
-    return {};
-  }
-
-  std::expected<std::optional<qtils::Bytes>, StorageError>
-  RocksDbFamilyAdapter::read(qtils::ByteSpan key) const {
-    std::string value;
-    auto status = db->Get(rocksdb::ReadOptions{},
-        handle,
-        rocksdb::Slice{qtils::to_string_view(key)},
-        &value);
-    if (status.IsNotFound()) {
-      return std::nullopt;
-    }
-    QTILS_UNWRAP_void(wrap_status(status));
-    return ByteVector{value.begin(), value.end()};
-  }
-
-  std::expected<std::optional<size_t>, StorageError>
-  RocksDbFamilyAdapter::read_to(
-      qtils::ByteSpan key, qtils::ByteSpanMut value) const {
-    std::string res;
-    auto status = db->Get(rocksdb::ReadOptions{},
-        handle,
-        rocksdb::Slice{qtils::to_string_view(key)},
-        &res);
-    if (status.IsNotFound()) {
-      return std::nullopt;
-    }
-    QTILS_UNWRAP_void(wrap_status(status));
-    std::copy_n(res.begin(), std::min(res.size(), value.size()), value.begin());
-    return res.size();
-  }
-
-  std::expected<void, StorageError> RocksDbFamilyAdapter::remove(
-      qtils::ByteSpan key) const {
-    QTILS_UNWRAP_void(wrap_status(db->Delete(
-        rocksdb::WriteOptions{}, handle, qtils::to_string_view(key))));
-    return {};
-  }
-
-  class RocksDbBatch : public StorageAdapter::Batch {
-   public:
-    RocksDbBatch(rocksdb::ColumnFamilyHandle *handle) : handle{handle} {}
-
-    virtual ~RocksDbBatch() = default;
-
-    virtual std::expected<void, StorageError> write(
-        qtils::ByteSpan key, qtils::ByteSpan value) override {
-      return wrap_status(batch.Put(
-          handle, qtils::to_string_view(key), qtils::to_string_view(value)));
-    }
-
-    virtual std::expected<void, StorageError> remove(
-        qtils::ByteSpan key) override {
-      return wrap_status(batch.Delete(handle, qtils::to_string_view(key)));
-    }
-
-    rocksdb::ColumnFamilyHandle *handle;
-    rocksdb::WriteBatch batch;
-  };
-
-  std::unique_ptr<StorageAdapter::Batch> RocksDbFamilyAdapter::start_batch() {
-    return std::make_unique<RocksDbBatch>(handle);
-  }
-
-  std::expected<void, StorageError> RocksDbFamilyAdapter::write_batch(
-      std::unique_ptr<Batch> batch) {
-    auto rocks_batch = dynamic_cast<RocksDbBatch *>(batch.get());
-    QTILS_ASSERT(rocks_batch != nullptr);
-
-    return wrap_status(db->Write(rocksdb::WriteOptions{}, &rocks_batch->batch));
   }
 
   qtils::OptionalRef<TreeNode> MerkleTree::get_root() {
@@ -395,7 +240,7 @@ namespace morum {
     if (empty()) {
       return std::nullopt;
     }
-    // SAFETY: check that tree is not empty above
+    // SAFETY: the check that tree is not empty is above
     auto &root = *get_root();
     if (root.is_leaf()) {
       return std::nullopt;

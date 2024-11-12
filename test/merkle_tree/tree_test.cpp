@@ -1,10 +1,10 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
-#include <expected>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <cstdlib>
+#include <expected>
 #include <filesystem>
 #include <format>
 #include <functional>
@@ -30,9 +30,9 @@
 
 #include <morum/archive_backend.hpp>
 #include <morum/common.hpp>
+#include <morum/db.hpp>
 #include <morum/merkle_tree.hpp>
 #include <morum/nomt_backend.hpp>
-#include <morum/storage_adapter.hpp>
 #include <morum/tree_node.hpp>
 
 void *operator new(std::size_t count) {
@@ -115,17 +115,17 @@ struct std::formatter<NiceDuration<Duration>> {
 };
 
 int main() {
-  auto db = morum::open_db("/tmp/qdrvm-test-db").value();
+  auto db = std::shared_ptr{morum::open_db("/tmp/qdrvm-test-db").value()};
 
   rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
 
-  auto tree_db = std::make_shared<morum::RocksDbFamilyAdapter>(
-      *db, morum::ColumnFamily::TREE_NODE);
-  auto value_db = std::make_shared<morum::RocksDbFamilyAdapter>(
-      *db, morum::ColumnFamily::TREE_VALUE);
-  auto page_db = std::make_shared<morum::RocksDbFamilyAdapter>(
-      *db, morum::ColumnFamily::TREE_PAGE);
-  morum::RocksDbFamilyAdapter flat_db{*db, morum::ColumnFamily::FLAT_KV};
+  auto tree_db = std::make_shared<morum::RocksDbColumnFamily>(
+      db, morum::ColumnFamilyId::TREE_NODE);
+  auto value_db = std::make_shared<morum::RocksDbColumnFamily>(
+      db, morum::ColumnFamilyId::TREE_VALUE);
+  auto page_db = std::make_shared<morum::RocksDbColumnFamily>(
+      db, morum::ColumnFamilyId::TREE_PAGE);
+  morum::RocksDbColumnFamily flat_db{db, morum::ColumnFamilyId::FLAT_KV};
 
   using Clock = std::chrono::steady_clock;
   using Dur = NiceDuration<Clock::duration>;
@@ -163,8 +163,9 @@ int main() {
   // NOMT
   /////////////////////////////////////////////////////////////////////////////////////////////////
   {
-    morum::NomtDb nomt{
-        std::make_shared<morum::NearlyOptimalNodeStorage>(page_db), value_db};
+    morum::NomtDb nomt{db};
+
+    std::vector<std::pair<morum::Hash32, morum::ByteVector>> insertions;
 
     for (int step = 0; step < STEPS_NUM; step++) {
       auto total_start = Clock::now();
@@ -175,7 +176,17 @@ int main() {
       } else {
         tree = std::move(nomt.load_tree(previous_root)->value());
       }
-      std::vector<std::pair<morum::Hash32, morum::ByteVector>> insertions;
+      if (step > 0) {
+        // check that values inserted on the previous step are accessible
+        for (auto &[k, v] : insertions) {
+          auto res_opt = tree->get(k);
+          QTILS_ASSERT_HAS_VALUE(res_opt);
+          QTILS_ASSERT(res_opt.value().has_value());
+          QTILS_ASSERT_RANGE_EQ(res_opt.value().value(), v);
+        }
+        insertions.clear();
+      }
+      insertions.reserve(INSERTION_NUM);
       for (int i = 0; i < INSERTION_NUM; i++) {
         insertions.emplace_back(random_hash(), random_vector());
       }
@@ -205,7 +216,7 @@ int main() {
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
   previous_root = morum::ZeroHash32;
-  morum::ArchiveTrieDb archive_db{tree_db, value_db};
+  morum::ArchiveTrieDb archive_db{db};
   for (int step = 0; step < STEPS_NUM; step++) {
     ZoneNamedN(loop_zone, "loop", true);
     rocksdb::get_perf_context()->Reset();

@@ -1,4 +1,4 @@
-add_library(merkle_tree merkle_tree.cpp)
+add_library(merkle_tree merkle_tree.cpp db.cpp)
 target_include_directories(merkle_tree 
     PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
@@ -9,7 +9,7 @@ if (MORUM_TRACE)
     add_compile_definitions(merkle_tree PUBLIC MORUM_ENABLE_TRACE)
 endif()
 if (QTILS_ASSERT)
-    add_compile_definitions(merkle_tree PUBLIC MORUM_ENABLE_ASSERT)
+    add_compile_definitions(merkle_tree PUBLIC QTILS_ENABLE_ASSERT)
 endif()
 target_link_libraries(merkle_tree 
     PUBLIC qtils::qtils 
