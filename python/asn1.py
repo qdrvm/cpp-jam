@@ -170,6 +170,8 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
     def asn_member(t):
         if t["type"] == "OCTET STRING":
             t = dict(type="SEQUENCE OF", element=dict(type="U8"), size=t["size"])
+        if t["type"] == "BOOLEAN":
+            return "bool"
         if t["type"] == "SEQUENCE OF":
             r = asn_sequence_of(t)
         elif t["type"] in asn_types:
@@ -190,8 +192,14 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
     enum_trait = []
     for tname, t in asn_types.items():
         ty = types[tname]
+        if tname == "BOOLEAN":
+            ty.decl = c_using(tname, "bool")
+            continue
         if tname == "U8":
             ty.decl = c_using(tname, "uint8_t")
+            continue
+        if tname == "U16":
+            ty.decl = c_using(tname, "uint16_t")
             continue
         if tname == "U32":
             ty.decl = c_using(tname, "uint32_t")
