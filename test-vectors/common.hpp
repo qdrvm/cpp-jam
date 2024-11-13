@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <cstring>
+
 #include <stdexcept>
 
 #include <boost/endian/conversion.hpp>
