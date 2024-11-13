@@ -207,7 +207,7 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
         if t["type"] == "NULL":
             t = dict(type="SEQUENCE", members=[])
         if t["type"] == "CHOICE":
-            if tname == "MmrPeak":
+            if tname == "MmrPeak" or tname == "AvailabilityAssignmentItem": # TODO: Need to make in universal
                 assert [x["name"] for x in t["members"]] == ["none", "some"]
                 ty.decl = c_using(
                     tname, "std::optional<%s>" % asn_member(t["members"][1])
@@ -356,6 +356,19 @@ def safrole():
     )
     g.write("safrole")
 
+def disputes():
+    g = Gen(
+        "jam::test_vectors_disputes",
+        ["validators-count", "core-count", "epoch-length", "validators-super-majority"],
+        asn_file("disputes/disputes"),
+        "DisputesModule",
+        [
+            (name, parse_const(asn_file("disputes/%s" % name), "Constants"))
+            for name in ["tiny", "full"]
+        ],
+    )
+    g.write("disputes")
+
 
 def history():
     g = Gen(
@@ -370,4 +383,4 @@ def history():
 
 if __name__ == "__main__":
     for arg in sys.argv[1:]:
-        dict(safrole=safrole, history=history)[arg]()
+        dict(safrole=safrole, history=history, disputes=disputes)[arg]()
