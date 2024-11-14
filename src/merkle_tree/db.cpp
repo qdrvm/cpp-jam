@@ -12,7 +12,7 @@
 #include <rocksdb/status.h>
 #include <rocksdb/write_batch.h>
 #include <qtils/assert.hpp>
-#include <qtils/unwrap.hpp>
+#include <qtils/macro.hpp>
 
 namespace morum {
 
@@ -90,7 +90,7 @@ namespace morum {
 
     family_idx = 0;
     for ([[maybe_unused]] auto &handle : handles) {
-      auto name = to_string(static_cast<ColumnFamilyId>(family_idx++));
+      [[maybe_unused]] auto name = to_string(static_cast<ColumnFamilyId>(family_idx++));
       QTILS_ASSERT(name.has_value());
       QTILS_ASSERT_EQ(handle->GetName(), *name);
     }

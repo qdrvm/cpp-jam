@@ -21,7 +21,7 @@
 #include <vector>
 
 #include <blake2.h>
-#include <qtils/unwrap.hpp>
+#include <qtils/macro.hpp>
 
 #include <morum/common.hpp>
 #include <morum/db.hpp>
