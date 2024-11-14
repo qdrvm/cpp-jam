@@ -65,12 +65,6 @@ if (MORUM_MSAN)
     add_link_options(-fsanitize=memory)
 endif()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    option(QTILS_ASSERT "Enable asserts" OFF)
-else()
-    option(QTILS_ASSERT "Enable asserts" ON)
-endif()
-
 function (morum_add_test TEST_NAME TEST_SRC)
     add_executable(${TEST_NAME} ${TEST_SRC})
     target_include_directories(${TEST_NAME} 

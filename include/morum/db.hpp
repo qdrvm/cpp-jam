@@ -2,7 +2,6 @@
 
 #include <expected>
 #include <filesystem>
-#include <generator>
 #include <memory>
 
 #include <morum/common.hpp>
