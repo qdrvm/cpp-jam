@@ -18,8 +18,9 @@
 #include <variant>
 
 #include <qtils/assert.hpp>
-#include <qtils/bytes.hpp>
 #include <qtils/bitspan.hpp>
+#include <qtils/bytes.hpp>
+#include <qtils/fixed_byte_vector.hpp>
 #include <qtils/optional_ref.hpp>
 
 #include <morum/common.hpp>

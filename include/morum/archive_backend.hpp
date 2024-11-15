@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include <qtils/macro.hpp>
+#include <qtils/macro/common.hpp>
 
 #include <morum/common.hpp>
 #include <morum/db.hpp>

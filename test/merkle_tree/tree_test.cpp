@@ -6,11 +6,9 @@
 #include <cstdlib>
 #include <expected>
 #include <filesystem>
-#include <format>
 #include <functional>
 #include <memory>
 #include <optional>
-#include <print>
 #include <random>
 #include <ranges>
 #include <span>
@@ -26,6 +24,7 @@
 #include <client/TracyScoped.hpp>
 #include <qtils/assert.hpp>
 #include <qtils/bytes.hpp>
+#include <qtils/hex.hpp>
 #include <tracy/Tracy.hpp>
 
 #include <morum/archive_backend.hpp>
@@ -86,7 +85,7 @@ template <typename Duration>
 NiceDuration(const Duration&) -> NiceDuration<Duration>;
 
 template <typename Duration>
-struct std::formatter<NiceDuration<Duration>> {
+struct fmt::formatter<NiceDuration<Duration>> {
   template <class ParseContext>
   constexpr ParseContext::iterator parse(ParseContext &ctx) {
     auto it = ctx.begin();
@@ -100,22 +99,22 @@ struct std::formatter<NiceDuration<Duration>> {
 
     if (auto n = std::chrono::duration_cast<std::chrono::seconds>(dur).count();
         n > 10) {
-      std::format_to(out, "{}s", n);
+      fmt::format_to(out, "{}s", n);
       return out;
     }
     if (auto n =
             std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
         n > 10) {
-      std::format_to(out, "{}ms", n);
+      fmt::format_to(out, "{}ms", n);
       return out;
     }
     if (auto n =
             std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
         n > 10) {
-      std::format_to(out, "{}us", n);
+      fmt::format_to(out, "{}us", n);
       return out;
     }
-    std::format_to(out, "{}ns", dur.count());
+    fmt::format_to(out, "{}ns", dur.count());
     return out;
   }
 };
@@ -207,9 +206,9 @@ int main() {
         QTILS_ASSERT_RANGE_EQ(res_opt.value().value(), v);
       }
       previous_root = nomt.get_root_and_store(*tree).value();
-      std::println("{} - {} - total_duration: {}",
+      fmt::println("{} - {} - total_duration: {}",
           step,
-          previous_root,
+          qtils::Hex{previous_root},
           NiceDuration(Clock::now() - total_start));
       totals[step].nomt = Clock::now() - total_start;
     }
@@ -326,32 +325,21 @@ int main() {
 
     stats[step].total_duration += Clock::now() - total_start;
 
-    std::println(
+    fmt::println(
         "\r{} - {}, {}, {} nodes and {} values written, {} bytes of values, "
         "{} "
         "bytes of nodes",
         step,
-        hash,
+        qtils::Hex{hash},
         stats[step].total_duration,
         stats[step].new_nodes_written,
         stats[step].new_values_written,
         stats[step].new_values_size,
         stats[step].new_nodes_written * sizeof(morum::Leaf));
-    std::println("total_duration: {}", stats[step].total_duration);
+    fmt::println("total_duration: {}", stats[step].total_duration);
     totals[step].archive = stats[step].total_duration;
 
-    // std::println("node_reads_duration: {}",
-    // stats[step].node_reads_duration); std::println("value_reads_duration:
-    // {}", stats[step].value_reads_duration);
-    // std::println("writes_in_batch_duration: {}",
-    //              stats[step].writes_in_batch_duration);
-    // std::println("{} - batch_write_duration: {}",
-    //              step,
-    //              stats[step].batch_write_duration);
-
-    // std::println("{}", rocksdb::get_perf_context()->ToString(true));
-    // std::println("{}", rocksdb::get_iostats_context()->ToString());
-    std::println(
+    fmt::println(
         "{}", "=========================================================");
     FrameMark;
   }
@@ -398,32 +386,8 @@ int main() {
   avg.value_reads_duration /= stats.size();
   avg.writes_in_batch_duration /= stats.size();
 
-  // std::println("Avg:");
-  // std::println("total_duration: {}", avg.total_duration);
-  // std::println("batch_write_duration: {}", avg.batch_write_duration);
-  // std::println("node_reads_duration: {}", avg.node_reads_duration);
-  // std::println("value_reads_duration: {}", avg.value_reads_duration);
-  // std::println("writes_in_batch_duration: {}",
-  // avg.writes_in_batch_duration);
-
-  // std::println("Max:");
-  // std::println("total_duration: {}", max.total_duration);
-  // std::println("batch_write_duration: {}", max.batch_write_duration);
-  // std::println("node_reads_duration: {}", max.node_reads_duration);
-  // std::println("value_reads_duration: {}", max.value_reads_duration);
-  // std::println("writes_in_batch_duration: {}",
-  // max.writes_in_batch_duration);
-
-  // std::println("Min:");
-  // std::println("total_duration: {}", min.total_duration);
-  // std::println("batch_write_duration: {}", min.batch_write_duration);
-  // std::println("node_reads_duration: {}", min.node_reads_duration);
-  // std::println("value_reads_duration: {}", min.value_reads_duration);
-  // std::println("writes_in_batch_duration: {}",
-  // min.writes_in_batch_duration);
-
   for (int i = 0; i < STEPS_NUM; i++) {
-    std::println("#{}: NOMT {} vs Archive {}: {:.1f}%",
+    fmt::println("#{}: NOMT {} vs Archive {}: {:.1f}%",
         i,
         NiceDuration(totals[i].nomt),
         NiceDuration(totals[i].archive),

@@ -1,5 +1,7 @@
 #include <morum/nomt_backend.hpp>
 
+#include <qtils/macro/unwrap.hpp>
+
 namespace morum {
 
   qtils::OptionalRef<RawNode> Page::get_node(qtils::BitSpan<> path) {

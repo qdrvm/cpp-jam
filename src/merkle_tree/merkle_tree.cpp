@@ -10,7 +10,6 @@
 
 #include <algorithm>
 #include <filesystem>
-#include <format>
 #include <functional>
 #include <iterator>
 #include <memory>
@@ -21,7 +20,10 @@
 #include <vector>
 
 #include <blake2.h>
-#include <qtils/macro.hpp>
+#include <fmt/ranges.h>
+#include <qtils/byte_utils.hpp>
+#include <qtils/hex.hpp>
+#include <qtils/macro/unwrap.hpp>
 
 #include <morum/common.hpp>
 #include <morum/db.hpp>
@@ -204,8 +206,8 @@ namespace morum {
     if (auto hash = branch.get_child_hash(bit); hash.has_value()) {
       QTILS_UNWRAP(auto node_opt, loader_->load(path, *hash));
       if (!node_opt) {
-        return std::unexpected(StorageError{
-            std::format("Node hash {} path {} not found", *hash, path)});
+        return std::unexpected(StorageError{fmt::format(
+            "Node hash {} path {} not found", qtils::Hex{*hash}, path)});
       }
       auto node_id = nodes_->store(*node_opt);
       branch.set_child(bit, node_id);

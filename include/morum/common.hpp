@@ -10,20 +10,20 @@
 #include <cassert>
 #include <chrono>
 #include <expected>
-#include <iostream>
-#include <print>
 #include <source_location>
 #include <vector>
+
+#include <fmt/format.h>
 
 #include <qtils/bytes.hpp>
 
 #ifdef MORUM_ENABLE_TRACE
 
 #define MORUM_TRACE(msg, ...)                               \
-  std::println("{}:{}: {}",                                 \
+  fmt::println("{}:{}: {}",                                 \
                std::source_location::current().file_name(), \
                std::source_location::current().line(),      \
-               std::format(msg __VA_OPT__(, ) __VA_ARGS__));
+               fmt::format(msg __VA_OPT__(, ) __VA_ARGS__));
 
 namespace morum {
   template <char... Name>
@@ -91,7 +91,7 @@ namespace morum {
 }  // namespace morum
 
 template <>
-struct std::formatter<morum::StorageError, char> {
+struct fmt::formatter<morum::StorageError, char> {
   template <class ParseContext>
   constexpr ParseContext::iterator parse(ParseContext &ctx) {
     auto it = ctx.begin();
@@ -102,7 +102,7 @@ struct std::formatter<morum::StorageError, char> {
   FmtContext::iterator format(const morum::StorageError &e,
                               FmtContext &ctx) const {
     auto out = ctx.out();
-    std::format_to(out,
+    fmt::format_to(out,
                    "From {}:{} - {}\n",
                    e.origin.file_name(),
                    e.origin.line(),
