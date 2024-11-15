@@ -1,5 +1,7 @@
 #include <morum/archive_backend.hpp>
 
+#include <qtils/macro/unwrap.hpp>
+
 namespace morum {
 
   std::expected<std::optional<TreeNode>, StorageError> ArchiveNodeLoader::load(
