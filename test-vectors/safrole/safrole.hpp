@@ -17,8 +17,10 @@ namespace jam::safrole {
   namespace types = test_vectors_safrole;
   using BandersnatchSignature = decltype(types::TicketEnvelope::signature);
 
-  // [GP 0.3.6 G 307]
-  // [GP 0.3.6 G 310]
+  // [GP 0.4.5 G 339]
+  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/bandersnatch.tex#L9
+  // [GP 0.4.5 G 342]
+  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/bandersnatch.tex#L17
   inline std::optional<types::OpaqueHash> banderout(
       const BandersnatchSignature &signature) {
     return bandersnatch::output(signature);
@@ -45,14 +47,17 @@ namespace jam::safrole {
     return it->second;
   }
 
-  // [GP 0.3.6 I.4.5]
+  // [GP 0.4.5 I.4.5]
+  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L303
   // clang-format off
   constexpr qtils::BytesN<15> X_T = {'j','a','m','_','t','i','c','k','e','t','_','s','e','a','l'};
   // clang-format on
 
-  // [GP 0.3.6 I.4.4]
+  // [GP 0.4.5 I.4.4]
+  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L271
   constexpr uint32_t N = 2;
-  // [GP 0.3.6 I.4.4]
+  // [GP 0.4.5 I.4.4]
+  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L269
   constexpr uint32_t K = 16;
 
   inline BandersnatchKeys bandersnatch_keys(
@@ -64,13 +69,15 @@ namespace jam::safrole {
     return keys;
   }
 
-  // [GP 0.3.6 G 308]
+  // [GP 0.4.5 G 340]
+  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/bandersnatch.tex#L15
   inline GammaZ mathcal_O(
       const types::Config &config, const BandersnatchKeys &pks) {
     return ring_ctx(config).commitment(pks.v).value();
   }
 
-  // [GP 0.3.6 G 309]
+  // [GP 0.4.5 G 341]
+  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/bandersnatch.tex#L16
   inline std::optional<types::OpaqueHash> bandersnatch(
       const types::Config &config,
       const GammaZ &gamma_z,
@@ -79,7 +86,8 @@ namespace jam::safrole {
     return ring_ctx(config).verifier(gamma_z).verify(input, signature);
   }
 
-  // [GP 0.3.6 6.1 46]
+  // [GP 0.4.5 6.1 47]
+  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L30
   struct Epoch {
     uint32_t epoch, phase;
     Epoch(uint32_t E, uint32_t slot) : epoch{slot / E}, phase{slot % E} {}
@@ -92,9 +100,11 @@ namespace jam::safrole {
       const types::Config &config,
       const types::State &state,
       const types::Input &input) {
-    // [GP 0.3.6 I.4.4]
+    // [GP 0.4.5 I.4.4]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L260
     const auto E = config.epoch_length;
-    // [GP 0.3.6 I.4.4]
+    // [GP 0.4.5 I.4.4]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L287
     const auto Y = E * 5 / 6;
 
     const auto &[H_t, banderout_H_v, E_T, offenders_tick] = input;
@@ -107,21 +117,25 @@ namespace jam::safrole {
       return std::make_pair(state, types::Output{error});
     };
 
-    // [GP 0.3.6 5 41]
+    // [GP 0.4.5 5 42]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/header.tex#L29
     if (H_t <= state.tau) {
       return error(Error::bad_slot);
     }
 
-    // [GP 0.3.6 6.1 45]
+    // [GP 0.4.5 6.1 46]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L25
     const auto tau_tick = H_t;
 
-    // [GP 0.3.6 6.1 46]
+    // [GP 0.4.5 6.1 47]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L30
     const Epoch epoch{E, state.tau}, epoch_tick{E, tau_tick};
     const auto &[e, m] = epoch;
     const auto &[e_tick, m_tick] = epoch_tick;
     const auto change_epoch = e_tick != e;
 
-    // [GP 0.3.6 6.7 74]
+    // [GP 0.4.5 6.7 75]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L251
     if (E_T.size() > K) {
       throw std::logic_error("not covered by test vectors");
     }
@@ -129,7 +143,8 @@ namespace jam::safrole {
       return std::make_pair(state, types::Output{Error::unexpected_ticket});
     }
 
-    // [GP 0.3.6 6.3 58]
+    // [GP 0.4.5 6.3 59]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L101
     const auto phi = [&](const types::ValidatorsData &k) {
       types::ValidatorsData k_tick;
       for (auto &validator : k.v) {
@@ -141,7 +156,8 @@ namespace jam::safrole {
       }
       return k_tick;
     };
-    // [GP 0.3.6 6.3 57]
+    // [GP 0.4.5 6.3 58]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L97
     const auto [gamma_tick_k, kappa_tick, lambda_tick, gamma_tick_z] =
         change_epoch ? [&](const types::ValidatorsData &gamma_tick_k) {
           return std::tuple{gamma_tick_k,
@@ -152,17 +168,20 @@ namespace jam::safrole {
         }(phi(iota))
                      : std::tuple{gamma_k, kappa, lambda, gamma_z};
 
-    // [GP 0.3.6 6.4 66]
+    // [GP 0.4.5 6.4 67]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L147
     const auto eta_tick_0 = mathcal_H(frown(eta_0, banderout_H_v));
 
-    // [GP 0.3.6 6.4 67]
+    // [GP 0.4.5 6.4 68]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L152
     const auto [eta_tick_1, eta_tick_2, eta_tick_3] =
         change_epoch ? std::tuple{eta_0, eta_1, eta_2}
                      : std::tuple{eta_1, eta_2, eta_3};
 
     std::vector<types::TicketBody> n;
     for (auto &[r, p] : E_T) {
-      // [GP 0.3.6 6.7 73]
+      // [GP 0.4.5 6.7 74]
+      // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L250
       if (r >= N) {
         return error(Error::bad_ticket_attempt);
       }
@@ -171,15 +190,18 @@ namespace jam::safrole {
       if (not y) {
         return error(Error::bad_ticket_proof);
       }
-      // [GP 0.3.6 6.7 75]
+      // [GP 0.4.5 6.7 76]
+      // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L259
       n.emplace_back(types::TicketBody{*y, r});
     }
-    // [GP 0.3.6 6.7 76]
+    // [GP 0.4.5 6.7 77]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L264
     if (not std::is_sorted(n.begin(), n.end(), TicketBodyLess{})) {
       return error(Error::bad_ticket_order);
     }
 
-    // [GP 0.3.6 6.7 78]
+    // [GP 0.4.5 6.7 79]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L271
     std::vector<types::TicketBody> gamma_tick_a;
     if (change_epoch) {
       gamma_tick_a = n;
@@ -190,7 +212,8 @@ namespace jam::safrole {
           gamma_a.end(),
           std::back_inserter(gamma_tick_a),
           TicketBodyLess{});
-      // [GP 0.3.6 6.7 77]
+      // [GP 0.4.5 6.7 78]
+      // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L265
       if (gamma_tick_a.size() != gamma_a.size() + n.size()) {
         return error(Error::duplicate_ticket);
       }
@@ -199,7 +222,8 @@ namespace jam::safrole {
       gamma_tick_a.resize(E);
     }
 
-    // [GP 0.3.6 6.5 69]
+    // [GP 0.4.5 6.5 70]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L182
     const auto Z = [&](const GammaA &s) {
       types::TicketsBodies tickets;
       if (s.size() != E) {
@@ -218,7 +242,8 @@ namespace jam::safrole {
       }
       return tickets;
     };
-    // [GP 0.3.6 6.5 70]
+    // [GP 0.4.5 6.5 71]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L190
     const auto F = [&](const types::OpaqueHash &r,
                        const types::ValidatorsData &k) {
       types::EpochKeys keys;
@@ -229,7 +254,8 @@ namespace jam::safrole {
       }
       return keys;
     };
-    // [GP 0.3.6 6.5 68]
+    // [GP 0.4.5 6.5 69]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L173
     const auto gamma_tick_s =
         e_tick == e + 1 && m >= Y && gamma_a.size() == E
             ? types::TicketsOrKeys{Z(gamma_a)}
@@ -251,11 +277,13 @@ namespace jam::safrole {
             .gamma_z = gamma_tick_z,
         },
         types::Output{types::OutputMarks{
-            // [GP 0.3.6 6.6 71]
+            // [GP 0.4.5 6.6 72]
+            // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L216
             .epoch_mark = change_epoch ? std::make_optional(types::EpochMark{
                               eta_tick_1, bandersnatch_keys(gamma_tick_k)})
                                        : std::nullopt,
-            // [GP 0.3.6 6.6 72]
+            // [GP 0.4.5 6.6 73]
+            // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L224
             .tickets_mark =
                 e_tick == e && m < Y && Y <= m_tick && gamma_a.size() == E
                     ? std::make_optional(types::TicketsMark{Z(gamma_a)})

@@ -28,7 +28,8 @@ namespace jam {
     return first;
   }
 
-  // [GP 0.3.6 3.7]
+  // [GP 0.4.5 3.7]
+  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/notation.tex#L116
   auto &circlearrowleft(const auto &s, auto i) {
     return s[i % s.size()];
   }
@@ -44,13 +45,15 @@ namespace jam {
     return xy;
   }
 
-  // [GP 0.3.6 3.7.2]
+  // [GP 0.4.5 3.7.2]
+  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/notation.tex#L132
   template <size_t X>
   qtils::BytesN<X + 1> doubleplus(const qtils::BytesN<X> &x, uint8_t i) {
     return frown(x, std::array{i});
   }
 
-  // [GP 0.3.6 C.1.2 271]
+  // [GP 0.4.5 C.1.2 300]
+  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/serialization.tex#L29
   template <size_t N>
   qtils::BytesN<N> mathcal_E(uint64_t x) {
     qtils::BytesN<N> out;
@@ -59,14 +62,16 @@ namespace jam {
     return out;
   }
 
-  // [GP 0.3.6 C.1.2 271]
+  // [GP 0.4.5 C.1.2 300]
+  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/serialization.tex#L29
   template <size_t N>
   auto de(qtils::BytesN<N> x) {
     return boost::endian::
         endian_load<uint64_t, N, boost::endian::order::little>(x.data());
   }
 
-  // [GP 0.3.6 3.8.1]
+  // [GP 0.4.5 3.8.1]
+  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/notation.tex#L153
   inline auto mathcal_H(qtils::BytesIn m) {
     return Blake::hash(m);
   }
