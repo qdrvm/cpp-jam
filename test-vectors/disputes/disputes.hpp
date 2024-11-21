@@ -33,6 +33,45 @@ namespace jam::disputes {
     return std::vector(r.begin(), r.end());
   }
 
+  template <typename M>
+  struct MultimapGroups {
+    using I = typename M::const_iterator;
+    const M &m;
+
+    struct It {
+      const M &m;
+      I begin;
+      I end;
+
+      auto makeEnd() const {
+        return begin == m.end() ? m.end() : m.upper_bound(begin->first);
+      }
+      It(const M &m, I begin) : m{m}, begin{begin}, end{makeEnd()} {}
+      bool operator==(const It &r) const {
+        return begin == r.begin;
+      }
+      It &operator++() {
+        begin = end;
+        end = makeEnd();
+        return *this;
+      }
+      auto operator*() const {
+        return std::make_pair(
+            begin->first,
+            std::ranges::subrange(begin, end) | std::views::values);
+      }
+    };
+
+    auto begin() const {
+      return It{m, m.begin()};
+    }
+    auto end() const {
+      return It{m, m.end()};
+    }
+  };
+  template <typename M>
+  MultimapGroups(const M &) -> MultimapGroups<M>;
+
   inline auto keys(const types::ValidatorsData &validators) {
     std::vector<types::Ed25519Key> keys;
     for (auto &validator : validators.v) {
@@ -439,13 +478,10 @@ namespace jam::disputes {
     }
 
     // Analise culprits
-    for (auto it = culprits_registry.begin(); it != culprits_registry.end();) {
-      const auto &work_report = it->first;
-      auto range = culprits_registry.equal_range(work_report);
-      it = range.second;
+    for (auto [work_report, culprits] : MultimapGroups{culprits_registry}) {
       // Check if the verdict of culprit is bad
-      for (auto culprit : std::ranges::subrange(range.first, range.second)) {
-        const auto &validator_public = culprit.second.get().key;
+      for (auto &culprit : culprits) {
+        const auto &validator_public = culprit.get().key;
         offenders_mark.emplace_back(validator_public);  // [GP 0.4.5 10.2 (116)]
         new_punish_set.emplace(validator_public);       // [GP 0.4.5 10.2 (115)]
       }
@@ -453,16 +489,13 @@ namespace jam::disputes {
     }
 
     // Analise faults
-    for (auto it = faults_registry.begin(); it != faults_registry.end();) {
-      const auto &work_report = it->first;
-      auto range = faults_registry.equal_range(work_report);
-      it = range.second;
+    for (auto [work_report, faults] : MultimapGroups{faults_registry}) {
       // Check if the verdict of fault is bad
-      for (auto fault : std::ranges::subrange(range.first, range.second)) {
-        if (fault.second.get().vote != false) {  // voting opposite
+      for (auto &fault : faults) {
+        if (fault.get().vote != false) {  // voting opposite
           return error(Error::fault_verdict_wrong);
         }
-        const auto &validator_public = fault.second.get().key;
+        const auto &validator_public = fault.get().key;
         offenders_mark.emplace_back(validator_public);  // [GP 0.4.5 10.2 (116)]
         new_punish_set.emplace(validator_public);       // [GP 0.4.5 10.2 (115)]
       }
