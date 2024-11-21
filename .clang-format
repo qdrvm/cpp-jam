@@ -6,7 +6,7 @@
 
 BasedOnStyle: Google
 
-AlignAfterOpenBracket: DontAlign
+AlignAfterOpenBracket: Align
 AlignOperands: AlignAfterOperator
 AllowShortFunctionsOnASingleLine: Empty
 BinPackArguments: false
