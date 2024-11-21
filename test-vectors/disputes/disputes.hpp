@@ -72,14 +72,6 @@ namespace jam::disputes {
   template <typename M>
   MultimapGroups(const M &) -> MultimapGroups<M>;
 
-  inline auto keys(const types::ValidatorsData &validators) {
-    std::vector<types::Ed25519Key> keys;
-    for (auto &validator : validators.v) {
-      keys.emplace_back(validator.ed25519);
-    }
-    return keys;
-  }
-
   inline bool ed25519_verify(const jam::ed25519::Signature &sig,
                              const jam::ed25519::Public &pub,
                              qtils::BytesIn X,
