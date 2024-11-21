@@ -13,7 +13,8 @@ namespace jam::ed25519 {
   using Signature = qtils::BytesN<ED25519_SIGNATURE_LENGTH>;
   using Message = qtils::BytesIn;
 
-  std::optional<Signature> sign(const KeyPair &keypair, Message message) {
+  inline std::optional<Signature> sign(const KeyPair &keypair,
+                                       Message message) {
     Signature sig;
     auto res = ed25519_sign(
         sig.data(), keypair.data(), message.data(), message.size_bytes());
@@ -23,19 +24,13 @@ namespace jam::ed25519 {
     return sig;
   }
 
-  std::optional<bool> verify(const Signature &signature,
-                             Message message,
-                             const Public &public_key) {
+  inline bool verify(const Signature &signature,
+                     Message message,
+                     const Public &public_key) {
     auto res = ed25519_verify(signature.data(),
                               public_key.data(),
                               message.data(),
                               message.size_bytes());
-    if (res == ED25519_RESULT_OK) {
-      return true;
-    }
-    if (res == ED25519_RESULT_VERIFICATION_FAILED) {
-      return false;
-    }
-    return std::nullopt;
+    return res == ED25519_RESULT_OK;
   }
 }  // namespace jam::ed25519

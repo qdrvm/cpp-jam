@@ -87,14 +87,7 @@ namespace jam::disputes {
     qtils::Bytes payload;
     qtils::append(payload, X);
     qtils::append(payload, work_report);
-    auto res = jam::ed25519::verify(sig, payload, pub);
-    if (not res.has_value()) {
-      return false;
-    }
-    if (not res.value()) {
-      return false;
-    }
-    return true;
+    return jam::ed25519::verify(sig, payload, pub);
   };
 
   // [GP 0.4.5 I.4.5]
