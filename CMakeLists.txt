@@ -27,8 +27,8 @@ pkg_check_modules(libb2 REQUIRED IMPORTED_TARGET GLOBAL libb2)
 find_package(Boost CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(jam_crust CONFIG REQUIRED)
-find_package(schnorrkel_crust CONFIG REQUIRED)
 find_package(scale CONFIG REQUIRED)
+find_package(schnorrkel_crust CONFIG REQUIRED)
 
 add_library(headers INTERFACE)
 target_include_directories(headers INTERFACE
