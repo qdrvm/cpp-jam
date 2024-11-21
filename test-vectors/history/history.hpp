@@ -40,12 +40,14 @@ namespace jam::history {
    * Given state and input, derive next state and output.
    */
   inline std::pair<types::State, types::Output> transition(
-      const types::State &state, const types::Input &input) {
+      const types::Config & /*config*/,
+      const types::State &state,
+      const types::Input &input) {
     // [GP 0.4.5 7 84]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/recent_history.tex#L32
     std::vector beta_tick(state.beta.size() >= H ? std::next(state.beta.begin())
                                                  : state.beta.begin(),
-        state.beta.end());
+                          state.beta.end());
     // [GP 0.4.5 7 82]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/recent_history.tex#L12
     if (not beta_tick.empty()) {
