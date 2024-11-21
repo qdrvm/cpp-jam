@@ -20,8 +20,6 @@
 #include <test-vectors/common.hpp>
 #include <test-vectors/disputes/types.hpp>
 
-using namespace std::string_literals;
-
 namespace jam::disputes {
   namespace types = test_vectors_disputes;
 
