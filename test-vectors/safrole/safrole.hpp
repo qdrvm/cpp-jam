@@ -7,6 +7,7 @@
 #pragma once
 
 #include <algorithm>
+#include <ranges>
 #include <unordered_map>
 
 #include <jam/bandersnatch.hpp>
@@ -53,9 +54,12 @@ namespace jam::safrole {
   constexpr qtils::BytesN<15> X_T = {'j','a','m','_','t','i','c','k','e','t','_','s','e','a','l'};
   // clang-format on
 
+  // The number of ticket entries per validator.
   // [GP 0.4.5 I.4.4]
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L271
   constexpr uint32_t N = 2;
+
+  // The maximum number of tickets which may be submitted in a single extrinsic.
   // [GP 0.4.5 I.4.4]
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L269
   constexpr uint32_t K = 16;
@@ -100,13 +104,17 @@ namespace jam::safrole {
       const types::Config &config,
       const types::State &state,
       const types::Input &input) {
+    /// The length of an epoch in timeslots.
     // [GP 0.4.5 I.4.4]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L260
     const auto E = config.epoch_length;
+
+    /// The number of slots into an epoch at which ticket-submission ends.
     // [GP 0.4.5 I.4.4]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L287
     const auto Y = E * 5 / 6;
 
+    /// H_t - a time-slot index
     const auto &[H_t, banderout_H_v, E_T, offenders_tick] = input;
     const auto
         &[tau, eta, lambda, kappa, gamma_k, iota, gamma_a, gamma_s, gamma_z] =
@@ -117,21 +125,33 @@ namespace jam::safrole {
       return std::make_pair(state, types::Output{error});
     };
 
+    // A block may only be regarded as valid once the time-slot index Ht is in
+    // the past.
+    // It's always strictly greater than that of its parent.
     // [GP 0.4.5 5 42]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/header.tex#L29
     if (H_t <= state.tau) {
       return error(Error::bad_slot);
     }
 
+    // The most recent block’s slot index, which we transition to the slot index
+    // as defined in the block’s header.
     // [GP 0.4.5 6.1 46]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L25
     const auto tau_tick = H_t;
 
     // [GP 0.4.5 6.1 47]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L30
-    const Epoch epoch{E, state.tau}, epoch_tick{E, tau_tick};
+    const Epoch epoch{E, state.tau};
+    const Epoch epoch_tick{E, tau_tick};
+
+    // the prior’s epoch index and slot phase index within that epoch
     const auto &[e, m] = epoch;
+
+    // epoch index and slot phase index are the corresponding values for the
+    // present block
     const auto &[e_tick, m_tick] = epoch_tick;
+
     const auto change_epoch = e_tick != e;
 
     // [GP 0.4.5 6.7 75]
@@ -160,7 +180,8 @@ namespace jam::safrole {
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L97
     const auto [gamma_tick_k, kappa_tick, lambda_tick, gamma_tick_z] =
         change_epoch ? [&](const types::ValidatorsData &gamma_tick_k) {
-          return std::tuple{gamma_tick_k,
+          return std::tuple{
+              gamma_tick_k,
               gamma_k,
               kappa,
               mathcal_O(config, bandersnatch_keys(gamma_tick_k)),
@@ -206,12 +227,8 @@ namespace jam::safrole {
     if (change_epoch) {
       gamma_tick_a = n;
     } else {
-      std::set_union(n.begin(),
-          n.end(),
-          gamma_a.begin(),
-          gamma_a.end(),
-          std::back_inserter(gamma_tick_a),
-          TicketBodyLess{});
+      std::ranges::set_union(
+          n, gamma_a, std::back_inserter(gamma_tick_a), TicketBodyLess{});
       // [GP 0.4.5 6.7 78]
       // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L265
       if (gamma_tick_a.size() != gamma_a.size() + n.size()) {
