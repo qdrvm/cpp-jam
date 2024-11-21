@@ -11,6 +11,7 @@
 #include <ranges>
 #include <set>
 
+#include <TODO_qtils/bytes_std_hash.hpp>
 #include <boost/range/join.hpp>
 #include <qtils/append.hpp>
 
@@ -47,18 +48,6 @@ namespace jam::disputes {
       return false;
     }
     return true;
-  };
-
-  template <std::ranges::range Range>
-  struct hash_range {
-    std::size_t operator()(const Range &range) const {
-      std::size_t seed = 0;
-      for (const auto &value : range) {
-        seed ^= std::hash<std::decay_t<decltype(value)>>{}(value) + 0x9e3779b9
-              + (seed << 6) + (seed >> 2);
-      }
-      return seed;
-    }
   };
 
   // [GP 0.4.5 I.4.5]
@@ -142,7 +131,7 @@ namespace jam::disputes {
     std::unordered_multimap<
         types::WorkReportHash,
         std::reference_wrapper<const types::DisputeJudgement>,
-        hash_range<types::WorkReportHash>>
+        qtils::BytesStdHash>
         judgements_registry;
 
     // Check verdicts.
@@ -360,7 +349,7 @@ namespace jam::disputes {
 
     std::unordered_map<types::WorkReportHash,
                        std::pair<types::U16, types::U16>,
-                       hash_range<types::WorkReportHash>>
+                       qtils::BytesStdHash>
         vote_count_by_judgements;
 
     for (const auto &[work_report, judgement] : judgements_registry) {
