@@ -7,6 +7,7 @@
 #pragma once
 
 #include <qtils/hex.hpp>
+
 #include <test-vectors/config-types.hpp>
 
 /**
@@ -63,6 +64,10 @@ void diff_m(Indent indent, const T &v1, const T &v2, std::string_view name) {
   diff(~indent, v1, v2);
 }
 
+DIFF_F(uint32_t) {
+  fmt::println("{}{} != {}", indent, v1, v2);
+}
+
 template <typename T, typename ConfigField>
 DIFF_F(jam::ConfigVec<T, ConfigField>) {
   diff(indent, v1.v, v2.v);
@@ -114,4 +119,33 @@ DIFF_F(qtils::BytesIn) {
   }
   diff1("{}- {:x}", indent, v1);
   diff2("{}+ {:x}", indent, v2);
+}
+
+template <typename E>
+  requires(std::is_enum_v<E>)
+void diff(Indent indent,
+    const E &v1,
+    const E &v2,
+    const std::vector<std::string_view> &names) {
+  fmt::println("{}{} != {}", indent, names[(int)v1], names[(int)v2]);
+}
+
+template <typename A, typename B>
+void diff(Indent indent,
+    const boost::variant<A, B> &v1,
+    const boost::variant<A, B> &v2,
+    const std::vector<std::string_view> &names) {
+  if (v1 == v2) {
+    return;
+  }
+  if (v1.which() != v2.which()) {
+    fmt::println("{}{} != {}", indent, names[v1.which()], names[v2.which()]);
+    return;
+  }
+  fmt::println("{}{}", indent, names[v1.which()]);
+  if (v1.which() == 0) {
+    diff(~indent, boost::get<A>(v1), boost::get<A>(v2));
+  } else {
+    diff(~indent, boost::get<B>(v1), boost::get<B>(v2));
+  }
 }

@@ -14,5 +14,9 @@ namespace jam::test_vectors_history {
     Vectors() : VectorsT{Config{}} {
       this->list("history/data");
     }
+
+    static std::vector<std::shared_ptr<Vectors>> vectors() {
+      return {std::make_shared<Vectors>()};
+    }
   };
 }  // namespace jam::test_vectors_history

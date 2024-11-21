@@ -6,12 +6,9 @@
 
 #include <test-vectors/safrole/vectors.hpp>
 
-using jam::test_vectors::test_reencode;
-using jam::test_vectors_safrole::Vectors;
+GTEST_VECTORS(jam::test_vectors_safrole::Vectors);
 
-int main() {
-  test_reencode<Vectors<false>>();
-  test_reencode<Vectors<true>>();
-  fmt::println("ok");
-  return 0;
-}
+/**
+ * Check python generated scale encoding/decoding against test vectors.
+ */
+GTEST_VECTORS_REENCODE;
