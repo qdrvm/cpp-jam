@@ -12,6 +12,7 @@
 #include <set>
 
 #include <TODO_qtils/bytes_std_hash.hpp>
+#include <TODO_qtils/cxx23/ranges/contains.hpp>
 #include <qtils/append.hpp>
 
 #include <jam/bandersnatch.hpp>
@@ -200,12 +201,9 @@ namespace jam::disputes {
         // [GP 0.4.5 10.2 (105)]
         // There may be no duplicate report hashes within the extrinsic, nor
         // amongst any past reported hashes
-        auto in_good =
-            std::ranges::find(good_set, work_report) != good_set.end();
-        auto in_bad =  //
-            std::ranges::find(bad_set, work_report) != bad_set.end();
-        auto in_wonky =
-            std::ranges::find(wonky_set, work_report) != wonky_set.end();
+        auto in_good = qtils::cxx23::ranges::contains(good_set, work_report);
+        auto in_bad = qtils::cxx23::ranges::contains(bad_set, work_report);
+        auto in_wonky = qtils::cxx23::ranges::contains(wonky_set, work_report);
         if (not in_bad and not in_good and not in_wonky) {
           verdicts_registry.push_back(verdict);
           for (const auto &judgement : judgements) {
@@ -242,17 +240,17 @@ namespace jam::disputes {
 
         // [GP 0.4.5 10.2 (101)/1]
         // Ensure if work-report isn't in a bad yet
-        if (std::ranges::find(bad_set, work_report) != bad_set.end()) {
+        if (qtils::cxx23::ranges::contains(bad_set, work_report)) {
           return error(Error::already_judged);
         }
 
         // [GP 0.4.5 10.2 (101)/2]
         // Ensure validator from the set of current epoch
         const auto &validators_set = current_epoch_validator_set.v;
-        if (std::ranges::find_if(
-                validators_set,
-                [&](const auto &val) { return val.ed25519 == validator_key; })
-            == validators_set.end()) {
+        if (not qtils::cxx23::ranges::contains_if(
+                validators_set, [&](const auto &val) {
+                  return val.ed25519 == validator_key;
+                })) {
           return error(Error::bad_validator_index);  // TODO check error type
         }
 
@@ -266,7 +264,7 @@ namespace jam::disputes {
         prev_validator_key = validator_key;
 
         // Not report keys which are already in the punish-set
-        if (std::ranges::find(punish_set, validator_key) != punish_set.end()) {
+        if (qtils::cxx23::ranges::contains(punish_set, validator_key)) {
           return error(Error::offender_already_reported);
         }
 
@@ -291,17 +289,15 @@ namespace jam::disputes {
         const auto &validator_signature = fault.signature;
 
         // Ensure if work-report isn't in a wonky set yet
-        if (std::ranges::find(wonky_set, work_report) != wonky_set.end()) {
+        if (qtils::cxx23::ranges::contains(wonky_set, work_report)) {
           return error(Error::already_judged);
         }
 
         // [GP 0.4.5 10.2 (102)/1]
         // Check if there's any misbehavior
         // (e.g. vote against good or for bad one)
-        auto in_good =
-            std::ranges::find(good_set, work_report) != good_set.end();
-        auto in_bad =  //
-            std::ranges::find(bad_set, work_report) != bad_set.end();
+        auto in_good = qtils::cxx23::ranges::contains(good_set, work_report);
+        auto in_bad = qtils::cxx23::ranges::contains(bad_set, work_report);
         if ((not vote and in_bad) or (vote and in_good)) {
           return error(Error::fault_verdict_wrong);
         }
@@ -309,10 +305,10 @@ namespace jam::disputes {
         // [GP 0.4.5 10.2 (102)/2]
         // Ensure validator from the set of current epoch
         const auto &validators_set = current_epoch_validator_set.v;
-        if (std::ranges::find_if(
-                validators_set,
-                [&](const auto &val) { return val.ed25519 == validator_key; })
-            == validators_set.end()) {
+        if (not qtils::cxx23::ranges::contains_if(
+                validators_set, [&](const auto &val) {
+                  return val.ed25519 == validator_key;
+                })) {
           return error(Error::bad_validator_index);  // TODO check error type
         }
 
@@ -338,7 +334,7 @@ namespace jam::disputes {
         prev_validator_key = validator_key;
 
         // Not report keys which are already in the punish-set
-        if (std::ranges::find(punish_set, validator_key) != punish_set.end()) {
+        if (qtils::cxx23::ranges::contains(punish_set, validator_key)) {
           return error(Error::offender_already_reported);
         }
 
