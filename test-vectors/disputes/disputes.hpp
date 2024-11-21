@@ -25,6 +25,14 @@ using namespace std::string_literals;
 namespace jam::disputes {
   namespace types = test_vectors_disputes;
 
+  auto asSet(auto &&r) {
+    return std::set(r.begin(), r.end());
+  }
+
+  auto asVec(auto &&r) {
+    return std::vector(r.begin(), r.end());
+  }
+
   inline auto keys(const types::ValidatorsData &validators) {
     std::vector<types::Ed25519Key> keys;
     for (auto &validator : validators.v) {
@@ -366,24 +374,20 @@ namespace jam::disputes {
 
     // ψ'g - set of work-reports which were judged as correct
     // [GP 0.4.5 10.2 (112)]
-    std::set<types::WorkReportHash> new_good_set{good_set.begin(),
-                                                 good_set.end()};
+    auto new_good_set = asSet(good_set);
 
     // ψ'b - set of work-reports which were judged as incorrect
     // [GP 0.4.5 10.2 (113)]
-    std::set<types::WorkReportHash> new_bad_set{bad_set.begin(),  //
-                                                bad_set.end()};
+    auto new_bad_set = asSet(bad_set);
 
     // ψ'w - set of work-reports which were appeared impossible to judge
     // [GP 0.4.5 10.2 (114)]
-    std::set<types::WorkReportHash> new_wonky_set{wonky_set.begin(),
-                                                  wonky_set.end()};
+    auto new_wonky_set = asSet(wonky_set);
 
     // ψ'o - a set of Ed25519 keys representing validators which were found to
     // have misjudged a work-report
     // [GP 0.4.5 10.2 (115)]
-    std::set<types::WorkReportHash> new_punish_set{punish_set.begin(),
-                                                   punish_set.end()};
+    auto new_punish_set = asSet(punish_set);
 
     // The offenders markers must contain exactly the keys of all new offenders,
     // respectively
@@ -480,10 +484,10 @@ namespace jam::disputes {
     }
 
     auto state_tick = state;
-    state_tick.psi.psi_g = {new_good_set.begin(), new_good_set.end()};
-    state_tick.psi.psi_b = {new_bad_set.begin(), new_bad_set.end()};
-    state_tick.psi.psi_w = {new_wonky_set.begin(), new_wonky_set.end()};
-    state_tick.psi.psi_o = {new_punish_set.begin(), new_punish_set.end()};
+    state_tick.psi.psi_g = asVec(new_good_set);
+    state_tick.psi.psi_b = asVec(new_bad_set);
+    state_tick.psi.psi_w = asVec(new_wonky_set);
+    state_tick.psi.psi_o = asVec(new_punish_set);
     state_tick.rho = work_reports;
 
     return {
