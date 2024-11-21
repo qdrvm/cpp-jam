@@ -17,8 +17,6 @@
  * Common functions for test vectors
  */
 
-using namespace std::literals::string_literals;
-
 #define TEST_VECTOR_CASE_LABEL                                                 \
   [&] {                                                                        \
     std::filesystem::path label;                                               \
