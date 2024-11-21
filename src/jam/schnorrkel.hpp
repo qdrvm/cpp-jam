@@ -4,9 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-extern "C" {
 #include <schnorrkel_crust.h>
-}
 
 namespace jam::ed25519 {
   using Secret = qtils::BytesN<ED25519_SECRET_KEY_LENGTH>;
@@ -25,12 +23,13 @@ namespace jam::ed25519 {
     return sig;
   }
 
-  std::optional<bool> verify(
-      const Signature &signature, Message message, const Public &public_key) {
+  std::optional<bool> verify(const Signature &signature,
+                             Message message,
+                             const Public &public_key) {
     auto res = ed25519_verify(signature.data(),
-        public_key.data(),
-        message.data(),
-        message.size_bytes());
+                              public_key.data(),
+                              message.data(),
+                              message.size_bytes());
     if (res == ED25519_RESULT_OK) {
       return true;
     }

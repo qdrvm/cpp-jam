@@ -7,14 +7,15 @@
 #pragma once
 
 #include <algorithm>
-#include <boost/range/join.hpp>
 #include <map>
+#include <ranges>
 #include <set>
 
+#include <boost/range/join.hpp>
+#include <qtils/append.hpp>
+
 #include <jam/bandersnatch.hpp>
-#include <jam/scale.hpp>
 #include <jam/schnorrkel.hpp>
-#include <scale/scale.hpp>
 #include <test-vectors/common.hpp>
 #include <test-vectors/disputes/types.hpp>
 
@@ -31,11 +32,13 @@ namespace jam::disputes {
     return keys;
   }
 
-  template <typename... Args>
-  bool ed25519_verify(const jam::ed25519::Signature &sig,
-                      const jam::ed25519::Public &pub,
-                      const Args &...args) {
-    auto payload = scale::encode(args...).value();
+  inline bool ed25519_verify(const jam::ed25519::Signature &sig,
+                             const jam::ed25519::Public &pub,
+                             qtils::BytesIn X,
+                             const types::WorkReportHash &work_report) {
+    qtils::Bytes payload;
+    qtils::append(payload, X);
+    qtils::append(payload, work_report);
     auto res = jam::ed25519::verify(sig, payload, pub);
     if (not res.has_value()) {
       return false;
@@ -196,11 +199,11 @@ namespace jam::disputes {
           // Ensure signature is valid
           const auto &validator_public =
               validators_set[validator_index].ed25519;
-          auto is_valid_signature = ed25519_verify(
-              validator_signature,
-              validator_public,
-              vote ? WithoutLength(kJamValid) : WithoutLength(kJamInvalid),
-              work_report);
+          auto is_valid_signature =
+              ed25519_verify(validator_signature,
+                             validator_public,
+                             vote ? qtils::BytesIn{kJamValid} : kJamInvalid,
+                             work_report);
           if (not is_valid_signature) {
             return error(Error::bad_signature);
           }
@@ -243,10 +246,8 @@ namespace jam::disputes {
         // [GP 0.4.5 10.2 (101)/3]
         // Ensure signature is valid
         const auto &validator_public = validator_key;
-        auto is_valid_signature = ed25519_verify(validator_signature,
-                                                 validator_public,
-                                                 WithoutLength(kJamGuarantee),
-                                                 work_report);
+        auto is_valid_signature = ed25519_verify(
+            validator_signature, validator_public, kJamGuarantee, work_report);
         if (not is_valid_signature) {
           return error(Error::bad_signature);
         }
@@ -330,11 +331,11 @@ namespace jam::disputes {
         // [GP 0.4.5 10.2 (102)/3]
         // Ensure signature is valid
         const auto &validator_public = validator_key;
-        auto is_valid_signature = ed25519_verify(
-            validator_signature,
-            validator_public,
-            vote ? WithoutLength(kJamValid) : WithoutLength(kJamInvalid),
-            work_report);
+        auto is_valid_signature =
+            ed25519_verify(validator_signature,
+                           validator_public,
+                           vote ? qtils::BytesIn{kJamValid} : kJamInvalid,
+                           work_report);
         if (not is_valid_signature) {
           return error(Error::bad_signature);
         }
