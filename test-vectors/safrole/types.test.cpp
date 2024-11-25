@@ -11,5 +11,4 @@ GTEST_VECTORS(Safrole, jam::test_vectors_safrole::Vectors);
 /**
  * Check python generated scale encoding/decoding against test vectors.
  */
-GTEST_VECTORS_TEST_REENCODE(Safrole, jam::safrole);
-
+GTEST_VECTORS_TEST_REENCODE(Safrole);

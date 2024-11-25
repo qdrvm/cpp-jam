@@ -11,4 +11,4 @@ GTEST_VECTORS(History, jam::test_vectors_history::Vectors);
 /**
  * Check python generated scale encoding/decoding against test vectors.
  */
-GTEST_VECTORS_TEST_REENCODE(History, jam::history);
+GTEST_VECTORS_TEST_REENCODE(History);
