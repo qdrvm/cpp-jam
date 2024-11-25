@@ -151,7 +151,9 @@ namespace jam::disputes {
     // к - kappa, aka validator set of current epoch
     const auto &current_epoch_validator_set = state.kappa;
 
-    types::EpochIndex previous_epoch = current_epoch - 1;
+    types::EpochIndex previous_epoch =
+        current_epoch ? current_epoch - 1
+                      : 0;  // For using copy of epoch 0 as of previous one
 
     // λ - lambda, aka validator set of previous epoch
     const auto &previous_epoch_validator_set = state.lambda;
