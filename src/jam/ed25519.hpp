@@ -5,6 +5,7 @@
  */
 
 #include <schnorrkel_crust.h>
+#include <qtils/bytes.hpp>
 
 namespace jam::ed25519 {
   using Secret = qtils::BytesN<ED25519_SECRET_KEY_LENGTH>;

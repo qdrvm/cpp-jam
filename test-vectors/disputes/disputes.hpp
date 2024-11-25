@@ -16,7 +16,7 @@
 #include <qtils/append.hpp>
 
 #include <jam/bandersnatch.hpp>
-#include <jam/schnorrkel.hpp>
+#include <jam/ed25519.hpp>
 #include <test-vectors/common.hpp>
 #include <test-vectors/disputes/types.hpp>
 
