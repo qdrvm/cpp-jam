@@ -42,24 +42,24 @@
  * @when transition with `input`
  * @then get expected `post_state` and `output`
  */
-#define GTEST_VECTORS_TEST_TRANSITION(VectorName, Namespace)               \
-  using jam::test_vectors::getTestLabel;                                   \
-  TEST_P(VectorName##Test, Transition) {                                   \
-    std::cout << "Test transition for '" << getTestLabel(path) << "'\n\n"; \
-    auto testcase = vectors.read(path);                                    \
-    auto [state, output] = Namespace::transition(                          \
-        vectors.config, testcase.pre_state, testcase.input);               \
-    Indent indent{1};                                                      \
-    EXPECT_EQ(state, testcase.post_state)                                  \
-        << "Actual and expected states are differ";                        \
-    if (state != testcase.post_state) {                                    \
-      diff_m(indent, state, testcase.post_state, "state");                 \
-    }                                                                      \
-    EXPECT_EQ(output, testcase.output)                                     \
-        << "Actual and expected outputs are differ";                       \
-    if (output != testcase.output) {                                       \
-      diff_m(indent, output, testcase.output, "output");                   \
-    }                                                                      \
+#define GTEST_VECTORS_TEST_TRANSITION(VectorName, Namespace)        \
+  using jam::test_vectors::getTestLabel;                            \
+  TEST_P(VectorName##Test, Transition) {                            \
+    fmt::println("Test transition for '{}'\n", getTestLabel(path)); \
+    auto testcase = vectors.read(path);                             \
+    auto [state, output] = Namespace::transition(                   \
+        vectors.config, testcase.pre_state, testcase.input);        \
+    Indent indent{1};                                               \
+    EXPECT_EQ(state, testcase.post_state)                           \
+        << "Actual and expected states are differ";                 \
+    if (state != testcase.post_state) {                             \
+      diff_m(indent, state, testcase.post_state, "state");          \
+    }                                                               \
+    EXPECT_EQ(output, testcase.output)                              \
+        << "Actual and expected outputs are differ";                \
+    if (output != testcase.output) {                                \
+      diff_m(indent, output, testcase.output, "output");            \
+    }                                                               \
   }
 
 /**
@@ -68,14 +68,14 @@
  * @when decode it and encode back
  * @then `actual` result has the same value as `original`
  */
-#define GTEST_VECTORS_TEST_REENCODE(VectorName)                          \
-  using jam::test_vectors::getTestLabel;                                 \
-  TEST_P(VectorName##Test, Reencode) {                                   \
-    std::cout << "Test reencode for '" << getTestLabel(path) << "'\n\n"; \
-    auto expected = vectors.readRaw(path);                               \
-    auto decoded = vectors.decode(expected);                             \
-    auto reencoded = scale::encode(decoded).value();                     \
-    EXPECT_EQ(reencoded, expected);                                      \
+#define GTEST_VECTORS_TEST_REENCODE(VectorName)                   \
+  using jam::test_vectors::getTestLabel;                          \
+  TEST_P(VectorName##Test, Reencode) {                            \
+    fmt::println("Test reencode for '{}'\n", getTestLabel(path)); \
+    auto expected = vectors.readRaw(path);                        \
+    auto decoded = vectors.decode(expected);                      \
+    auto reencoded = scale::encode(decoded).value();              \
+    EXPECT_EQ(reencoded, expected);                               \
   }
 
 namespace jam::test_vectors {
