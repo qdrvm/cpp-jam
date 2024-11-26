@@ -207,7 +207,7 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
         if t["type"] == "NULL":
             t = dict(type="SEQUENCE", members=[])
         if t["type"] == "CHOICE":
-            if tname == "MmrPeak" or tname == "AvailabilityAssignmentItem": # TODO: Need to make in universal
+            if tname == "MmrPeak" or tname == "AvailabilityAssignmentItem": # TODO(#14): Need to make in universal
                 assert [x["name"] for x in t["members"]] == ["none", "some"]
                 ty.decl = c_using(
                     tname, "std::optional<%s>" % asn_member(t["members"][1])
