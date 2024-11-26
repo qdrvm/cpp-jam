@@ -170,6 +170,8 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
     def asn_member(t):
         if t["type"] == "OCTET STRING":
             t = dict(type="SEQUENCE OF", element=dict(type="U8"), size=t["size"])
+        if t["type"] == "BOOLEAN":
+            return "bool"
         if t["type"] == "SEQUENCE OF":
             r = asn_sequence_of(t)
         elif t["type"] in asn_types:
@@ -190,8 +192,14 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
     enum_trait = []
     for tname, t in asn_types.items():
         ty = types[tname]
+        if tname == "BOOLEAN":
+            ty.decl = c_using(tname, "bool")
+            continue
         if tname == "U8":
             ty.decl = c_using(tname, "uint8_t")
+            continue
+        if tname == "U16":
+            ty.decl = c_using(tname, "uint16_t")
             continue
         if tname == "U32":
             ty.decl = c_using(tname, "uint32_t")
@@ -199,7 +207,7 @@ def parse_types(NS: str, ARGS: list[str], path: str, key: str):
         if t["type"] == "NULL":
             t = dict(type="SEQUENCE", members=[])
         if t["type"] == "CHOICE":
-            if tname == "MmrPeak":
+            if tname == "MmrPeak" or tname == "AvailabilityAssignmentItem": # TODO(#14): Need to make in universal
                 assert [x["name"] for x in t["members"]] == ["none", "some"]
                 ty.decl = c_using(
                     tname, "std::optional<%s>" % asn_member(t["members"][1])
@@ -348,6 +356,19 @@ def safrole():
     )
     g.write("safrole")
 
+def disputes():
+    g = Gen(
+        "jam::test_vectors_disputes",
+        ["validators-count", "core-count", "epoch-length", "validators-super-majority"],
+        asn_file("disputes/disputes"),
+        "DisputesModule",
+        [
+            (name, parse_const(asn_file("disputes/%s" % name), "Constants"))
+            for name in ["tiny", "full"]
+        ],
+    )
+    g.write("disputes")
+
 
 def history():
     g = Gen(
@@ -362,4 +383,4 @@ def history():
 
 if __name__ == "__main__":
     for arg in sys.argv[1:]:
-        dict(safrole=safrole, history=history)[arg]()
+        dict(safrole=safrole, history=history, disputes=disputes)[arg]()

@@ -13,3 +13,4 @@ include(asn1.cmake)
 
 add_subdirectory(history)
 add_subdirectory(safrole)
+add_subdirectory(disputes)

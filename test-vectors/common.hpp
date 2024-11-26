@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <cstring>
 #include <stdexcept>
 
 #include <boost/endian/conversion.hpp>
@@ -37,8 +38,8 @@ namespace jam {
   // [GP 0.4.5 3.7.2]
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/notation.tex#L132
   template <size_t X, size_t Y>
-  qtils::BytesN<X + Y> frown(
-      const qtils::BytesN<X> &x, const qtils::BytesN<Y> &y) {
+  qtils::BytesN<X + Y> frown(const qtils::BytesN<X> &x,
+                             const qtils::BytesN<Y> &y) {
     qtils::BytesN<X + Y> xy;
     memcpy(xy.data(), x.data(), X);
     memcpy(xy.data() + X, y.data(), Y);
