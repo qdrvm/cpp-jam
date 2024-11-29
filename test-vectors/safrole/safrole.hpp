@@ -10,12 +10,18 @@
 #include <ranges>
 #include <unordered_map>
 
+#include <unordered_map>
+
 #include <jam/bandersnatch.hpp>
+#include <src/jam/tagged.hpp>
+#include <src/jam/variant_alternative.hpp>
+#include <test-vectors/common-scale.hpp>
+#include <test-vectors/common-types.hpp>
 #include <test-vectors/common.hpp>
-#include <test-vectors/safrole/types.hpp>
 
 namespace jam::safrole {
-  namespace types = test_vectors_safrole;
+  namespace types = jam::test_vectors;
+
   using BandersnatchSignature = decltype(types::TicketEnvelope::signature);
 
   // [GP 0.4.5 G 339]
@@ -28,14 +34,14 @@ namespace jam::safrole {
   }
 
   struct TicketBodyLess {
-    bool operator()(
-        const types::TicketBody &l, const types::TicketBody &r) const {
+    bool operator()(const types::TicketBody &l,
+                    const types::TicketBody &r) const {
       return l.id < r.id;
     }
   };
 
-  using GammaA = decltype(types::State::gamma_a);
-  using GammaZ = decltype(types::State::gamma_z);
+  using GammaA = decltype(types::safrole::State::gamma_a);
+  using GammaZ = decltype(types::safrole::State::gamma_z);
   using BandersnatchKeys = decltype(types::EpochMark::validators);
 
   inline auto &ring_ctx(const types::Config &config) {
@@ -75,8 +81,8 @@ namespace jam::safrole {
 
   // [GP 0.4.5 G 340]
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/bandersnatch.tex#L15
-  inline GammaZ mathcal_O(
-      const types::Config &config, const BandersnatchKeys &pks) {
+  inline GammaZ mathcal_O(const types::Config &config,
+                          const BandersnatchKeys &pks) {
     return ring_ctx(config).commitment(pks.v).value();
   }
 
@@ -100,10 +106,10 @@ namespace jam::safrole {
   /**
    * Given state and input, derive next state and output.
    */
-  inline std::pair<types::State, types::Output> transition(
+  inline std::pair<types::safrole::State, types::safrole::Output> transition(
       const types::Config &config,
-      const types::State &state,
-      const types::Input &input) {
+      const types::safrole::State &state,
+      const types::safrole::Input &input) {
     /// The length of an epoch in timeslots.
     // [GP 0.4.5 I.4.4]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L260
@@ -115,14 +121,21 @@ namespace jam::safrole {
     const auto Y = E * 5 / 6;
 
     /// H_t - a time-slot index
-    const auto &[H_t, banderout_H_v, E_T, offenders_tick] = input;
-    const auto
-        &[tau, eta, lambda, kappa, gamma_k, iota, gamma_a, gamma_s, gamma_z] =
-            state;
+    const auto &[H_t, banderout_H_v, E_T] = input;
+    const auto &[tau,
+                 eta,
+                 lambda,
+                 kappa,
+                 gamma_k,
+                 iota,
+                 gamma_a,
+                 gamma_s,
+                 gamma_z,
+                 post_offenders] = state;
     const auto &[eta_0, eta_1, eta_2, eta_3] = eta;
-    using Error = types::CustomErrorCode;
+    using Error = types::safrole::ErrorCode;
     const auto error = [&](Error error) {
-      return std::make_pair(state, types::Output{error});
+      return std::make_pair(state, types::safrole::Output{error});
     };
 
     // A block may only be regarded as valid once the time-slot index Ht is in
@@ -160,7 +173,8 @@ namespace jam::safrole {
       throw std::logic_error("not covered by test vectors");
     }
     if (m_tick >= Y and not E_T.empty()) {
-      return std::make_pair(state, types::Output{Error::unexpected_ticket});
+      return std::make_pair(state,
+                            types::safrole::Output{Error::unexpected_ticket});
     }
 
     // [GP 0.4.5 6.3 59]
@@ -169,8 +183,8 @@ namespace jam::safrole {
       types::ValidatorsData k_tick;
       for (auto &validator : k.v) {
         k_tick.v.emplace_back(
-            std::ranges::find(offenders_tick, validator.ed25519)
-                    != offenders_tick.end()
+            std::ranges::find(post_offenders, validator.ed25519)
+                    != post_offenders.end()
                 ? types::ValidatorData{}
                 : validator);
       }
@@ -242,13 +256,15 @@ namespace jam::safrole {
     // [GP 0.4.5 6.5 70]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L182
     const auto Z = [&](const GammaA &s) {
-      types::TicketsBodies tickets;
+      using TicketsBodies =
+          variant_alternative_t<0, types::TicketsOrKeys::type>;
+      TicketsBodies tickets;
       if (s.size() != E) {
         throw std::logic_error{"Z"};
       }
       auto it1 = s.begin(), it2 = std::prev(s.end());
       auto odd = true;
-      for (uint32_t i = 0; i < tickets.configSize(config); ++i) {
+      for (uint32_t i = 0; i < TicketsBodies::configSize(config); ++i) {
         tickets.v.emplace_back(odd ? *it1 : *it2);
         if (odd) {
           ++it1;
@@ -263,11 +279,13 @@ namespace jam::safrole {
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L190
     const auto F = [&](const types::OpaqueHash &r,
                        const types::ValidatorsData &k) {
-      types::EpochKeys keys;
+      using EpochKeys = variant_alternative_t<1, types::TicketsOrKeys::type>;
+      EpochKeys keys;
       for (uint32_t i = 0; i < E; ++i) {
-        keys.v.emplace_back(circlearrowleft(
-            k.v, de(first_bytes<4>(mathcal_H(frown(r, mathcal_E<4>(i))))))
-                                .bandersnatch);
+        keys.v.emplace_back(
+            circlearrowleft(
+                k.v, de(first_bytes<4>(mathcal_H(frown(r, mathcal_E<4>(i))))))
+                .bandersnatch);
       }
       return keys;
     };
@@ -279,9 +297,9 @@ namespace jam::safrole {
         : e_tick == e ? gamma_s
                       : types::TicketsOrKeys{F(eta_tick_2, kappa_tick)};
 
-    types::Output output;
+    types::safrole::Output output;
     return {
-        types::State{
+        types::safrole::State{
             .tau = tau_tick,
             .eta = {eta_tick_0, eta_tick_1, eta_tick_2, eta_tick_3},
             .lambda = lambda_tick,
@@ -293,11 +311,13 @@ namespace jam::safrole {
             .gamma_s = gamma_tick_s,
             .gamma_z = gamma_tick_z,
         },
-        types::Output{types::OutputMarks{
+        types::safrole::Output{types::safrole::OutputData{
             // [GP 0.4.5 6.6 72]
             // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L216
-            .epoch_mark = change_epoch ? std::make_optional(types::EpochMark{
-                              eta_tick_1, bandersnatch_keys(gamma_tick_k)})
+            .epoch_mark = change_epoch ? std::make_optional(
+                              types::EpochMark{eta_tick_1,
+                                               eta_tick_1,  // ???
+                                               bandersnatch_keys(gamma_tick_k)})
                                        : std::nullopt,
             // [GP 0.4.5 6.6 73]
             // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L224

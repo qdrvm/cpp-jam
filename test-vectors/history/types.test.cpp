@@ -6,9 +6,9 @@
 
 #include <test-vectors/history/vectors.hpp>
 
-GTEST_VECTORS(History, jam::test_vectors_history::Vectors);
+GTEST_VECTORS(History, history);
 
 /**
  * Check python generated scale encoding/decoding against test vectors.
  */
-GTEST_VECTORS_TEST_REENCODE(History);
+GTEST_VECTORS_TEST_REENCODE(History, history);
