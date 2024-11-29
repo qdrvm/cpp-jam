@@ -6,15 +6,17 @@
 
 #pragma once
 
-#include <test-vectors/disputes/types.scale.hpp>
+#include <test-vectors/config-full.hpp>
+#include <test-vectors/config-tiny.hpp>
+#include <test-vectors/disputes/disputes-scale.hpp>
 #include <test-vectors/vectors.hpp>
 
-namespace jam::test_vectors_disputes {
+namespace jam::test_vectors::disputes {
   struct Vectors : test_vectors::VectorsT<TestCase, Config> {
     std::string_view type;
 
     explicit Vectors(bool is_full)
-        : VectorsT{is_full ? config_full : config_tiny},
+        : VectorsT{is_full ? config::full : config::tiny},
           type{is_full ? "full" : "tiny"} {
       this->list(std::filesystem::path{"disputes"} / type);
     }
@@ -26,4 +28,4 @@ namespace jam::test_vectors_disputes {
       };
     }
   };
-}  // namespace jam::test_vectors_disputes
+}  // namespace jam::test_vectors::disputes

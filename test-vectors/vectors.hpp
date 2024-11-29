@@ -17,12 +17,14 @@
 /**
  * Common functions for test vectors
  */
-#define GTEST_VECTORS(VectorName, T)                                      \
-  struct VectorName##Test : jam::test_vectors::TestT<T> {};               \
+#define GTEST_VECTORS(VectorName, NsPart)                                 \
+  struct VectorName##Test                                                 \
+      : jam::test_vectors::TestT<jam::test_vectors::NsPart::Vectors> {};  \
   INSTANTIATE_TEST_SUITE_P(                                               \
       VectorName,                                                         \
       VectorName##Test,                                                   \
       testing::ValuesIn([] {                                              \
+        using T = jam::test_vectors::NsPart::Vectors;                     \
         std::vector<std::pair<std::shared_ptr<T>, std::filesystem::path>> \
             params;                                                       \
         for (auto &vectors : T::vectors()) {                              \
@@ -42,12 +44,22 @@
  * @when transition with `input`
  * @then get expected `post_state` and `output`
  */
-#define GTEST_VECTORS_TEST_TRANSITION(VectorName, Namespace)        \
-  using jam::test_vectors::getTestLabel;                            \
+#define GTEST_VECTORS_TEST_TRANSITION(VectorName, NsPart)           \
   TEST_P(VectorName##Test, Transition) {                            \
+    using jam::test_vectors::getTestLabel;                          \
     fmt::println("Test transition for '{}'\n", getTestLabel(path)); \
-    auto testcase = vectors.read(path);                             \
-    auto [state, output] = Namespace::transition(                   \
+                                                                    \
+    std::optional<jam::test_vectors::NsPart::TestCase> testcase_;   \
+    try {                                                           \
+      testcase_ = vectors.read(path);                               \
+    } catch (const boost::wrapexcept<std::system_error> &e) {       \
+      FAIL() << "Can't decode input file: " << e.what();            \
+    } catch (const std::exception &e) {                             \
+      FAIL() << "Can't decode input file: " << e.what();            \
+    }                                                               \
+    auto &testcase = testcase_.value();                             \
+                                                                    \
+    auto [state, output] = jam::NsPart::transition(                 \
         vectors.config, testcase.pre_state, testcase.input);        \
     Indent indent{1};                                               \
     EXPECT_EQ(state, testcase.post_state)                           \
@@ -68,14 +80,30 @@
  * @when decode it and encode back
  * @then `actual` result has the same value as `original`
  */
-#define GTEST_VECTORS_TEST_REENCODE(VectorName)                   \
-  using jam::test_vectors::getTestLabel;                          \
-  TEST_P(VectorName##Test, Reencode) {                            \
-    fmt::println("Test reencode for '{}'\n", getTestLabel(path)); \
-    auto expected = vectors.readRaw(path);                        \
-    auto decoded = vectors.decode(expected);                      \
-    auto reencoded = scale::encode(decoded).value();              \
-    EXPECT_EQ(reencoded, expected);                               \
+#define GTEST_VECTORS_TEST_REENCODE(VectorName, NsPart)                    \
+  TEST_P(VectorName##Test, Reencode) {                                     \
+    using jam::test_vectors::getTestLabel;                                 \
+    fmt::println("Test reencode for '{}'\n", getTestLabel(path));          \
+                                                                           \
+    auto expected = vectors.readRaw(path);                                 \
+                                                                           \
+    std::optional<jam::test_vectors::NsPart::TestCase> decoded_;            \
+    try {                                                                  \
+      decoded_ = vectors.decode(expected);                                 \
+    } catch (const boost::wrapexcept<std::system_error> &e) {              \
+      FAIL() << "Can't decode input file: " << e.what();                   \
+    } catch (const std::exception &e) {                                    \
+      FAIL() << "Can't decode input file: " << e.what();                   \
+    }                                                                      \
+    auto &decoded = decoded_.value();                                      \
+                                                                           \
+    auto encoded_ = scale::encode(decoded);                                \
+    if (encoded_.has_error()) {                                            \
+      FAIL() << fmt::format("Can't re-encode data: {}", encoded_.error()); \
+    }                                                                      \
+    auto &reencoded = encoded_.value();                                    \
+                                                                           \
+    EXPECT_EQ(reencoded, expected);                                        \
   }
 
 namespace jam::test_vectors {
@@ -121,12 +149,12 @@ namespace jam::test_vectors {
     VectorsT(Config config) : config{config} {}
 
     void list(const std::filesystem::path &relative) {
-      auto ext_scale = ".scale", ext_json = ".json";
-      auto use_ext = ext_scale;
+      auto ext_bin = ".bin", ext_json = ".json", ext_scale = ".scale";
+      auto use_ext = ext_bin;
       std::map<std::filesystem::path, bool> path_ok;
       for (auto &file : std::filesystem::directory_iterator{dir / relative}) {
         auto path = file.path(), ext = path.extension();
-        if (ext != ext_scale and ext != ext_json) {
+        if (ext != ext_bin and ext != ext_json and ext != ext_scale) {
           continue;
         }
         path.replace_extension(use_ext);
@@ -136,8 +164,8 @@ namespace jam::test_vectors {
       for (auto &[path, ok] : path_ok) {
         if (not ok) {
           fmt::println(
-              "{}:{} warning: {} is missing, but files with other extensions "
-              "are available",
+              "{}:{} warning: {} is missing, "
+              "but files with other extensions are available",
               __FILE__,
               __LINE__,
               path.native());

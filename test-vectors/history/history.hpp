@@ -9,10 +9,13 @@
 #include <qtils/option_take.hpp>
 
 #include <test-vectors/common.hpp>
-#include <test-vectors/history/types.hpp>
+#include <test-vectors/common-scale.hpp>
+#include <test-vectors/common-types.hpp>
+#include <test-vectors/common.hpp>
+#include <test-vectors/history/history-types.hpp>
 
 namespace jam::history {
-  namespace types = test_vectors_history;
+  namespace types = jam::test_vectors;
 
   /**
    * The size of recent history, in blocks
@@ -23,7 +26,7 @@ namespace jam::history {
 
   // [GP 0.4.5 E.2 333]
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/merklization.tex#L205
-  inline types::Mmr mathcal_A(types::Mmr r, types::Hash l) {
+  inline types::Mmr mathcal_A(types::Mmr r, types::StateRoot l) {  // ???
     for (size_t n = 0; n < r.peaks.size(); ++n) {
       if (not r.peaks[n]) {
         r.peaks[n] = l;
@@ -39,10 +42,10 @@ namespace jam::history {
   /**
    * Given state and input, derive next state and output.
    */
-  inline std::pair<types::State, types::Output> transition(
+  inline std::pair<types::history::State, types::history::Output> transition(
       const types::Config & /*config*/,
-      const types::State &state,
-      const types::Input &input) {
+      const types::history::State &state,
+      const types::history::Input &input) {
     // [GP 0.4.5 7 84]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/recent_history.tex#L32
     std::vector beta_tick(state.beta.size() >= H ? std::next(state.beta.begin())
@@ -63,9 +66,9 @@ namespace jam::history {
     beta_tick.emplace_back(types::BlockInfo{
         .header_hash = input.header_hash,
         .mmr = mmr_tick,
-        .state_root = types::Hash{},
+        .state_root = types::StateRoot{},
         .reported = input.work_packages,
     });
-    return std::make_pair(types::State{.beta = beta_tick}, types::Output{});
+    return std::make_pair(types::history::State{.beta = beta_tick}, types::history::Output{});
   }
 }  // namespace jam::history
