@@ -91,6 +91,20 @@ namespace jam {
       typename T,
       typename Tag,
       typename Base = std::conditional_t<std::is_scalar_v<T>, Wrapper<T>, T>>
+  void encodeConfig(scale::ScaleEncoderStream &s,
+                    const Tagged<T, Tag, Base> &tagged,
+                    const auto &config) {
+    if constexpr (std::is_scalar_v<T>) {
+      encodeConfig(s, tagged.Wrapper<const T>::value, config);
+    } else {
+      encodeConfig(s, static_cast<const T &>(tagged), config);
+    }
+  }
+
+  template <
+      typename T,
+      typename Tag,
+      typename Base = std::conditional_t<std::is_scalar_v<T>, Wrapper<T>, T>>
   void decodeConfig(scale::ScaleDecoderStream &s,
                     Tagged<T, Tag, Base> &tagged,
                     const auto &config) {

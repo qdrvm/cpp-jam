@@ -116,10 +116,11 @@ def asn_args(ARGS: list[str], types: dict, deps2: dict[str, set[str]]):
 def c_scale(ty: Type, encode: list[str], decode: list[str]):
     return [
         *ty.c_tdecl(),
-        "inline scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s, const %s &v) {"
+        "scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s, const %s &v) = delete;"
+        % ty.c_tname(),
+        "void encodeConfig(scale::ScaleEncoderStream &s, const %s &v, const auto &config) {"
         % ty.c_tname(),
         *indent(encode),
-        "  return s;",
         "}",
         *ty.c_tdecl(),
         "scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s, %s &) = delete;"
@@ -134,7 +135,7 @@ def c_scale(ty: Type, encode: list[str], decode: list[str]):
 def c_scale_struct(ty: Type, members: list[str]):
     return c_scale(
         ty,
-        ["s << v.%s;" % x for x in members],
+        ["encodeConfig(s, v.%s, config);" % x for x in members],
         ["decodeConfig(s, v.%s, config);" % x for x in members],
     )
 
@@ -289,6 +290,9 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
                 cpp_namespace, ty, ["DIFF_M(%s);" % c_dash(x["name"]) for x in t["members"]]
             )
             continue
+        if t["type"] == "NULL":
+            ty.decl = c_using(tname, "Empty");
+            continue
         ty.decl = c_using(tname, asn_member(t))
 
     order = asn1tools.c.utils.topological_sort(deps1)
@@ -411,7 +415,12 @@ class GenCommonTypes:
             *self.g_types,
         ]
         self.g_scale = flatten([ty.scale for ty in self.types])
-        self.g_scale = ["namespace %s {" % cpp_namespace, *indent(self.g_scale), "}"]
+        self.g_scale = [
+            "namespace %s {" % cpp_namespace,
+            "  using jam::encodeConfig;",
+            "  using jam::decodeConfig;",
+            *indent(self.g_scale), "}"
+        ]
         self.g_scale = [
             "// Auto-generated file",
             "",
