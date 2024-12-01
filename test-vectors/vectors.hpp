@@ -13,6 +13,7 @@
 #include <gtest/gtest.h>
 #include <qtils/read_file.hpp>
 #include <scale/scale.hpp>
+#include <test-vectors/config-types-scale.hpp>
 
 /**
  * Common functions for test vectors
@@ -80,30 +81,27 @@
  * @when decode it and encode back
  * @then `actual` result has the same value as `original`
  */
-#define GTEST_VECTORS_TEST_REENCODE(VectorName, NsPart)                    \
-  TEST_P(VectorName##Test, Reencode) {                                     \
-    using jam::test_vectors::getTestLabel;                                 \
-    fmt::println("Test reencode for '{}'\n", getTestLabel(path));          \
-                                                                           \
-    auto expected = vectors.readRaw(path);                                 \
-                                                                           \
-    std::optional<jam::test_vectors::NsPart::TestCase> decoded_;            \
-    try {                                                                  \
-      decoded_ = vectors.decode(expected);                                 \
-    } catch (const boost::wrapexcept<std::system_error> &e) {              \
-      FAIL() << "Can't decode input file: " << e.what();                   \
-    } catch (const std::exception &e) {                                    \
-      FAIL() << "Can't decode input file: " << e.what();                   \
-    }                                                                      \
-    auto &decoded = decoded_.value();                                      \
-                                                                           \
-    auto encoded_ = scale::encode(decoded);                                \
-    if (encoded_.has_error()) {                                            \
-      FAIL() << fmt::format("Can't re-encode data: {}", encoded_.error()); \
-    }                                                                      \
-    auto &reencoded = encoded_.value();                                    \
-                                                                           \
-    EXPECT_EQ(reencoded, expected);                                        \
+#define GTEST_VECTORS_TEST_REENCODE(VectorName, NsPart)           \
+  TEST_P(VectorName##Test, Reencode) {                            \
+    using jam::test_vectors::getTestLabel;                        \
+    fmt::println("Test reencode for '{}'\n", getTestLabel(path)); \
+                                                                  \
+    auto expected = vectors.readRaw(path);                        \
+                                                                  \
+    std::optional<jam::test_vectors::NsPart::TestCase> decoded_;  \
+    try {                                                         \
+      decoded_ = vectors.decode(expected);                        \
+    } catch (const boost::wrapexcept<std::system_error> &e) {     \
+      FAIL() << "Can't decode input file: " << e.what();          \
+    } catch (const std::exception &e) {                           \
+      FAIL() << "Can't decode input file: " << e.what();          \
+    }                                                             \
+    auto &decoded = decoded_.value();                             \
+                                                                  \
+    auto encoded_ = vectors.encode(decoded);                      \
+    auto &reencoded = encoded_;                                   \
+                                                                  \
+    EXPECT_EQ(reencoded, expected);                               \
   }
 
 namespace jam::test_vectors {
@@ -180,6 +178,12 @@ namespace jam::test_vectors {
       T testcase;
       decodeConfig(s, testcase, config);
       return testcase;
+    }
+
+    auto encode(const auto &value) const {
+      scale::ScaleEncoderStream s;
+      encodeConfig(s, value, config);
+      return s.to_vector();
     }
 
     static auto readRaw(const std::filesystem::path &path) {
