@@ -50,10 +50,10 @@ jobs:
             jam-${{ runner.os }}
             
       - name: "Basic init"
-        run: ./.ci/scripts/init.sh
+        run: sudo ./.ci/scripts/init.sh
         
       - name: "Init all dependencies"
-        run: make init_all
+        run: sudo make init_all
         
       - name: "Configure"
         run: make configure
