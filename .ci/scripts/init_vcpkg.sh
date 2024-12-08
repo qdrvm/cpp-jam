@@ -3,12 +3,17 @@ set -euo pipefail
 # set -x
 
 init_vcpkg() {
-  if [[ ! -e $VCPKG ]]; then
+  if [[ ! -d $VCPKG || -z "$(ls -A $VCPKG 2>/dev/null)" ]]; then
+    echo "Directory $VCPKG does not exist or is empty. Cloning vcpkg..."
     git clone https://github.com/microsoft/vcpkg.git $VCPKG
   fi
+
   if [[ ! -e $VCPKG/vcpkg ]]; then
+    echo "vcpkg executable not found. Bootstrapping vcpkg..."
     $VCPKG/bootstrap-vcpkg.sh -disableMetrics
   fi
+
+  echo "vcpkg is initialized at $VCPKG."
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
