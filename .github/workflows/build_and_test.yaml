@@ -19,7 +19,7 @@ on:
 env:
   USE_CACHE: ${{ github.event.inputs.use_cache || 'true' }}
   CACHE_VERSION: v01
-  CACHE_PATHS: |
+  CACHE_PATH: |
     ~/.cargo
     ~/.hunter
     ~/.cache/pip
@@ -27,6 +27,7 @@ env:
     .vcpkg
     .venv
     .build
+
 
 jobs:
   build-and-test:
@@ -38,13 +39,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+        with:
+          submodules: true
+          fetch-depth: 0
+      
       - name: "Restore cache dependencies"
         id: cache-restore
         if: ${{ env.USE_CACHE == 'true' }}
         uses: actions/cache/restore@v4
         with:
-          path: ${{ env.CACHE_PATHS }}
+          path: ${{ env.CACHE_PATH }}
           key: jam-${{ runner.os }}-${{ github.job }}-${{ env.CACHE_VERSION }}
           restore-keys: |
             jam-${{ runner.os }}-${{ github.job }}
