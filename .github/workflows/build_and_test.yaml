@@ -42,15 +42,16 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
-      
+
       - name: "Restore cache dependencies"
         id: cache-restore
         if: ${{ env.USE_CACHE == 'true' }}
         uses: actions/cache/restore@v4
         with:
           path: ${{ env.CACHE_PATH }}
-          key: jam-${{ runner.os }}-${{ github.job }}-${{ env.CACHE_VERSION }}
+          key: jam-${{ runner.os }}-${{ github.job }}-${{ env.CACHE_VERSION }}-${{ github.run_id }}
           restore-keys: |
+            jam-${{ runner.os }}-${{ github.job }}-${{ env.CACHE_VERSION }}
             jam-${{ runner.os }}-${{ github.job }}
             jam-${{ runner.os }}
             
