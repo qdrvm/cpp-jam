@@ -1,0 +1,73 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      use_cache:
+        description: 'Use cache for build'
+        required: true
+        default: 'true'
+        type: 'choice'
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  USE_CACHE: ${{ github.event.inputs.use_cache || 'true' }}
+  CACHE_VERSION: v01
+  CACHE_PATHS: |
+    ~/.cargo
+    ~/.hunter
+    ~/.cache/pip
+    ~/.cache/vcpkg
+    .vcpkg
+    .venv
+    .build
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: "Restore cache dependencies"
+        id: cache-restore
+        if: ${{ env.USE_CACHE == 'true' }}
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.CACHE_PATHS }}
+          key: jam-${{ runner.os }}-${{ github.job }}-${{ env.CACHE_VERSION }}
+          restore-keys: |
+            jam-${{ runner.os }}-${{ github.job }}
+            jam-${{ runner.os }}
+            
+      - name: "Basic init"
+        run: ./.ci/scripts/init.sh
+        
+      - name: "Init all dependencies"
+        run: make init_all
+        
+      - name: "Configure"
+        run: make configure
+      
+      - name: "Build"
+        run: make build
+        
+      - name: "Test"
+        run: make test
+
+      - name: "Always Save Cache"
+        id: cache-save
+        if: always() && ( steps.cache-restore.outputs.cache-hit != 'true' )
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.CACHE_PATH }}
+          key: ${{ steps.cache-restore.outputs.cache-primary-key }}
