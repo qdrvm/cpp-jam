@@ -2,10 +2,10 @@ SHELL := /bin/bash
 PROJECT := $(shell pwd)
 CI_DIR := $(PROJECT)/.ci
 
-VENV=$(PROJECT)/.venv
-BUILD=$(PROJECT)/.build
-VCPKG=$(PROJECT)/.vcpkg
-PATH=$(VENV)/bin:$(shell echo $$PATH)
+VENV ?= $(PROJECT)/.venv
+BUILD ?= $(PROJECT)/.build
+VCPKG ?= $(PROJECT)/.vcpkg
+PATH = $(VENV)/bin:$(shell echo $$PATH)
 
 ifneq (,$(wildcard $(CI_DIR)/.env))
     include $(CI_DIR)/.env
