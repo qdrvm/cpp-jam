@@ -116,18 +116,16 @@ def asn_args(ARGS: list[str], types: dict, deps2: dict[str, set[str]]):
 def c_scale(ty: Type, encode: list[str], decode: list[str]):
     return [
         *ty.c_tdecl(),
-        "scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s, const %s &v) = delete;"
-        % ty.c_tname(),
-        "void encodeConfig(scale::ScaleEncoderStream &s, const %s &v, const auto &config) {"
+        "inline scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s, const %s &v) {"
         % ty.c_tname(),
         *indent(encode),
+        "  return s;",
         "}",
         *ty.c_tdecl(),
-        "scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s, %s &) = delete;"
-        % ty.c_tname(),
-        "void decodeConfig(scale::ScaleDecoderStream &s, %s &v, const auto &config) {"
+        "inline scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s, %s &v) {"
         % ty.c_tname(),
         *indent(decode),
+        "  return s;",
         "}",
     ]
 
@@ -135,8 +133,8 @@ def c_scale(ty: Type, encode: list[str], decode: list[str]):
 def c_scale_struct(ty: Type, members: list[str]):
     return c_scale(
         ty,
-        ["encodeConfig(s, v.%s, config);" % x for x in members],
-        ["decodeConfig(s, v.%s, config);" % x for x in members],
+        ["s << v.%s;" % x for x in members],
+        ["s >> v.%s;" % x for x in members],
     )
 
 
@@ -417,8 +415,6 @@ class GenCommonTypes:
         self.g_scale = flatten([ty.scale for ty in self.types])
         self.g_scale = [
             "namespace %s {" % cpp_namespace,
-            "  using jam::encodeConfig;",
-            "  using jam::decodeConfig;",
             *indent(self.g_scale), "}"
         ]
         self.g_scale = [
