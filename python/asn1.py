@@ -173,11 +173,11 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
                 if type(size) is int:
                     return "qtils::BytesN<%u>" % size
                 else:
-                    return "jam::ConfigVec<uint8_t, Config::Field::%s>" % c_dash(size)
+                    return "::jam::ConfigVec<uint8_t, Config::Field::%s>" % c_dash(size)
             return "qtils::Bytes"
         if fixed:
             if isinstance(size, str):
-                return "jam::ConfigVec<%s, Config::Field::%s>" % (T, c_dash(size))
+                return "::jam::ConfigVec<%s, Config::Field::%s>" % (T, c_dash(size))
             return "std::array<%s, %s>" % (T, c_dash(size))
         return "std::vector<%s>" % T
 
