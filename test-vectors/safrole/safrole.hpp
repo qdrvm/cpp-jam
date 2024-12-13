@@ -20,6 +20,7 @@
 #include <test-vectors/common-scale.hpp>
 #include <test-vectors/common-types.hpp>
 #include <test-vectors/common.hpp>
+#include <test-vectors/config-full.hpp>
 
 namespace jam::safrole {
   namespace types = jam::test_vectors;
@@ -61,11 +62,6 @@ namespace jam::safrole {
   // clang-format off
   constexpr qtils::BytesN<15> X_T = {'j','a','m','_','t','i','c','k','e','t','_','s','e','a','l'};
   // clang-format on
-
-  // The number of ticket entries per validator.
-  // [GP 0.4.5 I.4.4]
-  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L271
-  constexpr uint32_t N = 2;
 
   // The maximum number of tickets which may be submitted in a single extrinsic.
   // [GP 0.4.5 I.4.4]
@@ -116,6 +112,11 @@ namespace jam::safrole {
     // [GP 0.4.5 I.4.4]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L260
     const auto E = config.epoch_length;
+
+    // The number of ticket entries per validator.
+    // [GP 0.4.5 I.4.4]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L271
+    const uint32_t N = config.tickets_per_validator;
 
     /// The number of slots into an epoch at which ticket-submission ends.
     // [GP 0.4.5 I.4.4]
@@ -273,19 +274,19 @@ namespace jam::safrole {
 
       fmt::println("new: {}-{}", ticket.id[0], ticket.attempt);
 
-      // Duplicate identifiers are neve allowed lest a validator submit the
-      // same ticket multiple times
-      // [GP 0.5.2 6.7 (6.33)]
-      if (qtils::cxx23::ranges::contains(gamma_a, ticket)) {
-        return error(Error::duplicate_ticket);
-      }
-
       // We define the extrinsic as a sequence of proofs of valid tickets,
       // each of which is a tuple of an entry index (a natural number less
       // than N) and a proof of ticket validity
       // [GP 0.5.2 6.7 (6.29)]
       if (attempt >= N) {
         return error(Error::bad_ticket_attempt);
+      }
+
+      // Duplicate identifiers are neve allowed lest a validator submit the
+      // same ticket multiple times
+      // [GP 0.5.2 6.7 (6.33)]
+      if (qtils::cxx23::ranges::contains(gamma_tick_a, ticket)) {
+        return error(Error::duplicate_ticket);
       }
 
       // The tickets submitted via the extrinsic must already have been placed
@@ -297,7 +298,7 @@ namespace jam::safrole {
       prev_ticket = ticket;
 
       // [GP 0.5.2 6.7 (6.34)]
-      gamma_tick_a.emplace(ticket_id);
+      gamma_tick_a.emplace(ticket);
 
       // The maximum size of the ticket accumulator is E. On each block, the
       // accumulator becomes the lowest items of the sorted union of tickets
