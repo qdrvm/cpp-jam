@@ -4,4 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-asn1(history history)
+add_test_vector(history)
+
+
