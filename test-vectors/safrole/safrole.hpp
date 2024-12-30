@@ -11,8 +11,6 @@
 #include <set>
 #include <unordered_map>
 
-#include <unordered_map>
-
 #include <TODO_qtils/cxx23/ranges/contains.hpp>
 #include <jam/bandersnatch.hpp>
 #include <src/jam/tagged.hpp>
@@ -207,8 +205,7 @@ namespace jam::safrole {
       types::ValidatorsData k_tick;
       for (auto &validator : k.v) {
         k_tick.v.emplace_back(
-            std::ranges::find(post_offenders, validator.ed25519)
-                    != post_offenders.end()
+            qtils::cxx23::ranges::contains(post_offenders, validator.ed25519)
                 ? types::ValidatorData{}
                 : validator);
       }
@@ -251,10 +248,6 @@ namespace jam::safrole {
     if (not change_epoch) {
       gamma_tick_a.insert(gamma_a.begin(), gamma_a.end());
     }
-
-    std::ranges::for_each(gamma_tick_a, [&](const auto &t) {
-      fmt::println("old: {}-{}", t.id[0], t.attempt);
-    });
 
     std::optional<test_vectors::TicketBody> prev_ticket;
     for (const auto &ticket_envelope : extrinsic) {

@@ -7,7 +7,7 @@
 #pragma once
 
 #include <qtils/bytes.hpp>
-#include <qtils/byte_utils.hpp>
+#include <qtils/bytestr.hpp>
 
 namespace qtils {
   struct BytesStdHash {
