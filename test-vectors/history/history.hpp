@@ -26,7 +26,7 @@ namespace jam::history {
 
   // [GP 0.4.5 E.2 333]
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/merklization.tex#L205
-  inline types::Mmr mathcal_A(types::Mmr r, types::StateRoot l) {  // ???
+  inline types::Mmr mathcal_A(types::Mmr r, types::OpaqueHash l) {
     for (size_t n = 0; n < r.peaks.size(); ++n) {
       if (not r.peaks[n]) {
         r.peaks[n] = l;
