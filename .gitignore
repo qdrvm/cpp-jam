@@ -35,6 +35,8 @@
 .idea
 
 /build
+/cmake-build-*
+
 /.build
 /.venv
 /.vcpkg

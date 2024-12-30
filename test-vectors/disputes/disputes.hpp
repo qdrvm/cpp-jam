@@ -14,14 +14,17 @@
 #include <TODO_qtils/bytes_std_hash.hpp>
 #include <TODO_qtils/cxx23/ranges/contains.hpp>
 #include <qtils/append.hpp>
+#include <scale/scale.hpp>
 
 #include <jam/bandersnatch.hpp>
 #include <jam/ed25519.hpp>
+#include <test-vectors/common-scale.hpp>
+#include <test-vectors/common-types.hpp>
 #include <test-vectors/common.hpp>
-#include <test-vectors/disputes/types.hpp>
+#include <test-vectors/disputes/disputes-types.hpp>
 
 namespace jam::disputes {
-  namespace types = test_vectors_disputes;
+  namespace types = jam::test_vectors;
 
   auto asSet(auto &&r) {
     return std::set(r.begin(), r.end());
@@ -41,7 +44,7 @@ namespace jam::disputes {
       I begin;
       I end;
 
-      auto makeEnd() const {
+      [[nodiscard]] auto makeEnd() const {
         return begin == m.end() ? m.end() : m.upper_bound(begin->first);
       }
       It(const M &m, I begin) : m{m}, begin{begin}, end{makeEnd()} {}
@@ -60,10 +63,10 @@ namespace jam::disputes {
       }
     };
 
-    auto begin() const {
+    [[nodiscard]] auto begin() const {
       return It{m, m.begin()};
     }
-    auto end() const {
+    [[nodiscard]] auto end() const {
       return It{m, m.end()};
     }
   };
@@ -78,7 +81,7 @@ namespace jam::disputes {
     qtils::append(payload, X);
     qtils::append(payload, work_report);
     return jam::ed25519::verify(sig, payload, pub);
-  };
+  }
 
   // [GP 0.4.5 I.4.5]
   // $jam_valid - Ed25519 Judgments for valid work-reports.
@@ -96,13 +99,13 @@ namespace jam::disputes {
       'j', 'a', 'm', '_', 'g', 'u', 'a', 'r', 'a', 'n', 't', 'e', 'e'};
 
   /// Given state and input, derive next state and output.
-  inline std::pair<types::State, types::Output> transition(
+  inline std::pair<types::disputes::State, types::disputes::Output> transition(
       const types::Config &config,
-      const types::State &state,
-      const types::Input &input) {
-    using Error = types::ErrorCode;
+      const types::disputes::State &state,
+      const types::disputes::Input &input) {
+    using Error = types::disputes::ErrorCode;
     const auto error = [&](Error error) {
-      return std::make_pair(state, types::Output{error});
+      return std::make_pair(state, types::disputes::Output{error});
     };
 
     // [GP 0.4.5 10.1]
@@ -113,17 +116,17 @@ namespace jam::disputes {
 
     // [GP 0.4.5 10 97]
     // ψg - set of work-reports which were judged as correct
-    const auto &good_set = dispute_records.psi_g;
+    const auto &good_set = dispute_records.good;
 
     // ψb - set of work-reports which were judged as incorrect
-    const auto &bad_set = dispute_records.psi_b;
+    const auto &bad_set = dispute_records.bad;
 
     // ψw - set of work-reports which were appeared impossible to judge
-    const auto &wonky_set = dispute_records.psi_w;
+    const auto &wonky_set = dispute_records.wonky;
 
     // ψo - a set of Ed25519 keys representing validators which were found to
     // have misjudged a work-report
-    const auto &punish_set = dispute_records.psi_o;
+    const auto &punish_set = dispute_records.offenders;
 
     // [GP 0.4.5 10.2]
     // ED ≡ (v, c, f)
@@ -146,12 +149,12 @@ namespace jam::disputes {
     // Signature related judgment offenders.
     const auto &faults = ext.faults;
 
-    types::EpochIndex current_epoch = state.tau / config.epoch_length;
+    auto current_epoch = state.tau / config.epoch_length;
 
     // к - kappa, aka validator set of current epoch
     const auto &current_epoch_validator_set = state.kappa;
 
-    types::EpochIndex previous_epoch =
+    auto previous_epoch =
         current_epoch ? current_epoch - 1
                       : 0;  // For using copy of epoch 0 as of previous one
 
@@ -159,11 +162,10 @@ namespace jam::disputes {
     const auto &previous_epoch_validator_set = state.lambda;
 
     // Verdicts for registration
-    std::vector<types::DisputeVerdict> verdicts_registry;
-    std::unordered_multimap<
-        types::WorkReportHash,
-        std::reference_wrapper<const types::DisputeJudgement>,
-        qtils::BytesStdHash>
+    std::vector<types::Verdict> verdicts_registry;
+    std::unordered_multimap<types::WorkReportHash,
+                            std::reference_wrapper<const types::Judgement>,
+                            qtils::BytesStdHash>
         judgements_registry;
 
     // Check verdicts.
@@ -246,7 +248,7 @@ namespace jam::disputes {
     }
 
     std::multimap<types::WorkReportHash,
-                  std::reference_wrapper<const types::DisputeCulpritProof>,
+                  std::reference_wrapper<const types::Culprit>,
                   std::less<>
                   // std::equal_to<>
                   //  hash_range<types::WorkReportHash>
@@ -255,7 +257,7 @@ namespace jam::disputes {
 
     // Check culprits
     {
-      std::optional<types::Ed25519Key> prev_validator_key{};
+      std::optional<types::Ed25519Public> prev_validator_key{};
       for (const auto &culprit : culprits) {
         const auto &work_report = culprit.target;
         const auto &validator_key = culprit.key;
@@ -305,7 +307,7 @@ namespace jam::disputes {
     }
 
     std::multimap<types::WorkReportHash,
-                  std::reference_wrapper<const types::DisputeFaultProof>,
+                  std::reference_wrapper<const types::Fault>,
                   std::less<>
                   // hash_range<types::WorkReportHash>
                   >
@@ -313,7 +315,7 @@ namespace jam::disputes {
 
     // Check faults
     {
-      std::optional<types::Ed25519Key> prev_validator_key{};
+      std::optional<types::Ed25519Public> prev_validator_key{};
       for (const auto &fault : faults) {
         const auto &work_report = fault.target;
         const auto vote = fault.vote;
@@ -416,7 +418,7 @@ namespace jam::disputes {
     // The offenders markers must contain exactly the keys of all new offenders,
     // respectively
     // [GP 0.4.5 10.2 (116)]
-    std::vector<types::Ed25519Key> offenders_mark;
+    std::vector<types::Ed25519Public> offenders_mark;
 
     // Analise verdicts
     for (const auto &[work_report, counts] : vote_count_by_judgements) {
@@ -463,9 +465,9 @@ namespace jam::disputes {
     }
 
     // Analise culprits
-    for (auto [work_report, culprits] : MultimapGroups{culprits_registry}) {
+    for (auto [work_report, culprits_] : MultimapGroups{culprits_registry}) {
       // Check if the verdict of culprit is bad
-      for (auto &culprit : culprits) {
+      for (auto &culprit : culprits_) {
         const auto &validator_public = culprit.get().key;
         offenders_mark.emplace_back(validator_public);  // [GP 0.4.5 10.2 (116)]
         new_punish_set.emplace(validator_public);       // [GP 0.4.5 10.2 (115)]
@@ -474,10 +476,10 @@ namespace jam::disputes {
     }
 
     // Analise faults
-    for (auto [work_report, faults] : MultimapGroups{faults_registry}) {
+    for (auto [work_report, faults_] : MultimapGroups{faults_registry}) {
       // Check if the verdict of fault is bad
-      for (auto &fault : faults) {
-        if (fault.get().vote != false) {  // voting opposite
+      for (auto &fault : faults_) {
+        if (fault.get().vote) {  // voting opposite
           return error(Error::fault_verdict_wrong);
         }
         const auto &validator_public = fault.get().key;
@@ -494,25 +496,27 @@ namespace jam::disputes {
     // their core
     // [GP 0.4.5 10.2 (111)]
     for (auto &row_work_report : work_reports.v) {
-      auto work_report = mathcal_H(row_work_report->dummy_work_report);
-      if (new_bad_set.contains(work_report)
-          or new_wonky_set.contains(work_report)) {
-        row_work_report.reset();
+      if (row_work_report.has_value()) {
+        auto work_report =
+            mathcal_H(jam::encode(row_work_report.value().report, config).value());
+        if (new_bad_set.contains(work_report)
+            or new_wonky_set.contains(work_report)) {
+          row_work_report.reset();
+        }
       }
     }
 
     auto state_tick = state;
-    state_tick.psi.psi_g = asVec(new_good_set);
-    state_tick.psi.psi_b = asVec(new_bad_set);
-    state_tick.psi.psi_w = asVec(new_wonky_set);
-    state_tick.psi.psi_o = asVec(new_punish_set);
+    state_tick.psi.good = asVec(new_good_set);
+    state_tick.psi.bad = asVec(new_bad_set);
+    state_tick.psi.wonky = asVec(new_wonky_set);
+    state_tick.psi.offenders = asVec(new_punish_set);
     state_tick.rho = work_reports;
 
     return {
         state_tick,
-        types::Output{types::DisputesOutputMarks{
+        types::disputes::Output{types::disputes::OutputData{
             .offenders_mark = {offenders_mark.begin(), offenders_mark.end()},
-        }},
-    };
+        }}};
   }
 }  // namespace jam::disputes

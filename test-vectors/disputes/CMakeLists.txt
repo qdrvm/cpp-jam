@@ -4,9 +4,11 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-asn1(disputes disputes tiny full)
-target_link_libraries(test_vectors_disputes_test
+add_test_vector(disputes tiny full)
+
+add_test_vector_libraries(disputes
     jam_crust::jam_crust
     PkgConfig::libb2
     schnorrkel_crust::schnorrkel_crust
 )
+

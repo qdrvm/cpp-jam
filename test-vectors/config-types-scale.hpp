@@ -6,90 +6,89 @@
 
 #pragma once
 
+#include <array>
+#include <optional>
+#include <variant>
+#include <vector>
+
 #include <scale/scale.hpp>
+#include <src/jam/empty.hpp>
+
+#include <boost/variant.hpp>
+#include <qtils/bytes.hpp>
 
 #include <test-vectors/config-types.hpp>
+#include <test-vectors/config.hpp>
 
-namespace scale {
-  template <typename T>
-  void decodeConfig(ScaleDecoderStream &s, T &v, const auto &config) {
-    s >> v;
-  }
+namespace jam {
 
-  template <typename T>
-  void decodeConfig(
-      ScaleDecoderStream &s, std::vector<T> &v, const auto &config) {
-    auto n = s.decodeLength();
-    v.resize(0);
-    v.reserve(n);
-    for (size_t i = 0; i < n; ++i) {
-      T item;
-      decodeConfig(s, item, config);
-      v.emplace_back(std::move(item));
-    }
-  }
-
-  template <typename T>
-  void decodeConfig(
-      ScaleDecoderStream &s, std::optional<T> &v, const auto &config) {
-    uint8_t i = 0;
-    s >> i;
-    if (i == 0) {
-      v.reset();
-    } else if (i == 1) {
-      T item;
-      decodeConfig(s, item, config);
-      v = std::move(item);
-    } else {
-      raise(DecodeError::WRONG_TYPE_INDEX);
-    }
+  template <typename... Ts>
+  scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s,
+                                        const std::variant<Ts...> &v) {
+    s << static_cast<uint8_t>(v.index());
+    std::visit([&](const auto &v) { s << v; }, v);
+    return s;
   }
 
   template <size_t I, typename T, typename... Ts>
-  void decodeConfigVariant(
-      size_t i, ScaleDecoderStream &s, auto &v, const auto &config) {
+  void decodeConfigStdVariant(size_t i, scale::ScaleDecoderStream &s, auto &v) {
     if (i == I) {
-      T item;
-      decodeConfig(s, item, config);
-      v = std::move(item);
+      v = T{};
+      s >> std::get<T>(v);
     } else if constexpr (sizeof...(Ts) != 0) {
-      decodeConfigVariant<I + 1, Ts...>(i, s, v, config);
+      decodeConfigStdVariant<I + 1, Ts...>(i, s, v);
     }
   }
 
   template <typename... Ts>
-  void decodeConfig(
-      ScaleDecoderStream &s, boost::variant<Ts...> &v, const auto &config) {
+  scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s,
+                                        std::variant<Ts...> &v) {
     uint8_t i = 0;
     s >> i;
-    if (i >= sizeof...(Ts)) {
-      raise(DecodeError::WRONG_TYPE_INDEX);
+    if (i < sizeof...(Ts)) {
+      decodeConfigStdVariant<0, Ts...>(i, s, v);
+      return s;
     }
-    decodeConfigVariant<0, Ts...>(i, s, v, config);
+    raise(scale::DecodeError::WRONG_TYPE_INDEX);
   }
-}  // namespace scale
 
-namespace jam {
   template <typename T, typename ConfigField>
-  void decodeConfig(scale::ScaleDecoderStream &s,
-      ConfigVec<T, ConfigField> &v,
-      const auto &config) {
+  scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s,
+                                        const ConfigVec<T, ConfigField> &v) {
+    auto &config = s.getConfig<jam::test_vectors::Config>();
     auto n = v.configSize(config);
-    v.v.resize(0);
-    v.v.reserve(n);
-    for (size_t i = 0; i < n; ++i) {
-      T item;
-      decodeConfig(s, item, config);
-      v.v.emplace_back(std::move(item));
-    }
-  }
-
-  template <typename T, typename ConfigField>
-  scale::ScaleEncoderStream &operator<<(
-      scale::ScaleEncoderStream &s, const ConfigVec<T, ConfigField> &v) {
+    assert(v.v.size() == n);
     for (auto &item : v.v) {
       s << item;
     }
     return s;
   }
+
+  template <typename T, typename ConfigField>
+  scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s,
+                                        ConfigVec<T, ConfigField> &v) {
+    auto &config = s.getConfig<jam::test_vectors::Config>();
+    auto n = v.configSize(config);
+    v.v.resize(n);
+    for (auto &item : v.v) {
+      s >> item;
+    }
+    return s;
+  }
+
+  template <typename T>
+  outcome::result<scale::ByteArray> encode(const T &v, const auto &config) {
+    scale::ScaleEncoderStream s(config);
+    OUTCOME_TRY(encode(s, v));
+    return outcome::success(s.to_vector());
+  }
+
+  template <typename T>
+  outcome::result<T> decode(qtils::BytesIn bytes, const auto &config) {
+    scale::ScaleDecoderStream s(bytes, config);
+    T t;
+    OUTCOME_TRY(scale::decode<T>(s, t));
+    return outcome::success(std::move(t));
+  }
+
 }  // namespace jam
