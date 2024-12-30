@@ -265,8 +265,6 @@ namespace jam::safrole {
           .attempt = attempt,
       };
 
-      fmt::println("new: {}-{}", ticket.id[0], ticket.attempt);
-
       // We define the extrinsic as a sequence of proofs of valid tickets,
       // each of which is a tuple of an entry index (a natural number less
       // than N) and a proof of ticket validity
