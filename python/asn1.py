@@ -450,7 +450,7 @@ class GenCommonTypes:
 
 
 class GenSpecialTypes:
-    def __init__(self, cpp_namespace: str, name: str, path: str, module: str, configs: list[str]):
+    def __init__(self, cpp_namespace: str, name: str, path: str, module: str):
         self.asn_file = asn_file(path)
 
         asn_imports: dict = asn1tools.parse_files([self.asn_file])[module]["imports"]
@@ -543,7 +543,6 @@ def history():
         "history",
         "history/history",
         "HistoryModule",
-        [],
     )
     g.write("history")
 
@@ -554,7 +553,6 @@ def safrole():
         "safrole",
         "safrole/safrole",
         "SafroleModule",
-        ["tiny", "full"],
     )
     g.write("safrole")
 
@@ -565,7 +563,6 @@ def disputes():
         "disputes",
         "disputes/disputes",
         "DisputesModule",
-        ["tiny", "full"],
     )
     g.write("disputes")
 
@@ -576,7 +573,6 @@ def authorizations():
         "authorizations",
         "authorizations/authorizations",
         "AuthorizationsModule",
-        ["tiny", "full"],
     )
     g.write("authorizations")
 
