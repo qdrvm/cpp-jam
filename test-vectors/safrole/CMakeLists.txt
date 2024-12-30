@@ -4,8 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-asn1(safrole safrole tiny full)
-target_link_libraries(test_vectors_safrole_test
-  jam_crust::jam_crust
-  PkgConfig::libb2
+add_test_vector(safrole tiny full)
+
+add_test_vector_libraries(safrole
+    jam_crust::jam_crust
+    PkgConfig::libb2
 )

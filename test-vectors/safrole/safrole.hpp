@@ -8,14 +8,21 @@
 
 #include <algorithm>
 #include <ranges>
+#include <set>
 #include <unordered_map>
 
+#include <TODO_qtils/cxx23/ranges/contains.hpp>
 #include <jam/bandersnatch.hpp>
+#include <src/jam/tagged.hpp>
+#include <src/jam/variant_alternative.hpp>
+#include <test-vectors/common-scale.hpp>
+#include <test-vectors/common-types.hpp>
 #include <test-vectors/common.hpp>
-#include <test-vectors/safrole/types.hpp>
+#include <test-vectors/config-full.hpp>
 
 namespace jam::safrole {
-  namespace types = test_vectors_safrole;
+  namespace types = jam::test_vectors;
+
   using BandersnatchSignature = decltype(types::TicketEnvelope::signature);
 
   // [GP 0.4.5 G 339]
@@ -28,14 +35,14 @@ namespace jam::safrole {
   }
 
   struct TicketBodyLess {
-    bool operator()(
-        const types::TicketBody &l, const types::TicketBody &r) const {
+    bool operator()(const types::TicketBody &l,
+                    const types::TicketBody &r) const {
       return l.id < r.id;
     }
   };
 
-  using GammaA = decltype(types::State::gamma_a);
-  using GammaZ = decltype(types::State::gamma_z);
+  using GammaA = decltype(types::safrole::State::gamma_a);
+  using GammaZ = decltype(types::safrole::State::gamma_z);
   using BandersnatchKeys = decltype(types::EpochMark::validators);
 
   inline auto &ring_ctx(const types::Config &config) {
@@ -54,11 +61,6 @@ namespace jam::safrole {
   constexpr qtils::BytesN<15> X_T = {'j','a','m','_','t','i','c','k','e','t','_','s','e','a','l'};
   // clang-format on
 
-  // The number of ticket entries per validator.
-  // [GP 0.4.5 I.4.4]
-  // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L271
-  constexpr uint32_t N = 2;
-
   // The maximum number of tickets which may be submitted in a single extrinsic.
   // [GP 0.4.5 I.4.4]
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L269
@@ -75,8 +77,8 @@ namespace jam::safrole {
 
   // [GP 0.4.5 G 340]
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/bandersnatch.tex#L15
-  inline GammaZ mathcal_O(
-      const types::Config &config, const BandersnatchKeys &pks) {
+  inline GammaZ mathcal_O(const types::Config &config,
+                          const BandersnatchKeys &pks) {
     return ring_ctx(config).commitment(pks.v).value();
   }
 
@@ -100,29 +102,63 @@ namespace jam::safrole {
   /**
    * Given state and input, derive next state and output.
    */
-  inline std::pair<types::State, types::Output> transition(
+  inline std::pair<types::safrole::State, types::safrole::Output> transition(
       const types::Config &config,
-      const types::State &state,
-      const types::Input &input) {
+      const types::safrole::State &state,
+      const types::safrole::Input &input) {
     /// The length of an epoch in timeslots.
     // [GP 0.4.5 I.4.4]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L260
     const auto E = config.epoch_length;
+
+    // The number of ticket entries per validator.
+    // [GP 0.4.5 I.4.4]
+    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L271
+    const uint32_t N = config.tickets_per_validator;
 
     /// The number of slots into an epoch at which ticket-submission ends.
     // [GP 0.4.5 I.4.4]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L287
     const auto Y = E * 5 / 6;
 
-    /// H_t - a time-slot index
-    const auto &[H_t, banderout_H_v, E_T, offenders_tick] = input;
-    const auto
-        &[tau, eta, lambda, kappa, gamma_k, iota, gamma_a, gamma_s, gamma_z] =
-            state;
+    const auto &[
+        // [H_t] Current time slot as found within the block header.
+        slot,
+        // [Y(H_v)] Per block entropy generated using per block entropy source.
+        entropy,
+        // [E_T] Tickets extrinsic.
+        extrinsic] = input;
+
+    const auto &[
+        // [τ] Prior most recent block's timeslot. Mutated to τ'.
+        tau,
+        // [η] Prior entropy buffer. Mutated to η'.
+        eta,
+        // [λ] Prior previous epoch validator keys and metadata. Mutated to λ'.
+        lambda,
+        // [κ] Prior current epoch validator keys and metadata. Mutated to κ'.
+        kappa,
+        // [γ_k] Prior next epoch validator keys and metadata. Mutated to γ'_k.
+        gamma_k,
+        // [ι] Prior scheduled validator keys and metadata. Mutated to ι'.
+        iota,
+        // [γ_a] Prior sealing-key contest ticket accumulator. Mutated to γ'_a.
+        gamma_a,
+        // [γ_s] Prior sealing-key series of the current epoch. Mutated to γ'_s.
+        gamma_s,
+        // [γ_z] Prior Bandersnatch ring commitment. Mutated to γ'_z.
+        gamma_z,
+        // [ψ'_o] Posterior offenders sequence.
+        post_offenders] = state;
+
+    // η0 defines the state of the randomness accumulator to which the provably
+    // random output of the vrf, the signature over some unbiasable input, is
+    // combined each block. η1, η2 and η3 meanwhile retain the state of this
+    // accumulator at the end of the three most recently ended epochs in order.
     const auto &[eta_0, eta_1, eta_2, eta_3] = eta;
-    using Error = types::CustomErrorCode;
+    using Error = types::safrole::ErrorCode;
     const auto error = [&](Error error) {
-      return std::make_pair(state, types::Output{error});
+      return std::make_pair(state, types::safrole::Output{error});
     };
 
     // A block may only be regarded as valid once the time-slot index Ht is in
@@ -130,7 +166,7 @@ namespace jam::safrole {
     // It's always strictly greater than that of its parent.
     // [GP 0.4.5 5 42]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/header.tex#L29
-    if (H_t <= state.tau) {
+    if (slot <= state.tau) {
       return error(Error::bad_slot);
     }
 
@@ -138,7 +174,7 @@ namespace jam::safrole {
     // as defined in the block’s header.
     // [GP 0.4.5 6.1 46]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L25
-    const auto tau_tick = H_t;
+    const auto tau_tick = slot;
 
     // [GP 0.4.5 6.1 47]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L30
@@ -156,11 +192,11 @@ namespace jam::safrole {
 
     // [GP 0.4.5 6.7 75]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L251
-    if (E_T.size() > K) {
+    if (extrinsic.size() > K) {
       throw std::logic_error("not covered by test vectors");
     }
-    if (m_tick >= Y and not E_T.empty()) {
-      return std::make_pair(state, types::Output{Error::unexpected_ticket});
+    if (m_tick >= Y and not extrinsic.empty()) {
+      return error(Error::unexpected_ticket);
     }
 
     // [GP 0.4.5 6.3 59]
@@ -169,8 +205,7 @@ namespace jam::safrole {
       types::ValidatorsData k_tick;
       for (auto &validator : k.v) {
         k_tick.v.emplace_back(
-            std::ranges::find(offenders_tick, validator.ed25519)
-                    != offenders_tick.end()
+            qtils::cxx23::ranges::contains(post_offenders, validator.ed25519)
                 ? types::ValidatorData{}
                 : validator);
       }
@@ -191,64 +226,93 @@ namespace jam::safrole {
 
     // [GP 0.4.5 6.4 67]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L147
-    const auto eta_tick_0 = mathcal_H(frown(eta_0, banderout_H_v));
+    // η0 defines the state of the randomness accumulator to which the provably
+    // random output of the vrf, the signature over some unbiasable input, is
+    // combined each block. η1, η2 and η3 meanwhile retain the state of this
+    // accumulator at the end of the three most recently ended epochs in order.
+    const auto eta_tick_0 = mathcal_H(frown(eta_0, entropy));
 
     // [GP 0.4.5 6.4 68]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L152
+    // On an epoch transition (identified as the condition e′ > e), we therefore
+    // rotate the accumulator value into the history η1, η2 and η3:
     const auto [eta_tick_1, eta_tick_2, eta_tick_3] =
         change_epoch ? std::tuple{eta_0, eta_1, eta_2}
                      : std::tuple{eta_1, eta_2, eta_3};
 
-    std::vector<types::TicketBody> n;
-    for (auto &[r, p] : E_T) {
-      // [GP 0.4.5 6.7 74]
-      // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L250
-      if (r >= N) {
-        return error(Error::bad_ticket_attempt);
-      }
-      const auto m = frown(X_T, doubleplus(eta_tick_2, r));
-      const auto y = bandersnatch(config, gamma_z, m, p);
-      if (not y) {
-        return error(Error::bad_ticket_proof);
-      }
-      // [GP 0.4.5 6.7 76]
-      // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L259
-      n.emplace_back(types::TicketBody{*y, r});
-    }
-    // [GP 0.4.5 6.7 77]
-    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L264
-    if (not std::is_sorted(n.begin(), n.end(), TicketBodyLess{})) {
-      return error(Error::bad_ticket_order);
+    // The new ticket accumulator γ′ a is constructed by
+    // merging new tickets into the previous accumulator value
+    // (or the empty sequence if it is a new epoch)
+    // [GP 0.5.2 6.7 (6.34)]
+    std::set<types::TicketBody, TicketBodyLess> gamma_tick_a;
+    if (not change_epoch) {
+      gamma_tick_a.insert(gamma_a.begin(), gamma_a.end());
     }
 
-    // [GP 0.4.5 6.7 79]
-    // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L271
-    std::vector<types::TicketBody> gamma_tick_a;
-    if (change_epoch) {
-      gamma_tick_a = n;
-    } else {
-      std::ranges::set_union(
-          n, gamma_a, std::back_inserter(gamma_tick_a), TicketBodyLess{});
-      // [GP 0.4.5 6.7 78]
-      // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L265
-      if (gamma_tick_a.size() != gamma_a.size() + n.size()) {
+    std::optional<test_vectors::TicketBody> prev_ticket;
+    for (const auto &ticket_envelope : extrinsic) {
+      auto &[attempt, ticket_proof] = ticket_envelope;
+
+      auto m = frown(X_T, doubleplus(eta_tick_2, attempt));
+      const auto ticket_id_opt = bandersnatch(config, gamma_z, m, ticket_proof);
+      if (not ticket_id_opt.has_value()) {
+        return error(Error::bad_ticket_proof);
+      }
+      const auto &ticket_id = ticket_id_opt.value();
+
+      types::TicketBody ticket{
+          .id = ticket_id,
+          .attempt = attempt,
+      };
+
+      fmt::println("new: {}-{}", ticket.id[0], ticket.attempt);
+
+      // We define the extrinsic as a sequence of proofs of valid tickets,
+      // each of which is a tuple of an entry index (a natural number less
+      // than N) and a proof of ticket validity
+      // [GP 0.5.2 6.7 (6.29)]
+      if (attempt >= N) {
+        return error(Error::bad_ticket_attempt);
+      }
+
+      // Duplicate identifiers are neve allowed lest a validator submit the
+      // same ticket multiple times
+      // [GP 0.5.2 6.7 (6.33)]
+      if (qtils::cxx23::ranges::contains(gamma_tick_a, ticket)) {
         return error(Error::duplicate_ticket);
       }
-    }
-    if (gamma_tick_a.size() > E) {
-      gamma_tick_a.resize(E);
+
+      // The tickets submitted via the extrinsic must already have been placed
+      // in order of their implied identifier.
+      // [GP 0.5.2 6.7 (6.32)]
+      if (prev_ticket and TicketBodyLess{}(ticket, *prev_ticket)) {
+        return error(Error::bad_ticket_order);
+      }
+      prev_ticket = ticket;
+
+      // [GP 0.5.2 6.7 (6.34)]
+      gamma_tick_a.emplace(ticket);
+
+      // The maximum size of the ticket accumulator is E. On each block, the
+      // accumulator becomes the lowest items of the sorted union of tickets
+      // from prior accumulator γa and the submitted tickets.
+      if (gamma_tick_a.size() > E) {
+        gamma_tick_a.erase(std::prev(gamma_tick_a.end()));
+      }
     }
 
     // [GP 0.4.5 6.5 70]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L182
     const auto Z = [&](const GammaA &s) {
-      types::TicketsBodies tickets;
+      using TicketsBodies =
+          variant_alternative_t<0, types::TicketsOrKeys::type>;
+      TicketsBodies tickets;
       if (s.size() != E) {
         throw std::logic_error{"Z"};
       }
       auto it1 = s.begin(), it2 = std::prev(s.end());
       auto odd = true;
-      for (uint32_t i = 0; i < tickets.configSize(config); ++i) {
+      for (uint32_t i = 0; i < TicketsBodies::configSize(config); ++i) {
         tickets.v.emplace_back(odd ? *it1 : *it2);
         if (odd) {
           ++it1;
@@ -259,15 +323,18 @@ namespace jam::safrole {
       }
       return tickets;
     };
+
     // [GP 0.4.5 6.5 71]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L190
     const auto F = [&](const types::OpaqueHash &r,
                        const types::ValidatorsData &k) {
-      types::EpochKeys keys;
+      using EpochKeys = variant_alternative_t<1, types::TicketsOrKeys::type>;
+      EpochKeys keys;
       for (uint32_t i = 0; i < E; ++i) {
-        keys.v.emplace_back(circlearrowleft(
-            k.v, de(first_bytes<4>(mathcal_H(frown(r, mathcal_E<4>(i))))))
-                                .bandersnatch);
+        keys.v.emplace_back(
+            circlearrowleft(
+                k.v, de(first_bytes<4>(mathcal_H(frown(r, mathcal_E<4>(i))))))
+                .bandersnatch);
       }
       return keys;
     };
@@ -279,9 +346,21 @@ namespace jam::safrole {
         : e_tick == e ? gamma_s
                       : types::TicketsOrKeys{F(eta_tick_2, kappa_tick)};
 
-    types::Output output;
+    // the header’s epoch marker He is either empty or, if the block is the
+    // first in a new epoch, then a tuple of the next and current epoch
+    // randomness, along with a sequence of Bandersnatch keys defining the
+    // Bandersnatch validator keys (kb) beginning in the next epoch.
+    // [GP 0.5.2 6.6 (6.27)]
+    std::optional<types::safrole::EpochMark> epoch_mark{};
+    if (change_epoch) {
+      epoch_mark =
+          types::EpochMark{.entropy = eta_tick_1,
+                           .tickets_entropy = eta_tick_2,
+                           .validators = bandersnatch_keys(gamma_tick_k)};
+    };
+
     return {
-        types::State{
+        types::safrole::State{
             .tau = tau_tick,
             .eta = {eta_tick_0, eta_tick_1, eta_tick_2, eta_tick_3},
             .lambda = lambda_tick,
@@ -289,16 +368,13 @@ namespace jam::safrole {
             .gamma_k = gamma_tick_k,
             // TODO(turuslan): #3, wait for test vectors
             .iota = iota,
-            .gamma_a = gamma_tick_a,
+            .gamma_a = {gamma_tick_a.begin(), gamma_tick_a.end()},
             .gamma_s = gamma_tick_s,
             .gamma_z = gamma_tick_z,
+            .post_offenders = post_offenders,
         },
-        types::Output{types::OutputMarks{
-            // [GP 0.4.5 6.6 72]
-            // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L216
-            .epoch_mark = change_epoch ? std::make_optional(types::EpochMark{
-                              eta_tick_1, bandersnatch_keys(gamma_tick_k)})
-                                       : std::nullopt,
+        types::safrole::Output{types::safrole::OutputData{
+            .epoch_mark = epoch_mark,
             // [GP 0.4.5 6.6 73]
             // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L224
             .tickets_mark =
