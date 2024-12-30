@@ -570,6 +570,24 @@ def disputes():
     g.write("disputes")
 
 
+def authorizations():
+    g = GenSpecialTypes(
+        "jam::test_vectors",
+        "authorizations",
+        "authorizations/authorizations",
+        "AuthorizationsModule",
+        ["tiny", "full"],
+    )
+    g.write("authorizations")
+
+
 if __name__ == "__main__":
     for arg in sys.argv[1:]:
-        dict(constants=constants, types=types, history=history, safrole=safrole, disputes=disputes)[arg]()
+        dict(
+            constants=constants,
+            types=types,
+            history=history,
+            safrole=safrole,
+            disputes=disputes,
+            authorizations=authorizations
+        )[arg]()
