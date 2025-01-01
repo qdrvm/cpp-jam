@@ -8,6 +8,6 @@
 #include <test-vectors/authorizations/authorizations.hpp>
 #include <test-vectors/authorizations/vectors.hpp>
 
-GTEST_VECTORS(Disputes, authorizations);
+GTEST_VECTORS(Authorizations, authorizations);
 
-GTEST_VECTORS_TEST_TRANSITION(Disputes, authorizations);
+GTEST_VECTORS_TEST_TRANSITION(Authorizations, authorizations);
