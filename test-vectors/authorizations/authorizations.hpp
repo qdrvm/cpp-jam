@@ -7,6 +7,7 @@
 #pragma once
 
 #include <list>
+#include <set>
 
 namespace jam::authorizations {
   namespace types = jam::test_vectors;
@@ -24,7 +25,6 @@ namespace jam::authorizations {
   transition(const types::Config &config,
              const types::authorizations::State &state,
              const types::authorizations::Input &input) {
-
     // (137)
 
     // [GP 0.4.5 8 85]
@@ -51,7 +51,6 @@ namespace jam::authorizations {
       }
       return pools;
     }();
-
 
     // The state transition of a block involves placing a new authorization into
     // the pool from the queue
