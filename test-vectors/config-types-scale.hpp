@@ -14,43 +14,12 @@
 #include <scale/scale.hpp>
 #include <src/jam/empty.hpp>
 
-#include <boost/variant.hpp>
 #include <qtils/bytes.hpp>
 
 #include <test-vectors/config-types.hpp>
 #include <test-vectors/config.hpp>
 
 namespace jam {
-
-  template <typename... Ts>
-  scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s,
-                                        const std::variant<Ts...> &v) {
-    s << static_cast<uint8_t>(v.index());
-    std::visit([&](const auto &v) { s << v; }, v);
-    return s;
-  }
-
-  template <size_t I, typename T, typename... Ts>
-  void decodeConfigStdVariant(size_t i, scale::ScaleDecoderStream &s, auto &v) {
-    if (i == I) {
-      v = T{};
-      s >> std::get<T>(v);
-    } else if constexpr (sizeof...(Ts) != 0) {
-      decodeConfigStdVariant<I + 1, Ts...>(i, s, v);
-    }
-  }
-
-  template <typename... Ts>
-  scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s,
-                                        std::variant<Ts...> &v) {
-    uint8_t i = 0;
-    s >> i;
-    if (i < sizeof...(Ts)) {
-      decodeConfigStdVariant<0, Ts...>(i, s, v);
-      return s;
-    }
-    raise(scale::DecodeError::WRONG_TYPE_INDEX);
-  }
 
   template <typename T, typename ConfigField>
   scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s,

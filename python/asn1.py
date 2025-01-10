@@ -401,8 +401,7 @@ class GenCommonTypes:
             "#include <optional>",
             "#include <string_view>",
             "#include <variant>",
-
-            "#include <boost/variant.hpp>",
+            "",
             "#include <qtils/bytes.hpp>",
             "",
             "#include <test-vectors/config-types.hpp>",
@@ -450,7 +449,7 @@ class GenCommonTypes:
 
 
 class GenSpecialTypes:
-    def __init__(self, cpp_namespace: str, name: str, path: str, module: str, configs: list[str]):
+    def __init__(self, cpp_namespace: str, name: str, path: str, module: str):
         self.asn_file = asn_file(path)
 
         asn_imports: dict = asn1tools.parse_files([self.asn_file])[module]["imports"]
@@ -476,8 +475,7 @@ class GenSpecialTypes:
             "#include <optional>",
             "#include <string_view>",
             "#include <variant>",
-
-            "#include <boost/variant.hpp>",
+            "",
             "#include <qtils/bytes.hpp>",
             "",
             "#include <test-vectors/config-types.hpp>",
@@ -543,7 +541,6 @@ def history():
         "history",
         "history/history",
         "HistoryModule",
-        [],
     )
     g.write("history")
 
@@ -554,7 +551,6 @@ def safrole():
         "safrole",
         "safrole/safrole",
         "SafroleModule",
-        ["tiny", "full"],
     )
     g.write("safrole")
 
@@ -565,11 +561,27 @@ def disputes():
         "disputes",
         "disputes/disputes",
         "DisputesModule",
-        ["tiny", "full"],
     )
     g.write("disputes")
 
 
+def authorizations():
+    g = GenSpecialTypes(
+        "jam::test_vectors",
+        "authorizations",
+        "authorizations/authorizations",
+        "AuthorizationsModule",
+    )
+    g.write("authorizations")
+
+
 if __name__ == "__main__":
     for arg in sys.argv[1:]:
-        dict(constants=constants, types=types, history=history, safrole=safrole, disputes=disputes)[arg]()
+        dict(
+            constants=constants,
+            types=types,
+            history=history,
+            safrole=safrole,
+            disputes=disputes,
+            authorizations=authorizations,
+        )[arg]()

@@ -13,7 +13,6 @@
 #include <unordered_map>
 #include <variant>
 
-#include <boost/variant.hpp>
 #include <qtils/hex.hpp>
 
 #include <jam/empty.hpp>
@@ -174,27 +173,6 @@ void diff_v(Indent indent,
   std::visit(
       [&](auto &&v) {
         diff(~indent, v, std::get<std::decay_t<decltype(v)>>(v2));
-      },
-      v1);
-}
-
-template <typename... Ts>
-void diff_v(Indent indent,
-            const boost::variant<Ts...> &v1,
-            const boost::variant<Ts...> &v2,
-            std::span<const std::string_view> tags) {
-  if (v1 == v2) {
-    return;
-  }
-  if (v1.which() != v2.which()) {
-    fmt::println("{}{} != {}", indent, tags[v1.which()], tags[v2.which()]);
-    return;
-  }
-
-  fmt::println("{}{}", indent, tags[v1.which()]);
-  boost::apply_visitor(
-      [&](auto &&v) {
-        diff(~indent, v, boost::get<std::decay_t<decltype(v)>>(v2));
       },
       v1);
 }
