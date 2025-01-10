@@ -401,8 +401,7 @@ class GenCommonTypes:
             "#include <optional>",
             "#include <string_view>",
             "#include <variant>",
-
-            "#include <boost/variant.hpp>",
+            "",
             "#include <qtils/bytes.hpp>",
             "",
             "#include <test-vectors/config-types.hpp>",
@@ -476,8 +475,7 @@ class GenSpecialTypes:
             "#include <optional>",
             "#include <string_view>",
             "#include <variant>",
-
-            "#include <boost/variant.hpp>",
+            "",
             "#include <qtils/bytes.hpp>",
             "",
             "#include <test-vectors/config-types.hpp>",

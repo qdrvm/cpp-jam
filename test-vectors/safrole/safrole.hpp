@@ -14,7 +14,6 @@
 #include <TODO_qtils/cxx23/ranges/contains.hpp>
 #include <jam/bandersnatch.hpp>
 #include <src/jam/tagged.hpp>
-#include <src/jam/variant_alternative.hpp>
 #include <test-vectors/common-scale.hpp>
 #include <test-vectors/common-types.hpp>
 #include <test-vectors/common.hpp>
@@ -303,7 +302,7 @@ namespace jam::safrole {
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L182
     const auto Z = [&](const GammaA &s) {
       using TicketsBodies =
-          variant_alternative_t<0, types::TicketsOrKeys::type>;
+          std::variant_alternative_t<0, types::TicketsOrKeys::type>;
       TicketsBodies tickets;
       if (s.size() != E) {
         throw std::logic_error{"Z"};
@@ -326,7 +325,8 @@ namespace jam::safrole {
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L190
     const auto F = [&](const types::OpaqueHash &r,
                        const types::ValidatorsData &k) {
-      using EpochKeys = variant_alternative_t<1, types::TicketsOrKeys::type>;
+      using EpochKeys =
+          std::variant_alternative_t<1, types::TicketsOrKeys::type>;
       EpochKeys keys;
       for (uint32_t i = 0; i < E; ++i) {
         keys.v.emplace_back(
