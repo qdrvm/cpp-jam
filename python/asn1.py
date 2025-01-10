@@ -585,5 +585,5 @@ if __name__ == "__main__":
             history=history,
             safrole=safrole,
             disputes=disputes,
-            authorizations=authorizations
+            authorizations=authorizations,
         )[arg]()
