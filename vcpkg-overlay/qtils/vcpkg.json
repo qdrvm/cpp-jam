@@ -7,5 +7,13 @@
     "boost-algorithm",
     "boost-outcome",
     "fmt"
-  ]
+  ],
+  "features": {
+    "qtils-tests": {
+      "description": "Test compilable of qtils",
+      "dependencies": [
+        "gtest"
+      ]
+    }
+  }
 }
