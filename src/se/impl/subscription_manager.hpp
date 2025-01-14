@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #pragma once
 
 #include <assert.h>
@@ -73,9 +72,10 @@ namespace jam::se {
       if (!disposed_.test_and_set()) {
         {
           std::shared_lock lock(engines_cs_);
-          for (auto &descriptor : engines_)
+          for (auto &descriptor : engines_) {
             utils::reinterpret_pointer_cast<IDisposable>(descriptor.second)
                 ->dispose();
+          }
         }
         dispatcher_->dispose();
       }
@@ -111,7 +111,7 @@ namespace jam::se {
                     "Engine type must be derived from IDisposable.");
       assert(uintptr_t(reinterpret_cast<EngineType *>(0x1))
              == uintptr_t(static_cast<IDisposable *>(
-                    reinterpret_cast<EngineType *>(0x1))));
+                 reinterpret_cast<EngineType *>(0x1))));
 
       auto obj = std::make_shared<EngineType>(dispatcher_);
       engines_[engineId] = utils::reinterpret_pointer_cast<void>(obj);
@@ -126,7 +126,7 @@ namespace jam::se {
      * @param args transmitted data
      */
     template <typename EventKey, typename... Args>
-    void notify(const EventKey &key, Args const &... args) {
+    void notify(const EventKey &key, const Args &...args) {
       notifyDelayed(std::chrono::microseconds(0ull), key, args...);
     }
 
@@ -142,7 +142,7 @@ namespace jam::se {
     template <typename EventKey, typename... Args>
     void notifyDelayed(std::chrono::microseconds timeout,
                        const EventKey &key,
-                       Args const &... args) {
+                       const Args &...args) {
       using EngineType =
           SubscriptionEngine<EventKey,
                              Dispatcher,
@@ -151,10 +151,11 @@ namespace jam::se {
       std::shared_ptr<EngineType> engine;
       {
         std::shared_lock lock(engines_cs_);
-        if (auto it = engines_.find(engineId); it != engines_.end())
+        if (auto it = engines_.find(engineId); it != engines_.end()) {
           engine = utils::reinterpret_pointer_cast<EngineType>(it->second);
-        else
+        } else {
           return;
+        }
       }
       assert(engine);
       engine->notifyDelayed(timeout, key, args...);
@@ -168,5 +169,4 @@ namespace jam::se {
       return dispatcher_;
     }
   };
-}  // namespace iroha::subscription
-
+}  // namespace jam::se

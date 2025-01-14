@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #pragma once
 
 #include "dispatcher.hpp"
@@ -41,12 +40,15 @@ namespace jam::se {
                 std::chrono::microseconds timeout,
                 typename Parent::Task &&task,
                 typename Parent::Predicate &&pred) override {
-      if (!pred || pred()) task();
+      if (!pred || pred()) {
+        task();
+      }
     }
 
     std::optional<Tid> bind(std::shared_ptr<IScheduler> scheduler) override {
-      if (!scheduler)
+      if (!scheduler) {
         return std::nullopt;
+      }
 
       return kCount;
     }
@@ -56,5 +58,4 @@ namespace jam::se {
     }
   };
 
-}  // namespace iroha::subscription
-
+}  // namespace jam::se

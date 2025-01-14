@@ -41,13 +41,14 @@ namespace jam::se {
     };
     utils::ReadWriteObject<BoundContexts> bound_;
 
-    void uploadToHandler(typename Parent::Tid const tid,
+    void uploadToHandler(const typename Parent::Tid tid,
                          std::chrono::microseconds timeout,
                          typename Parent::Task &&task,
                          typename Parent::Predicate &&pred) {
       assert(tid != kExecuteInPool || !pred);
-      if (is_disposed_.load())
+      if (is_disposed_.load()) {
         return;
+      }
 
       if (tid < kHandlersCount) {
         pred ? handlers_[tid].handler->repeat(
@@ -57,11 +58,12 @@ namespace jam::se {
       }
 
       if (auto context =
-              bound_.sharedAccess([tid](BoundContexts const &bound)
+              bound_.sharedAccess([tid](const BoundContexts &bound)
                                       -> std::optional<SchedulerContext> {
                 if (auto it = bound.contexts.find(tid);
-                    it != bound.contexts.end())
+                    it != bound.contexts.end()) {
                   return it->second;
+                }
                 return std::nullopt;
               })) {
         pred ? context->handler->repeat(
@@ -71,17 +73,20 @@ namespace jam::se {
       }
 
       std::optional<typename Parent::Task> opt_task = std::move(task);
-      for (auto &handler : pool_)
+      for (auto &handler : pool_) {
         if (opt_task =
                 handler.handler->uploadIfFree(timeout, std::move(*opt_task));
-            !opt_task)
+            !opt_task) {
           return;
+        }
+      }
 
       auto h = std::make_shared<ThreadHandler>();
       ++temporary_handlers_tasks_counter_;
       h->addDelayed(timeout, [this, h, task{std::move(*opt_task)}]() mutable {
-        if (!is_disposed_.load())
+        if (!is_disposed_.load()) {
           task();
+        }
         --temporary_handlers_tasks_counter_;
         h->dispose(false);
       });
@@ -101,11 +106,16 @@ namespace jam::se {
 
     void dispose() override {
       is_disposed_ = true;
-      for (auto &h : handlers_) h.handler->dispose();
-      for (auto &h : pool_) h.handler->dispose();
+      for (auto &h : handlers_) {
+        h.handler->dispose();
+      }
+      for (auto &h : pool_) {
+        h.handler->dispose();
+      }
 
-      while (temporary_handlers_tasks_counter_.load() != 0)
+      while (temporary_handlers_tasks_counter_.load() != 0) {
         std::this_thread::sleep_for(std::chrono::microseconds(0ull));
+      }
     }
 
     void add(typename Parent::Tid tid, typename Parent::Task &&task) override {
@@ -127,12 +137,13 @@ namespace jam::se {
     }
 
     std::optional<Tid> bind(std::shared_ptr<IScheduler> scheduler) override {
-      if (!scheduler)
+      if (!scheduler) {
         return std::nullopt;
+      }
 
       return bound_.exclusiveAccess(
           [scheduler(std::move(scheduler))](BoundContexts &bound) {
-            auto const execution_tid = kHandlersCount + bound.next_tid_offset;
+            const auto execution_tid = kHandlersCount + bound.next_tid_offset;
             assert(bound.contexts.find(execution_tid) == bound.contexts.end());
             bound.contexts[execution_tid] = SchedulerContext{scheduler};
             ++bound.next_tid_offset;
@@ -147,4 +158,4 @@ namespace jam::se {
     }
   };
 
-}  // namespace iroha::subscription
+}  // namespace jam::se

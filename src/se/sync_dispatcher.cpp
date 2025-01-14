@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #include "subscription.hpp"
 
 #include "impl/sync_dispatcher_impl.hpp"
@@ -17,4 +16,4 @@ namespace jam::se {
                                      kThreadPoolSize>>();
   }
 
-}  // namespace iroha
+}  // namespace jam::se

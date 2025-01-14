@@ -16,4 +16,4 @@ namespace jam::se {
                                       kThreadPoolSize>>();
   }
 
-}  // namespace iroha
+}  // namespace jam::se

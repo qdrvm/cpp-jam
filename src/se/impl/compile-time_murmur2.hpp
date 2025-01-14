@@ -16,7 +16,7 @@ namespace jam::se::utils {
     template <typename __T>
     static constexpr uint32_t __load__(__T &data, uint32_t offset) {
       return data[offset + 0] | (data[offset + 1] << 8)
-          | (data[offset + 2] << 16) | (data[offset + 3] << 24);
+           | (data[offset + 2] << 16) | (data[offset + 3] << 24);
     }
 
     static constexpr uint32_t __mul__(uint32_t val1, uint32_t val2) {
@@ -47,7 +47,8 @@ namespace jam::se::utils {
                                                uint32_t m,
                                                uint32_t r) {
       return len >= 4
-          ? __proc__(data,
+               ? __proc__(
+                     data,
                      len - 4,
                      offset + 4,
                      __xor__(__mul__(h, m),
@@ -56,28 +57,23 @@ namespace jam::se::utils {
                                      m)),
                      m,
                      r)
-          : len == 3
-              ? __proc__(data,
-                         len - 1,
-                         offset,
-                         __xor__(h, __sl__(data[offset + 2], 16)),
-                         m,
-                         r)
-              : len == 2 ? __proc__(data,
-                                    len - 1,
-                                    offset,
-                                    __xor__(h, __sl__(data[offset + 1], 8)),
-                                    m,
-                                    r)
-                         : len == 1
-                      ? __proc__(data,
+           : len == 3 ? __proc__(data,
                                  len - 1,
                                  offset,
-                                 __xor__(h, data[offset]) * m,
+                                 __xor__(h, __sl__(data[offset + 2], 16)),
                                  m,
                                  r)
-                      : __xor__(__mul__(__xor_with_sr__(h, 13), m),
-                                __sr__(__mul__(__xor_with_sr__(h, 13), m), 15));
+           : len == 2 ? __proc__(data,
+                                 len - 1,
+                                 offset,
+                                 __xor__(h, __sl__(data[offset + 1], 8)),
+                                 m,
+                                 r)
+           : len == 1
+               ? __proc__(
+                     data, len - 1, offset, __xor__(h, data[offset]) * m, m, r)
+               : __xor__(__mul__(__xor_with_sr__(h, 13), m),
+                         __sr__(__mul__(__xor_with_sr__(h, 13), m), 15));
     }
 
    public:
@@ -87,7 +83,7 @@ namespace jam::se::utils {
     }
   };
 
-}  // namespace iroha::ct_hash
+}  // namespace jam::se::utils
 
 #ifndef CT_MURMUR2
 #define CT_MURMUR2(x) \
@@ -102,4 +98,3 @@ static_assert(
     == 1319897327);
 static_assert(CT_MURMUR2("could only be destroyed in that same fire.")
               == 702138758);
-

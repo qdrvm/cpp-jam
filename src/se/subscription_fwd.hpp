@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #pragma once
 
 #include <memory>
@@ -83,15 +82,14 @@ namespace jam::se {
               typename Receiver,
               typename... Arguments>
     class SubscriberImpl;
-  }  // namespace subscription
+  }  // namespace jam::se
 
   using Dispatcher = jam::se::IDispatcher;
   using Subscription =
       jam::se::SubscriptionManager<SubscriptionEngineHandlers::kTotalCount,
-                                        kThreadPoolSize>;
+                                   kThreadPoolSize>;
   template <typename ObjectType, typename... EventData>
   using BaseSubscriber = subscription::
       SubscriberImpl<EventTypes, Dispatcher, ObjectType, EventData...>;
 
-}  // namespace iroha
-
+}  // namespace jam::se

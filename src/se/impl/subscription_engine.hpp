@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #pragma once
 
 #include <assert.h>
@@ -54,7 +53,7 @@ namespace jam::se {
     using IteratorType = typename SubscribersContainer::iterator;
 
    public:
-    explicit SubscriptionEngine(DispatcherPtr const &dispatcher)
+    explicit SubscriptionEngine(const DispatcherPtr &dispatcher)
         : dispatcher_(dispatcher) {
       assert(dispatcher_);
     }
@@ -118,8 +117,9 @@ namespace jam::se {
         auto &subscribers_context = it->second;
         std::lock_guard l(subscribers_context.subscribers_list_cs);
         subscribers_context.subscribers_list.erase(it_remove);
-        if (subscribers_context.subscribers_list.empty())
+        if (subscribers_context.subscribers_list.empty()) {
           subscribers_map_.erase(it);
+        }
       }
     }
 
@@ -160,7 +160,7 @@ namespace jam::se {
      * @param args event data to transmit
      */
     template <typename... EventParams>
-    void notify(const EventKeyType &key, EventParams const &... args) {
+    void notify(const EventKeyType &key, const EventParams &...args) {
       notifyDelayed(std::chrono::microseconds(0ull), key, args...);
     }
 
@@ -174,15 +174,17 @@ namespace jam::se {
     template <typename... EventParams>
     void notifyDelayed(std::chrono::microseconds timeout,
                        const EventKeyType &key,
-                       EventParams const &... args) {
+                       const EventParams &...args) {
       auto dispatcher = dispatcher_;
-      if (!dispatcher)
+      if (!dispatcher) {
         return;
+      }
 
       std::shared_lock lock(subscribers_map_cs_);
       auto it = subscribers_map_.find(key);
-      if (subscribers_map_.end() == it)
+      if (subscribers_map_.end() == it) {
         return;
+      }
 
       auto &subscribers_container = it->second;
       std::lock_guard l(subscribers_container.subscribers_list_cs);
@@ -198,13 +200,14 @@ namespace jam::se {
                                   id(id),
                                   key(key),
                                   args = std::make_tuple(args...)]() mutable {
-                                   if (auto sub = wsub.lock())
+                                   if (auto sub = wsub.lock()) {
                                      std::apply(
-                                         [&](auto &&... args) {
+                                         [&](auto &&...args) {
                                            sub->on_notify(
                                                id, key, std::move(args)...);
                                          },
                                          std::move(args));
+                                   }
                                  });
           ++it_sub;
         } else {
@@ -214,5 +217,4 @@ namespace jam::se {
     }
   };
 
-}  // namespace iroha::subscription
-
+}  // namespace jam::se

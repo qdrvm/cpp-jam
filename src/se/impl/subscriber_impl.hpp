@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #pragma once
 
 #include <atomic>
@@ -78,8 +77,8 @@ namespace jam::se {
     CallbackFnType on_notify_callback_;
 
     template <typename... SubscriberConstructorArgs>
-    SubscriberImpl(SubscriptionEnginePtr const &ptr,
-                   SubscriberConstructorArgs &&... args)
+    SubscriberImpl(const SubscriptionEnginePtr &ptr,
+                   SubscriberConstructorArgs &&...args)
         : next_id_(0ull),
           engine_(ptr),
           object_(std::forward<SubscriberConstructorArgs>(args)...) {}
@@ -87,11 +86,10 @@ namespace jam::se {
    public:
     template <typename... SubscriberConstructorArgs>
     static std::shared_ptr<SubscriberImpl> create(
-        SubscriptionEnginePtr const &ptr,
-        SubscriberConstructorArgs &&... args) {
+        const SubscriptionEnginePtr &ptr, SubscriberConstructorArgs &&...args) {
       struct Resolver : SubscriberImpl {
-        Resolver(SubscriptionEnginePtr const &ptr,
-                 SubscriberConstructorArgs &&... args)
+        Resolver(const SubscriptionEnginePtr &ptr,
+                 SubscriberConstructorArgs &&...args)
             : SubscriberImpl(
                   ptr, std::forward<SubscriberConstructorArgs>(args)...) {}
       };
@@ -119,9 +117,10 @@ namespace jam::se {
 
         /// Here we check first local subscriptions because of strong connection
         /// with SubscriptionEngine.
-        if (inserted)
+        if (inserted) {
           it->second =
               engine->subscribe(tid, id, key, Parent::weak_from_this());
+        }
       }
     }
 
@@ -138,8 +137,9 @@ namespace jam::se {
         auto &subscriptions = set_it->second;
         auto it = subscriptions.find(key);
         if (subscriptions.end() != it) {
-          if (auto engine = engine_.lock())
+          if (auto engine = engine_.lock()) {
             engine->unsubscribe(key, it->second);
+          }
           subscriptions.erase(it);
           return true;
         }
@@ -157,7 +157,9 @@ namespace jam::se {
           set_it != subscriptions_sets_.end()) {
         if (auto engine = engine_.lock()) {
           auto &subscriptions = set_it->second;
-          for (auto &[key, it] : subscriptions) engine->unsubscribe(key, it);
+          for (auto &[key, it] : subscriptions) {
+            engine->unsubscribe(key, it);
+          }
         }
 
         subscriptions_sets_.erase(set_it);
@@ -168,18 +170,23 @@ namespace jam::se {
 
     void unsubscribe() {
       std::lock_guard<std::mutex> lock(subscriptions_cs_);
-      if (auto engine = engine_.lock())
-        for (auto &[_, subscriptions] : subscriptions_sets_)
-          for (auto &[key, it] : subscriptions) engine->unsubscribe(key, it);
+      if (auto engine = engine_.lock()) {
+        for (auto &[_, subscriptions] : subscriptions_sets_) {
+          for (auto &[key, it] : subscriptions) {
+            engine->unsubscribe(key, it);
+          }
+        }
+      }
 
       subscriptions_sets_.clear();
     }
 
     void on_notify(SubscriptionSetId set_id,
                    const typename Parent::EventType &key,
-                   Arguments &&... args) override {
-      if (nullptr != on_notify_callback_)
+                   Arguments &&...args) override {
+      if (nullptr != on_notify_callback_) {
         on_notify_callback_(set_id, object_, key, std::move(args)...);
+      }
     }
 
     ReceiverType &get() {
@@ -187,5 +194,4 @@ namespace jam::se {
     }
   };
 
-}  // namespace iroha::subscription
-
+}  // namespace jam::se

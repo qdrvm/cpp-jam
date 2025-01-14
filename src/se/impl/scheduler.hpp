@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #pragma once
 
 #include <functional>
@@ -40,5 +39,4 @@ namespace jam::se {
                         Predicate &&pred) = 0;
   };
 
-}  // namespace iroha::subscription
-
+}  // namespace jam::se

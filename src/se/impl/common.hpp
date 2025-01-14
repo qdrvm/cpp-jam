@@ -15,18 +15,18 @@ namespace jam::se::utils {
 
   template <typename To, typename From>
   inline std::shared_ptr<To> reinterpret_pointer_cast(
-      std::shared_ptr<From> const &ptr) noexcept {
+      const std::shared_ptr<From> &ptr) noexcept {
     return std::shared_ptr<To>(ptr, reinterpret_cast<To *>(ptr.get()));
   }
 
   template <typename T>
-  inline std::weak_ptr<T> make_weak(std::shared_ptr<T> const &ptr) noexcept {
+  inline std::weak_ptr<T> make_weak(const std::shared_ptr<T> &ptr) noexcept {
     return ptr;
   }
 
   struct NoCopy {
-    NoCopy(NoCopy const &) = delete;
-    NoCopy &operator=(NoCopy const &) = delete;
+    NoCopy(const NoCopy &) = delete;
+    NoCopy &operator=(const NoCopy &) = delete;
     NoCopy() = default;
   };
 
@@ -62,44 +62,43 @@ namespace jam::se::utils {
    */
   // clang-format on
   template <typename T, typename M = std::shared_mutex>
-struct SafeObject {
-  using Type = T;
+  struct SafeObject {
+    using Type = T;
 
-  template <typename... Args>
-  SafeObject(Args &&...args) : t_(std::forward<Args>(args)...) {}
+    template <typename... Args>
+    SafeObject(Args &&...args) : t_(std::forward<Args>(args)...) {}
 
-  template <typename F>
-  inline auto exclusiveAccess(F &&f) {
-    std::unique_lock lock(cs_);
-    return std::forward<F>(f)(t_);
-  }
+    template <typename F>
+    inline auto exclusiveAccess(F &&f) {
+      std::unique_lock lock(cs_);
+      return std::forward<F>(f)(t_);
+    }
 
-  template <typename F>
-  inline auto sharedAccess(F &&f) const {
-    std::shared_lock lock(cs_);
-    return std::forward<F>(f)(t_);
-  }
+    template <typename F>
+    inline auto sharedAccess(F &&f) const {
+      std::shared_lock lock(cs_);
+      return std::forward<F>(f)(t_);
+    }
 
-  auto operator^=(auto &&f) {
-    return exclusiveAccess(std::forward<decltype(f)>(f));
-  }
-  auto operator|=(auto &&f) const {
-    return sharedAccess(std::forward<decltype(f)>(f));
-  }
+    auto operator^=(auto &&f) {
+      return exclusiveAccess(std::forward<decltype(f)>(f));
+    }
+    auto operator|=(auto &&f) const {
+      return sharedAccess(std::forward<decltype(f)>(f));
+    }
 
-  T &unsafeGet() {
-    return t_;
-  }
+    T &unsafeGet() {
+      return t_;
+    }
 
-  const T &unsafeGet() const {
-    return t_;
-  }
+    const T &unsafeGet() const {
+      return t_;
+    }
 
- private:
-  T t_;
-  mutable M cs_;
-};
-
+   private:
+    T t_;
+    mutable M cs_;
+  };
 
   template <typename T, typename M = std::shared_mutex>
   using ReadWriteObject = SafeObject<T, M>;
@@ -138,4 +137,4 @@ struct SafeObject {
       wait_cv_.notify_one();
     }
   };
-}  // namespace iroha::utils
+}  // namespace jam::se::utils

@@ -36,5 +36,4 @@ namespace jam::se {
                         Predicate &&pred) = 0;
   };
 
-}  // namespace iroha::subscription
-
+}  // namespace jam::se

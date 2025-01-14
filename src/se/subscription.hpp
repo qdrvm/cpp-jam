@@ -4,15 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #pragma once
 
 #include <memory>
 
-#include "subscription_fwd.hpp"
 #include "impl/common.hpp"
 #include "impl/subscriber_impl.hpp"
 #include "impl/subscription_manager.hpp"
+#include "subscription_fwd.hpp"
 
 namespace jam::se {
   std::shared_ptr<Dispatcher> getDispatcher();
@@ -21,9 +20,7 @@ namespace jam::se {
   template <typename... T>
   constexpr void notifyEngine(std::tuple<T...> &&data) {
     std::apply(
-        [](auto &... x) {
-          (..., getSubscription()->notify(x.first, x.second));
-        },
+        [](auto &...x) { (..., getSubscription()->notify(x.first, x.second)); },
         data);
   }
 
@@ -32,7 +29,7 @@ namespace jam::se {
     template <EventTypes key, typename F, typename... Args>
     static auto create(SubscriptionEngineHandlers tid,
                        F &&callback,
-                       Args &&... args) {
+                       Args &&...args) {
       auto subscriber = BaseSubscriber<ObjectType, EventData>::create(
           getSubscription()->getEngine<EventTypes, EventData>(),
           std::forward<Args>(args)...);
@@ -48,5 +45,4 @@ namespace jam::se {
       return subscriber;
     }
   };
-}  // namespace iroha
-
+}  // namespace jam::se

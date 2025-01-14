@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #pragma once
 
 #include <atomic>
@@ -41,8 +40,7 @@ namespace jam::se {
      */
     virtual void on_notify(SubscriptionSetId set_id,
                            const EventType &key,
-                           Arguments &&... args) = 0;
+                           Arguments &&...args) = 0;
   };
 
-}  // namespace iroha::subscription
-
+}  // namespace jam::se

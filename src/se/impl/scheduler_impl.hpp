@@ -4,22 +4,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #pragma once
 
 #include <assert.h>
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <deque>
 #include <functional>
 #include <mutex>
+#include <optional>
 #include <shared_mutex>
 #include <thread>
-#include <optional>
-#include <atomic>
 
-#include "scheduler.hpp"
 #include "common.hpp"
+#include "scheduler.hpp"
 
 namespace jam::se {
 
@@ -62,10 +61,10 @@ namespace jam::se {
       return Time::now();
     }
 
-    TaskContainer::const_iterator after(Timepoint const &tp) {
+    TaskContainer::const_iterator after(const Timepoint &tp) {
       checkLocked();
       return std::upper_bound(
-          tasks_.begin(), tasks_.end(), tp, [](auto const &l, auto const &r) {
+          tasks_.begin(), tasks_.end(), tp, [](const auto &l, const auto &r) {
             return l < (r.created + r.timeout);
           });
     }
@@ -77,10 +76,10 @@ namespace jam::se {
 
     bool extractExpired(TimedTask &task) {
       std::lock_guard lock(tasks_cs_);
-      Timepoint const before = now();
+      const Timepoint before = now();
       if (!tasks_.empty()) {
         auto &first_task = tasks_.front();
-        auto const timepoint = first_task.created + first_task.timeout;
+        const auto timepoint = first_task.created + first_task.timeout;
         if (timepoint <= before) {
           task = std::move(first_task);
           tasks_.pop_front();
@@ -95,13 +94,14 @@ namespace jam::se {
     ///@returns time duration from now till first task will be executed
     std::chrono::microseconds untilFirst() const {
       std::lock_guard lock(tasks_cs_);
-      auto const before = now();
+      const auto before = now();
       if (!tasks_.empty()) {
-        auto const &first = tasks_.front();
-        auto const timepoint = first.created + first.timeout;
-        if (timepoint > before)
+        const auto &first = tasks_.front();
+        const auto timepoint = first.created + first.timeout;
+        if (timepoint > before) {
           return std::chrono::duration_cast<std::chrono::microseconds>(
               timepoint - before);
+        }
 
         return std::chrono::microseconds(0ull);
       }
@@ -110,8 +110,9 @@ namespace jam::se {
 
     void add(TimedTask &&task) {
       assert(!tasks_cs_.try_lock());
-      if (task.timeout == std::chrono::microseconds(0ull))
+      if (task.timeout == std::chrono::microseconds(0ull)) {
         is_busy_ = true;
+      }
 
       insert(after(task.created + task.timeout), std::move(task));
       event_.set();
@@ -129,9 +130,9 @@ namespace jam::se {
         if (extractExpired(task)) {
           try {
             if (task.task) {
-              if (!task.predic)
+              if (!task.predic) {
                 task.task();
-              else if (task.predic()) {
+              } else if (task.predic()) {
                 task.task();
                 std::lock_guard lock(tasks_cs_);
                 task.created = now();
@@ -140,8 +141,9 @@ namespace jam::se {
             }
           } catch (...) {
           }
-        } else
+        } else {
           event_.wait(untilFirst());
+        }
 
       } while (proceed_.test_and_set());
       return 0;
@@ -160,8 +162,9 @@ namespace jam::se {
     std::optional<Task> uploadIfFree(std::chrono::microseconds timeout,
                                      Task &&task) override {
       std::lock_guard lock(tasks_cs_);
-      if (is_busy_)
+      if (is_busy_) {
         return std::move(task);
+      }
 
       add(TimedTask{now(), timeout, nullptr, std::move(task)});
       return std::nullopt;
@@ -180,5 +183,4 @@ namespace jam::se {
     }
   };
 
-}  // namespace iroha::subscription
-
+}  // namespace jam::se

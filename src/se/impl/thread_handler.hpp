@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #pragma once
 
 #include <assert.h>
@@ -33,12 +32,12 @@ namespace jam::se {
 
     void dispose(bool wait_for_release = true) {
       SchedulerBase::dispose(wait_for_release);
-      if (wait_for_release)
+      if (wait_for_release) {
         worker_.join();
-      else
+      } else {
         worker_.detach();
+      }
     }
   };
 
-}  // namespace iroha::subscription
-
+}  // namespace jam::se
