@@ -1,17 +1,18 @@
 /**
- * Copyright Soramitsu Co., Ltd. All Rights Reserved.
+ * Copyright Quadrivium LLC
+ * All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_SUBSCRIPTION_SYNC_DISPATCHER_IMPL_HPP
-#define IROHA_SUBSCRIPTION_SYNC_DISPATCHER_IMPL_HPP
 
-#include "subscription/dispatcher.hpp"
+#pragma once
 
-#include "common/common.hpp"
-#include "subscription/thread_handler.hpp"
+#include "dispatcher.hpp"
 
-namespace iroha::subscription {
+#include "common.hpp"
+#include "thread_handler.hpp"
+
+namespace jam::se {
 
   template <uint32_t kCount, uint32_t kPoolSize>
   class SyncDispatcher final : public IDispatcher,
@@ -57,4 +58,3 @@ namespace iroha::subscription {
 
 }  // namespace iroha::subscription
 
-#endif  // IROHA_SUBSCRIPTION_SYNC_DISPATCHER_IMPL_HPP

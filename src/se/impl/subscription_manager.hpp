@@ -1,23 +1,24 @@
 /**
- * Copyright Soramitsu Co., Ltd. All Rights Reserved.
+ * Copyright Quadrivium LLC
+ * All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_SUBSCRIPTION_SUBSCRIPTION_MANAGER_HPP
-#define IROHA_SUBSCRIPTION_SUBSCRIPTION_MANAGER_HPP
+
+#pragma once
 
 #include <assert.h>
 #include <memory>
 #include <shared_mutex>
 #include <unordered_map>
 
-#include "common/common.hpp"
-#include "common/compile-time_murmur2.hpp"
-#include "subscription/dispatcher.hpp"
-#include "subscription/subscriber.hpp"
-#include "subscription/subscription_engine.hpp"
+#include "common.hpp"
+#include "compile-time_murmur2.hpp"
+#include "dispatcher.hpp"
+#include "subscriber.hpp"
+#include "subscription_engine.hpp"
 
-namespace iroha::subscription {
+namespace jam::se {
 
   /**
    * Class-aggregator that keeps all event engines inside. On notification it
@@ -169,4 +170,3 @@ namespace iroha::subscription {
   };
 }  // namespace iroha::subscription
 
-#endif  // IROHA_SUBSCRIPTION_SUBSCRIPTION_MANAGER_HPP

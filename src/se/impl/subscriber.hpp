@@ -1,19 +1,20 @@
 /**
- * Copyright Soramitsu Co., Ltd. All Rights Reserved.
+ * Copyright Quadrivium LLC
+ * All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_SUBSCRIPTION_SUBSCRIBER_HPP
-#define IROHA_SUBSCRIPTION_SUBSCRIBER_HPP
+
+#pragma once
 
 #include <atomic>
 #include <functional>
 #include <memory>
 #include <mutex>
 
-#include "common/common.hpp"
+#include "common.hpp"
 
-namespace iroha::subscription {
+namespace jam::se {
 
   using SubscriptionSetId = uint32_t;
 
@@ -45,4 +46,3 @@ namespace iroha::subscription {
 
 }  // namespace iroha::subscription
 
-#endif  // IROHA_SUBSCRIPTION_SUBSCRIBER_HPP

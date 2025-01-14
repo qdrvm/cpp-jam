@@ -1,10 +1,11 @@
 /**
- * Copyright Soramitsu Co., Ltd. All Rights Reserved.
+ * Copyright Quadrivium LLC
+ * All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_SUBSCRIPTION_SUBSCRIPTION_ENGINE_HPP
-#define IROHA_SUBSCRIPTION_SUBSCRIPTION_ENGINE_HPP
+
+#pragma once
 
 #include <assert.h>
 #include <list>
@@ -12,11 +13,11 @@
 #include <shared_mutex>
 #include <unordered_map>
 
-#include "common/common.hpp"
-#include "subscription/dispatcher.hpp"
-#include "subscription/subscriber.hpp"
+#include "common.hpp"
+#include "dispatcher.hpp"
+#include "subscriber.hpp"
 
-namespace iroha::subscription {
+namespace jam::se {
 
   struct IDisposable {
     virtual void dispose() = 0;
@@ -215,4 +216,3 @@ namespace iroha::subscription {
 
 }  // namespace iroha::subscription
 
-#endif  // IROHA_SUBSCRIPTION_SUBSCRIPTION_ENGINE_HPP

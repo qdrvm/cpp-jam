@@ -4,15 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_SUBSCRIPTION_ASYNC_DISPATCHER_IMPL_HPP
-#define IROHA_SUBSCRIPTION_ASYNC_DISPATCHER_IMPL_HPP
+#pragma once
 
-#include "subscription/dispatcher.hpp"
+#include "dispatcher.hpp"
 
-#include "common/common.hpp"
-#include "subscription/thread_handler.hpp"
+#include "common.hpp"
+#include "thread_handler.hpp"
 
-namespace iroha::subscription {
+namespace jam::se {
 
   template <uint32_t kCount, uint32_t kPoolSize>
   class AsyncDispatcher final : public IDispatcher,
@@ -149,5 +148,3 @@ namespace iroha::subscription {
   };
 
 }  // namespace iroha::subscription
-
-#endif  // IROHA_SUBSCRIPTION_ASYNC_DISPATCHER_IMPL_HPP

@@ -1,14 +1,15 @@
 /**
- * Copyright Soramitsu Co., Ltd. All Rights Reserved.
+ * Copyright Quadrivium LLC
+ * All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_SUBSCRIPTION_FWD_HPP
-#define IROHA_SUBSCRIPTION_FWD_HPP
+
+#pragma once
 
 #include <memory>
 
-namespace iroha {
+namespace jam::se {
   enum SubscriptionEngineHandlers {
     kYac = 0,
     kRequestProposal,
@@ -71,7 +72,7 @@ namespace iroha {
 
   static constexpr uint32_t kThreadPoolSize = 3u;
 
-  namespace subscription {
+  namespace jam::se {
     struct IDispatcher;
 
     template <uint32_t kHandlersCount, uint32_t kPoolSize>
@@ -84,9 +85,9 @@ namespace iroha {
     class SubscriberImpl;
   }  // namespace subscription
 
-  using Dispatcher = subscription::IDispatcher;
+  using Dispatcher = jam::se::IDispatcher;
   using Subscription =
-      subscription::SubscriptionManager<SubscriptionEngineHandlers::kTotalCount,
+      jam::se::SubscriptionManager<SubscriptionEngineHandlers::kTotalCount,
                                         kThreadPoolSize>;
   template <typename ObjectType, typename... EventData>
   using BaseSubscriber = subscription::
@@ -94,4 +95,3 @@ namespace iroha {
 
 }  // namespace iroha
 
-#endif  // IROHA_SUBSCRIPTION_FWD_HPP

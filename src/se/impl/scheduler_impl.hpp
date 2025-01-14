@@ -1,10 +1,11 @@
 /**
- * Copyright Soramitsu Co., Ltd. All Rights Reserved.
+ * Copyright Quadrivium LLC
+ * All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_SUBSCRIPTION_SCHEDULER_IMPL_HPP
-#define IROHA_SUBSCRIPTION_SCHEDULER_IMPL_HPP
+
+#pragma once
 
 #include <assert.h>
 #include <algorithm>
@@ -14,17 +15,19 @@
 #include <mutex>
 #include <shared_mutex>
 #include <thread>
+#include <optional>
+#include <atomic>
 
-#include "subscription/scheduler.hpp"
+#include "scheduler.hpp"
+#include "common.hpp"
 
-#include "common/common.hpp"
-
-namespace iroha::subscription {
+namespace jam::se {
 
   class SchedulerBase : public IScheduler, utils::NoCopy, utils::NoMove {
    private:
     using Time = std::chrono::high_resolution_clock;
     using Timepoint = std::chrono::time_point<Time>;
+
     struct TimedTask {
       Timepoint created;
       std::chrono::microseconds timeout;
@@ -179,4 +182,3 @@ namespace iroha::subscription {
 
 }  // namespace iroha::subscription
 
-#endif  // IROHA_SUBSCRIPTION_SCHEDULER_IMPL_HPP

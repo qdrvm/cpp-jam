@@ -1,19 +1,20 @@
 /**
- * Copyright Soramitsu Co., Ltd. All Rights Reserved.
+ * Copyright Quadrivium LLC
+ * All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_SUBSCRIPTION_HPP
-#define IROHA_SUBSCRIPTION_HPP
+
+#pragma once
 
 #include <memory>
 
-#include "common/common.hpp"
-#include "main/subscription_fwd.hpp"
-#include "subscription/subscriber_impl.hpp"
-#include "subscription/subscription_manager.hpp"
+#include "subscription_fwd.hpp"
+#include "impl/common.hpp"
+#include "impl/subscriber_impl.hpp"
+#include "impl/subscription_manager.hpp"
 
-namespace iroha {
+namespace jam::se {
   std::shared_ptr<Dispatcher> getDispatcher();
   std::shared_ptr<Subscription> getSubscription();
 
@@ -49,4 +50,3 @@ namespace iroha {
   };
 }  // namespace iroha
 
-#endif  // IROHA_SUBSCRIPTION_HPP

@@ -1,17 +1,17 @@
 /**
- * Copyright Soramitsu Co., Ltd. All Rights Reserved.
+ * Copyright Quadrivium LLC
+ * All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_LIBS_COMMON_HPP
-#define IROHA_LIBS_COMMON_HPP
+#pragma once
 
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <shared_mutex>
 
-namespace iroha::utils {
+namespace jam::se::utils {
 
   template <typename To, typename From>
   inline std::shared_ptr<To> reinterpret_pointer_cast(
@@ -62,26 +62,47 @@ namespace iroha::utils {
    */
   // clang-format on
   template <typename T, typename M = std::shared_mutex>
-  struct ReadWriteObject {
-    template <typename... Args>
-    ReadWriteObject(Args &&... args) : t_(std::forward<Args>(args)...) {}
+struct SafeObject {
+  using Type = T;
 
-    template <typename F>
-    inline auto exclusiveAccess(F &&f) {
-      std::unique_lock lock(cs_);
-      return std::forward<F>(f)(t_);
-    }
+  template <typename... Args>
+  SafeObject(Args &&...args) : t_(std::forward<Args>(args)...) {}
 
-    template <typename F>
-    inline auto sharedAccess(F &&f) const {
-      std::shared_lock lock(cs_);
-      return std::forward<F>(f)(t_);
-    }
+  template <typename F>
+  inline auto exclusiveAccess(F &&f) {
+    std::unique_lock lock(cs_);
+    return std::forward<F>(f)(t_);
+  }
 
-   private:
-    T t_;
-    mutable M cs_;
-  };
+  template <typename F>
+  inline auto sharedAccess(F &&f) const {
+    std::shared_lock lock(cs_);
+    return std::forward<F>(f)(t_);
+  }
+
+  auto operator^=(auto &&f) {
+    return exclusiveAccess(std::forward<decltype(f)>(f));
+  }
+  auto operator|=(auto &&f) const {
+    return sharedAccess(std::forward<decltype(f)>(f));
+  }
+
+  T &unsafeGet() {
+    return t_;
+  }
+
+  const T &unsafeGet() const {
+    return t_;
+  }
+
+ private:
+  T t_;
+  mutable M cs_;
+};
+
+
+  template <typename T, typename M = std::shared_mutex>
+  using ReadWriteObject = SafeObject<T, M>;
 
   class WaitForSingleObject final : NoMove, NoCopy {
     std::condition_variable wait_cv_;
@@ -118,5 +139,3 @@ namespace iroha::utils {
     }
   };
 }  // namespace iroha::utils
-
-#endif  // IROHA_LIBS_COMMON_HPP

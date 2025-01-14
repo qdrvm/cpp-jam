@@ -1,13 +1,16 @@
 /**
- * Copyright Soramitsu Co., Ltd. All Rights Reserved.
+ * Copyright Quadrivium LLC
+ * All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "main/subscription.hpp"
 
 #include <mutex>
 
-namespace iroha {
+#include "subscription.hpp"
+
+
+namespace jam::se {
 
   std::shared_ptr<Subscription> getSubscription() {
     static std::weak_ptr<Subscription> engine;

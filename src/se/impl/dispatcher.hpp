@@ -1,25 +1,26 @@
 /**
- * Copyright Soramitsu Co., Ltd. All Rights Reserved.
+ * Copyright Quadrivium LLC
+ * All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IROHA_SUBSCRIPTION_DISPATCHER_HPP
-#define IROHA_SUBSCRIPTION_DISPATCHER_HPP
+#pragma once
 
 #include <optional>
 
-#include "common/common.hpp"
-#include "subscription/scheduler.hpp"
+#include "common.hpp"
+#include "scheduler.hpp"
 
-namespace iroha::subscription {
+namespace jam::se {
 
   struct IDispatcher {
     using Tid = uint32_t;
     using Task = IScheduler::Task;
     using Predicate = IScheduler::Predicate;
+
     static constexpr Tid kExecuteInPool = std::numeric_limits<Tid>::max();
 
-    virtual ~IDispatcher() {}
+    virtual ~IDispatcher() = default;
 
     virtual std::optional<Tid> bind(std::shared_ptr<IScheduler> scheduler) = 0;
     virtual bool unbind(Tid tid) = 0;
@@ -37,4 +38,3 @@ namespace iroha::subscription {
 
 }  // namespace iroha::subscription
 
-#endif  // IROHA_SUBSCRIPTION_DISPATCHER_HPP

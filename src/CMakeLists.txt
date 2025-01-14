@@ -5,3 +5,4 @@
 #
 
 add_subdirectory(jam)
+add_subdirectory(se)
