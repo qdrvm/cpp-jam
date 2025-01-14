@@ -19,7 +19,9 @@ else ()
 endif ()
 
 target_link_libraries(jam_node
-    Boost::boost
+#    Boost::boost
+#    app_configurator
+    node_injector
 #    Boost::program_options
 #    kagome_application
 #    app_config

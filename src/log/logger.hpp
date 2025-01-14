@@ -9,20 +9,17 @@
 #include <memory>
 #include <sstream>
 
+#include <qtils/outcome.hpp>
 #include <soralog/level.hpp>
 #include <soralog/logger.hpp>
 #include <soralog/logging_system.hpp>
 #include <soralog/macro.hpp>
+#include <utils/ctor_limiters.hpp>
 
-#include "common/hexutil.hpp"
-#include "outcome/outcome.hpp"
+#include "injector/dont_inject.hpp"
 
 namespace jam::log {
-  using namespace soralog;
-
-  using Level = soralog::Level;
-  using Logger = std::shared_ptr<soralog::Logger>;
-  using WLogger = std::weak_ptr<soralog::Logger>;
+  using soralog::Level;
 
   enum class Error : uint8_t { WRONG_LEVEL = 1, WRONG_GROUP, WRONG_LOGGER };
 
@@ -30,27 +27,60 @@ namespace jam::log {
 
   void setLoggingSystem(std::weak_ptr<soralog::LoggingSystem> logging_system);
 
-  void tuneLoggingSystem(const std::vector<std::string> &cfg);
+  inline static std::string defaultGroupName{"jam"};
 
-  void doLogRotate();
+  class LoggingSystem : public Singleton<LoggingSystem> {
+   public:
+    DONT_INJECT(LoggingSystem);
 
-  static const std::string defaultGroupName("kagome");
+    LoggingSystem(std::shared_ptr<soralog::LoggingSystem> logging_system);
 
-  [[nodiscard]] Logger createLogger(const std::string &tag);
+    void tuneLoggingSystem(const std::vector<std::string> &cfg);
 
-  [[nodiscard]] Logger createLogger(const std::string &tag,
-                                    const std::string &group);
+    void doLogRotate() const {
+      logging_system_->callRotateForAllSinks();
+    }
 
-  [[nodiscard]] Logger createLogger(const std::string &tag,
-                                    const std::string &group,
-                                    Level level);
+    [[nodiscard]]  //
+    auto
+    getLogger(const std::string &logger_name,
+              const std::string &group_name) const {
+      return logging_system_->getLogger(logger_name, group_name);
+    }
 
-  bool setLevelOfGroup(const std::string &group_name, Level level);
-  bool resetLevelOfGroup(const std::string &group_name);
+    [[deprecated("Don't use hard coded level in production code")]]  //
+    [[nodiscard]]                                                    //
+    auto
+    createLogger(const std::string &logger_name,
+                 const std::string &group_name,
+                 Level level) const {
+      return logging_system_->getLogger(logger_name, group_name, level);
+    }
 
-  bool setLevelOfLogger(const std::string &logger_name, Level level);
-  bool resetLevelOfLogger(const std::string &logger_name);
+    [[nodiscard]]
+    bool setLevelOfGroup(const std::string &group_name, Level level) const {
+      return logging_system_->setLevelOfGroup(group_name, level);
+    }
 
-}  // namespace kagome::log
+    [[nodiscard]]
+    bool resetLevelOfGroup(const std::string &group_name) const {
+      return logging_system_->resetLevelOfGroup(group_name);
+    }
 
-OUTCOME_HPP_DECLARE_ERROR(kagome::log, Error);
+    [[nodiscard]]
+    bool setLevelOfLogger(const std::string &logger_name, Level level) const {
+      return logging_system_->setLevelOfLogger(logger_name, level);
+    }
+
+    [[nodiscard]]
+    bool resetLevelOfLogger(const std::string &logger_name) const {
+      return logging_system_->resetLevelOfLogger(logger_name);
+    }
+
+   private:
+    std::shared_ptr<soralog::LoggingSystem> logging_system_;
+  };
+
+}  // namespace jam::log
+
+// OUTCOME_HPP_DECLARE_ERROR(kagome::log, Error);

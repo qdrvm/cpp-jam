@@ -8,7 +8,9 @@
 
 #include <soralog/impl/configurator_from_yaml.hpp>
 
-#include "filesystem/common.hpp"
+// #include "filesystem/common.hpp"
+#include <filesystem>
+#include <soralog/logger.hpp>
 
 namespace kagome::log {
 
@@ -22,10 +24,10 @@ namespace kagome::log {
                           std::string config);
 
     explicit Configurator(std::shared_ptr<PrevConfigurator> previous,
-                          filesystem::path path);
+                          std::filesystem::path path);
 
-    static std::optional<filesystem::path> getLogConfigFile(int argc,
-                                                            const char **argv);
+    static std::optional<std::filesystem::path> getLogConfigFile(
+        int argc, const char **argv);
   };
 
 }  // namespace kagome::log

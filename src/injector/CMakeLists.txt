@@ -1,0 +1,16 @@
+#
+# Copyright Quadrivium LLC
+# All Rights Reserved
+# SPDX-License-Identifier: Apache-2.0
+#
+
+add_library(node_injector
+  node_injector.cpp
+)
+target_link_libraries(node_injector
+  Boost::Boost.DI
+  logger
+  app_configurator
+  app_state_manager
+  application
+)

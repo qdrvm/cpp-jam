@@ -1,0 +1,21 @@
+
+
+loging:
+  sinks:
+    - name: console
+      type: console
+      stream: stdout
+      thread: name
+      color: true
+      latency: 0
+  groups:
+    - name: main
+      sink: console
+      level: info
+      is_fallback: true
+      children:
+        - name: jam-node
+          children:
+            - name: injector
+            - name: application
+            - name: rpc

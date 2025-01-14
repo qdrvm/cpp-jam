@@ -6,8 +6,14 @@
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-# Applications (should contain `main()` function)
-add_subdirectory(apps)
+# Executables (should contain `main()` function)
+add_subdirectory(executable)
+
+# Application's thinks
+add_subdirectory(app)
+
+# Dependency injection
+add_subdirectory(injector)
 
 # Logging subsystem
 add_subdirectory(log)
