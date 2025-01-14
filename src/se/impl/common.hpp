@@ -36,31 +36,6 @@ namespace jam::se::utils {
     NoMove() = default;
   };
 
-  // clang-format off
-  /**
-   * Protected object wrapper. Allow read-write access.
-   * @tparam T object type
-   * Example:
-   * @code
-   *  ReadWriteObject<std::string> obj("1");
-   *  bool const is_one_att1 =
-   *      obj.sharedAccess([](auto const &str) {
-   *          return str == "1";
-   *      });
-   *  obj.exclusiveAccess([](auto &str) {
-   *      str = "2";
-   *  });
-   *  bool const is_one_att2 =
-   *      obj.sharedAccess([](auto const &str) {
-   *          return str == "1";
-   *      });
-   *
-   * std::cout <<
-   *   "Attempt 1: " << is_one_att1 << std::endl <<
-   *   "Attempt 2: " << is_one_att2;
-   * @endcode
-   */
-  // clang-format on
   template <typename T, typename M = std::shared_mutex>
   struct SafeObject {
     using Type = T;
