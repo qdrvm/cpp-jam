@@ -7,6 +7,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include <qtils/outcome.hpp>
+#include <qtils/enum_error_code.hpp>
 
 #include "injector/dont_inject.hpp"
 
@@ -22,6 +23,11 @@ namespace jam::app {
 
   class Configurator final {
    public:
+    enum class Error : uint8_t {
+      CliArgsParseFailed,
+      ConfigFileParseFailed,
+    };
+
     DONT_INJECT(Configurator);
 
     Configurator() = delete;
@@ -33,13 +39,22 @@ namespace jam::app {
 
     Configurator(int argc, const char **argv, const char **env);
 
-    std::optional<YAML::Node> getLoggingConfig();
+    // Parse CLI args for help, version and config
+    outcome::result<bool> step1();
+
+    outcome::result<YAML::Node> getLoggingConfig();
 
     outcome::result<std::shared_ptr<Configuration>> calculateConfig(
         std::shared_ptr<soralog::Logger> logger);
 
   private:
+    int argc_;
+    const char **argv_;
+    const char **env_;
     std::shared_ptr<Configuration> config_;
+    std::optional<YAML::Node> config_file_;
   };
 
 }  // namespace jam::app
+
+OUTCOME_HPP_DECLARE_ERROR(jam::app, Configurator::Error);

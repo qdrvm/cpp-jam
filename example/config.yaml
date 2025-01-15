@@ -1,6 +1,4 @@
-
-
-loging:
+logging:
   sinks:
     - name: console
       type: console
@@ -14,7 +12,7 @@ loging:
       level: info
       is_fallback: true
       children:
-        - name: jam-node
+        - name: jam
           children:
             - name: injector
             - name: application

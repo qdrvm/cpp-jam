@@ -17,11 +17,10 @@
 
 namespace soralog {
   class Logger;
-}
+}  // namespace soralog
 namespace jam::log {
   class LoggingSystem;
-}
-
+}  // namespace jam::log
 
 namespace jam::app {
 
@@ -30,9 +29,7 @@ namespace jam::app {
         public StateManager,
         public std::enable_shared_from_this<StateManagerImpl> {
    public:
-    StateManagerImpl(
-      std::shared_ptr<log::LoggingSystem> logging_system
-      );
+    StateManagerImpl(std::shared_ptr<log::LoggingSystem> logging_system);
 
     ~StateManagerImpl() override;
 
@@ -84,4 +81,4 @@ namespace jam::app {
     std::queue<OnShutdown> shutdown_;
   };
 
-}  // namespace kagome::application
+}  // namespace jam::app

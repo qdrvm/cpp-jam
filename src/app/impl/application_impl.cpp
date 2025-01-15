@@ -7,12 +7,14 @@
 #include "app/impl/application_impl.hpp"
 
 #include <unistd.h>
+#include <thread>
+
 #include <log/logger.hpp>
 #include <soralog/macro.hpp>
-#include <thread>
 
 #include "app/configuration.hpp"
 #include "app/state_manager.hpp"
+
 // #include "application/impl/util.hpp"
 // #include "application/modes/precompile_wasm.hpp"
 // #include "application/modes/print_chain_info_mode.hpp"
@@ -27,9 +29,10 @@ namespace jam::app {
 
   ApplicationImpl::ApplicationImpl(std::shared_ptr<log::LoggingSystem> logsys,
                                    std::shared_ptr<Configuration> config,
-                                   std::shared_ptr<StateManager> state_manager
-                                   )
-      : logger_(logsys->getLogger("Application", "application")) {}
+                                   std::shared_ptr<StateManager> state_manager)
+      : logger_(logsys->getLogger("Application", "application")),
+        app_config_(std::move(config)),
+        state_manager_(std::move(state_manager)) {}
 
   void ApplicationImpl::run() {
     // auto clock = injector_.injectSystemClock();
@@ -75,7 +78,8 @@ namespace jam::app {
     // {  // Metrics
     //   auto metrics_registry = metrics::createRegistry();
     //
-    //   constexpr auto startTimeMetricName = "kagome_process_start_time_seconds";
+    //   constexpr auto startTimeMetricName =
+    //   "kagome_process_start_time_seconds";
     //   metrics_registry->registerGaugeFamily(
     //       startTimeMetricName,
     //       "UNIX timestamp of the moment the process started");
@@ -85,7 +89,8 @@ namespace jam::app {
     //
     //   constexpr auto nodeRolesMetricName = "kagome_node_roles";
     //   metrics_registry->registerGaugeFamily(nodeRolesMetricName,
-    //                                         "The roles the node is running as");
+    //                                         "The roles the node is running
+    //                                         as");
     //   auto metric_node_roles =
     //       metrics_registry->registerGaugeMetric(nodeRolesMetricName);
     //   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access)
@@ -101,28 +106,6 @@ namespace jam::app {
     //        {"version", app_config_->nodeVersion()}});
     //   metric_build_info->set(1);
     // }
-
-#ifdef __linux__
-    if (not app_config_->disableSecureMode() and app_config_->usePvfSubprocess()
-        and app_config_->roles().isAuthority()) {
-      auto res = parachain::runSecureModeCheckProcess(
-          app_config_->runtimeCacheDirPath());
-      if (!res) {
-        SL_ERROR(logger_, "Secure mode check failed: {}", res.error());
-        exit(EXIT_FAILURE);
-      }
-      if (!res.assume_value().isTotallySupported()) {
-        SL_ERROR(logger_,
-                 "Secure mode is not supported completely. You can disable it "
-                 "using --insecure-validator-i-know-what-i-do.");
-        exit(EXIT_FAILURE);
-      }
-    }
-#else
-    SL_WARN(logger_,
-            "Secure validator mode is not implemented for the current "
-            "platform. Proceed at your own risk.");
-#endif
 
     state_manager_->run();
 

@@ -6,15 +6,10 @@
 
 #include <iostream>
 
-#include </Users/di/Projects/jam/src_/TODO_qtils/final_action.hpp>
-
 #include <soralog/impl/configurator_from_yaml.hpp>
 #include <soralog/logging_system.hpp>
 
-// #include "application/impl/app_configuration_impl.hpp"
-// #include "application/impl/application_impl.hpp"
-// #include "common/fd_limit.hpp"
-// #include "log/configurator.hpp"
+#include <../src_/TODO_qtils/final_action.hpp>
 
 #include "app/application.hpp"
 #include "app/configuration.hpp"
@@ -22,12 +17,13 @@
 #include "injector/node_injector.hpp"
 #include "log/logger.hpp"
 
-using std::string_literals::operator""s;
+using std::string_view_literals::operator""sv;
+
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
 namespace {
   void wrong_usage() {
     std::cerr << "Wrong usage.\n"
-                 // "Available subcommands: {{not-implemented-yet}}\n"
                  "Run with `--help' argument to print usage\n";
   }
 
@@ -64,32 +60,37 @@ int main(int argc, const char **argv, const char **env) {
     std::cerr.flush();
   });
 
-  int exit_code = EXIT_FAILURE;
-
   if (argc == 0) {
     // Abnormal run
     wrong_usage();
-    return exit_code;
+    return EXIT_FAILURE;
   }
 
   if (argc == 1) {
     // Run without arguments
     wrong_usage();
-    return exit_code;
-  }
-
-  // Read cli args to help
-  if (argc == 2 and argv[1] == "-h"s or argv[1] == "--help"s) {
-    wrong_usage();
-    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
   }
 
   auto app_configurator =
       std::make_unique<jam::app::Configurator>(argc, argv, env);
 
+  // Parse CLI args for help, version and config
+  if (auto res = app_configurator->step1(); res.has_value()) {
+    if (res.value()) {
+      return EXIT_SUCCESS;
+    }
+  } else {
+    return EXIT_FAILURE;
+  }
+
   // Setup logging system
   auto logging_system = ({
     auto log_config = app_configurator->getLoggingConfig();
+    if (log_config.has_error()) {
+      std::cerr << "Logging config is empty.\n";
+      return EXIT_FAILURE;
+    }
 
     auto log_configurator = std::make_shared<soralog::ConfiguratorFromYAML>(
         std::shared_ptr<soralog::Configurator>(nullptr), log_config.value());
@@ -111,7 +112,7 @@ int main(int argc, const char **argv, const char **env) {
 
   // Setup config
   auto configuration = ({
-    auto logger = logging_system->getLogger("Configurator", "jam_node");
+    auto logger = logging_system->getLogger("Configurator", "jam");
 
     auto config_res = app_configurator->calculateConfig(logger);
     if (config_res.has_error()) {
@@ -124,6 +125,8 @@ int main(int argc, const char **argv, const char **env) {
 
     config_res.value();
   });
+
+  int exit_code;
 
   {
     std::string_view name{argv[1]};
