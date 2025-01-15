@@ -17,6 +17,7 @@
 // #include "log/configurator.hpp"
 
 #include "app/application.hpp"
+#include "app/configuration.hpp"
 #include "app/configurator.hpp"
 #include "injector/node_injector.hpp"
 #include "log/logger.hpp"

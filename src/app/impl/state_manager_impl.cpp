@@ -9,6 +9,8 @@
 #include <csignal>
 #include <functional>
 
+#include "log/logger.hpp"
+
 namespace jam::app {
   std::weak_ptr<StateManagerImpl> StateManagerImpl::wp_to_myself;
 
@@ -85,12 +87,14 @@ namespace jam::app {
   void StateManagerImpl::logRotateSignalsHandler(int signal) {
     if (auto self = wp_to_myself.lock()) {
       SL_TRACE(self->logger_, "Log rotate signal {} received", signal);
-      log::doLogRotate();
+      self->logging_system_->doLogRotate();
     }
   }
 
-  StateManagerImpl::StateManagerImpl()
-      : logger_(log::createLogger("StateManager", "application")) {
+  StateManagerImpl::StateManagerImpl(
+      std::shared_ptr<log::LoggingSystem> logging_system)
+      : logger_(logging_system->getLogger("StateManager", "application")),
+        logging_system_(std::move(logging_system)) {
     shuttingDownSignalsEnable();
     logRotateSignalsEnable();
     SL_TRACE(logger_, "Signal handlers set up");
@@ -277,4 +281,4 @@ namespace jam::app {
     state_.store(State::ShuttingDown);
     cv_.notify_one();
   }
-}  // namespace kagome::application
+}  // namespace jam::app

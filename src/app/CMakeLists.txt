@@ -14,7 +14,7 @@ add_library(app_configuration SHARED configuration.cpp)
 
 add_library(app_state_manager SHARED impl/state_manager_impl.cpp)
 target_link_libraries(app_state_manager
-    soralog::soralog
+    logger
 )
 
 add_library(application SHARED impl/application_impl.cpp)

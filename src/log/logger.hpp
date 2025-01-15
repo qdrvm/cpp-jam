@@ -10,12 +10,13 @@
 #include <sstream>
 
 #include <qtils/outcome.hpp>
+#include <qtils/enum_error_code.hpp>
 #include <soralog/level.hpp>
 #include <soralog/logger.hpp>
 #include <soralog/logging_system.hpp>
 #include <soralog/macro.hpp>
-#include <utils/ctor_limiters.hpp>
 
+#include "utils/ctor_limiters.hpp"
 #include "injector/dont_inject.hpp"
 
 namespace jam::log {
@@ -83,4 +84,4 @@ namespace jam::log {
 
 }  // namespace jam::log
 
-// OUTCOME_HPP_DECLARE_ERROR(kagome::log, Error);
+OUTCOME_HPP_DECLARE_ERROR(jam::log, Error);

@@ -6,52 +6,59 @@
 
 #include <boost/assert.hpp>
 #include <iostream>
+
+#include <qtils/enum_error_code.hpp>
+#include <qtils/outcome.hpp>
 #include <soralog/impl/sink_to_console.hpp>
 
 #include "log/logger.hpp"
 
-// OUTCOME_CPP_DEFINE_CATEGORY(jam::log, Error, e) {
-//   using E = jam::log::Error;
-//   switch (e) {
-//     case E::WRONG_LEVEL:
-//       return "Unknown level";
-//     case E::WRONG_GROUP:
-//       return "Unknown group";
-//     case E::WRONG_LOGGER:
-//       return "Unknown logger";
-//   }
-//   return "Unknown log::Error";
-// }
+OUTCOME_CPP_DEFINE_CATEGORY(jam::log, Error, e) {
+  using E = jam::log::Error;
+  switch (e) {
+    case E::WRONG_LEVEL:
+      return "Unknown level";
+    case E::WRONG_GROUP:
+      return "Unknown group";
+    case E::WRONG_LOGGER:
+      return "Unknown logger";
+  }
+  return "Unknown log::Error";
+}
 
 namespace jam::log {
 
-  // outcome::result<Level> str2lvl(std::string_view str) {
-  //   if (str == "trace") {
-  //     return Level::TRACE;
-  //   }
-  //   if (str == "debug") {
-  //     return Level::DEBUG;
-  //   }
-  //   if (str == "verbose") {
-  //     return Level::VERBOSE;
-  //   }
-  //   if (str == "info" or str == "inf") {
-  //     return Level::INFO;
-  //   }
-  //   if (str == "warning" or str == "warn") {
-  //     return Level::WARN;
-  //   }
-  //   if (str == "error" or str == "err") {
-  //     return Level::ERROR;
-  //   }
-  //   if (str == "critical" or str == "crit") {
-  //     return Level::CRITICAL;
-  //   }
-  //   if (str == "off" or str == "no") {
-  //     return Level::OFF;
-  //   }
-  //   return Error::WRONG_LEVEL;
-  // }
+  outcome::result<Level> str2lvl(std::string_view str) {
+    if (str == "trace") {
+      return Level::TRACE;
+    }
+    if (str == "debug") {
+      return Level::DEBUG;
+    }
+    if (str == "verbose") {
+      return Level::VERBOSE;
+    }
+    if (str == "info" or str == "inf") {
+      return Level::INFO;
+    }
+    if (str == "warning" or str == "warn") {
+      return Level::WARN;
+    }
+    if (str == "error" or str == "err") {
+      return Level::ERROR;
+    }
+    if (str == "critical" or str == "crit") {
+      return Level::CRITICAL;
+    }
+    if (str == "off" or str == "no") {
+      return Level::OFF;
+    }
+    return Error::WRONG_LEVEL;
+  }
+
+  LoggingSystem::LoggingSystem(
+      std::shared_ptr<soralog::LoggingSystem> logging_system)
+      : logging_system_(logging_system) {}
 
   void LoggingSystem::tuneLoggingSystem(const std::vector<std::string> &cfg) {
     if (cfg.empty()) {
@@ -95,5 +102,4 @@ namespace jam::log {
     }
   }
 
-
-}  // namespace kagome::log
+}  // namespace jam::log

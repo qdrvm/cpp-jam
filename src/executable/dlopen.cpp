@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+extern "C" {
 #include <dlfcn.h>
 #include <mach-o/dyld.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+}
 
-int main(int argc, char **argv) {
+int main(int argc, const char **argv, const char **env) {
   uint32_t size = 0;
   _NSGetExecutablePath(NULL, &size);
   char *exe = (char *)malloc(size);
@@ -31,5 +33,5 @@ int main(int argc, char **argv) {
     printf("dlsym: %s\n", dlerror());
     return -1;
   }
-  return ((int (*)(int, char **))sym)(argc, argv);
+  return ((int (*)(int, const char **, const char **))sym)(argc, argv, env);
 }

@@ -14,7 +14,14 @@
 #include <queue>
 
 #include "utils/ctor_limiters.hpp"
-#include "log/logger.hpp"
+
+namespace soralog {
+  class Logger;
+}
+namespace jam::log {
+  class LoggingSystem;
+}
+
 
 namespace jam::app {
 
@@ -23,7 +30,9 @@ namespace jam::app {
         public StateManager,
         public std::enable_shared_from_this<StateManagerImpl> {
    public:
-    StateManagerImpl();
+    StateManagerImpl(
+      std::shared_ptr<log::LoggingSystem> logging_system
+      );
 
     ~StateManagerImpl() override;
 
@@ -60,7 +69,8 @@ namespace jam::app {
 
     void shutdownRequestWaiting();
 
-    soralog::Logger logger_;
+    std::shared_ptr<soralog::Logger> logger_;
+    std::shared_ptr<log::LoggingSystem> logging_system_;
 
     std::atomic<State> state_ = State::Init;
 

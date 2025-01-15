@@ -8,7 +8,6 @@
 #include <string_view>
 
 namespace jam::app {
-
   class Configuration {
    public:
     Configuration() = default;
@@ -25,6 +24,7 @@ namespace jam::app {
     std::string_view nodeName() const;
 
    private:
+    friend class Configurator;
     std::string_view _version;
     std::string_view _name;
   };
