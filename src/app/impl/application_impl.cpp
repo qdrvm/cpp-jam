@@ -23,21 +23,23 @@
 // #include "metrics/metrics.hpp"
 // #include "parachain/pvf/secure_mode_precheck.hpp"
 // #include "telemetry/service.hpp"
-// #include "utils/watchdog.hpp"
+
+#include "app/impl/watchdog.hpp"
 
 namespace jam::app {
 
   ApplicationImpl::ApplicationImpl(std::shared_ptr<log::LoggingSystem> logsys,
                                    std::shared_ptr<Configuration> config,
-                                   std::shared_ptr<StateManager> state_manager)
+                                   std::shared_ptr<StateManager> state_manager,
+                                   std::shared_ptr<Watchdog> watchdog)
       : logger_(logsys->getLogger("Application", "application")),
         app_config_(std::move(config)),
-        state_manager_(std::move(state_manager)) {}
+        state_manager_(std::move(state_manager)),
+        watchdog_(std::move(watchdog)) {}
 
   void ApplicationImpl::run() {
     // auto clock = injector_.injectSystemClock();
-    // auto watchdog = injector_.injectWatchdog();
-    //
+
     // injector_.injectOpenMetricsService();
     // injector_.injectRpcApiService();
     //
@@ -68,12 +70,12 @@ namespace jam::app {
     //   exit(EXIT_FAILURE);
     // }
 
-    // std::thread watchdog_thread([watchdog] {
-    //   soralog::util::setThreadName("watchdog");
-    //   watchdog->checkLoop(kWatchdogDefaultTimeout);
-    // });
+    std::thread watchdog_thread([this] {
+      soralog::util::setThreadName("watchdog");
+      watchdog_->checkLoop(kWatchdogDefaultTimeout);
+    });
 
-    // state_manager_->atShutdown([watchdog] { watchdog->stop(); });
+    state_manager_->atShutdown([this] { watchdog_->stop(); });
 
     // {  // Metrics
     //   auto metrics_registry = metrics::createRegistry();
@@ -109,9 +111,9 @@ namespace jam::app {
 
     state_manager_->run();
 
-    // watchdog_->stop();
-    //
-    // watchdog_thread_.join();
+    watchdog_->stop();
+
+    watchdog_thread.join();
   }
 
   // int ApplicationImpl::runMode(Mode &mode) {

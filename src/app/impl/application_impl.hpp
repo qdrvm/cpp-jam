@@ -10,6 +10,10 @@
 
 #include <memory>
 
+namespace jam {
+  class Watchdog;
+}  // namespace jam
+
 namespace jam::app {
   class Configuration;
   class StateManager;
@@ -27,9 +31,10 @@ namespace jam::app {
 
   class ApplicationImpl final : public Application {
    public:
-    explicit ApplicationImpl(std::shared_ptr<log::LoggingSystem> logsys,
-                             std::shared_ptr<Configuration> config,
-                             std::shared_ptr<StateManager> state_manager);
+    ApplicationImpl(std::shared_ptr<log::LoggingSystem> logsys,
+                    std::shared_ptr<Configuration> config,
+                    std::shared_ptr<StateManager> state_manager,
+                    std::shared_ptr<Watchdog> watchdog);
 
     void run() override;
 
@@ -37,6 +42,7 @@ namespace jam::app {
     std::shared_ptr<soralog::Logger> logger_;
     std::shared_ptr<Configuration> app_config_;
     std::shared_ptr<StateManager> state_manager_;
+    std::shared_ptr<Watchdog> watchdog_;
   };
 
 }  // namespace jam::app

@@ -9,8 +9,8 @@
     "kagome-crates",
     "libb2",
     "boost-di",
-    "boost-program-options"
-
+    "boost-program-options",
+    "boost-asio"
   ],
   "features": {
     "test": { "description": "Test", "dependencies": ["gtest"]}

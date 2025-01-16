@@ -13,8 +13,9 @@
 #include <boost/di/extension/scopes/shared.hpp>
 
 #include "app/configuration.hpp"
-#include "app/impl/state_manager_impl.hpp"
 #include "app/impl/application_impl.hpp"
+#include "app/impl/state_manager_impl.hpp"
+#include "app/impl/watchdog.hpp"
 #include "log/logger.hpp"
 
 #include "injector/bind_by_lambda.hpp"
@@ -22,12 +23,6 @@
 #include "log/logger.hpp"
 
 namespace {
-  template <class T>
-  using sptr = std::shared_ptr<T>;
-
-  template <class T>
-  using uptr = std::unique_ptr<T>;
-
   namespace di = boost::di;
   namespace fs = std::filesystem;
   using namespace jam;  // NOLINT
@@ -67,6 +62,7 @@ namespace {
 
             di::bind<app::StateManager>.template to<app::StateManagerImpl>(),
             di::bind<app::Application>.template to<app::ApplicationImpl>(),
+            di::bind<Watchdog>.template to<Watchdog>(),
 
             di::bind<app::Configuration>.to(config),
             di::bind<log::LoggingSystem>.to(logsys),
