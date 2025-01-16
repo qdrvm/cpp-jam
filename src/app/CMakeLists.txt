@@ -44,4 +44,5 @@ target_link_libraries(application
     qtils::qtils
     soralog::soralog
     app_configuration
+    metrics
 )

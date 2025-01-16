@@ -13,4 +13,5 @@ target_link_libraries(node_injector
   app_configurator
   app_state_manager
   application
+  metrics
 )

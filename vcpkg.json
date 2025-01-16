@@ -10,7 +10,9 @@
     "libb2",
     "boost-di",
     "boost-program-options",
-    "boost-asio"
+    "boost-asio",
+    "boost-beast",
+    "prometheus-cpp"
   ],
   "features": {
     "test": { "description": "Test", "dependencies": ["gtest"]}

@@ -17,3 +17,5 @@ logging:
             - name: injector
             - name: application
             - name: rpc
+            - name: metrics
+            - name: thread

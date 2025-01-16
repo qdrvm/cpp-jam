@@ -18,3 +18,6 @@ add_subdirectory(injector)
 # Logging subsystem
 add_subdirectory(log)
 
+# Metrics subsystem
+add_subdirectory(metrics)
+

@@ -16,11 +16,11 @@
 #include "app/impl/application_impl.hpp"
 #include "app/impl/state_manager_impl.hpp"
 #include "app/impl/watchdog.hpp"
-#include "log/logger.hpp"
-
 #include "injector/bind_by_lambda.hpp"
 #include "log/configurator.hpp"
 #include "log/logger.hpp"
+#include "metrics/impl/exposer_impl.hpp"
+#include "metrics/impl/prometheus/handler_impl.hpp"
 
 namespace {
   namespace di = boost::di;
@@ -41,43 +41,24 @@ namespace {
                                Ts &&...args) {
     // clang-format off
     return di::make_injector(
-            // bind configs
-            // useConfig(ws_config),
+        di::bind<app::StateManager>. to<app::StateManagerImpl>(),
+        di::bind<app::Application>. to<app::ApplicationImpl>(),
+        di::bind<Watchdog>. to<Watchdog>(),
+        di::bind<app::Configuration>.to(config),
+        di::bind<log::LoggingSystem>.to(logsys),
+        di::bind<metrics::Handler>.to<metrics::PrometheusHandler>(),
+        di::bind<metrics::Exposer>.to<metrics::ExposerImpl>(),
+        di::bind<metrics::Exposer::Configuration>.to([](const auto &injector) {
+          return metrics::Exposer::Configuration{
+              {boost::asio::ip::address_v4::from_string("127.0.0.1"), 7777}
+              // injector
+              //     .template create<app::Configuration const &>()
+              //     .openmetricsHttpEndpoint()
+          };
+        }),
 
-            // inherit host injector
-            // libp2p::injector::makeHostInjector(
-            //     libp2p::injector::useWssPem(config->nodeWssPem()),
-            //     libp2p::injector::useSecurityAdaptors<
-            //         libp2p::security::Noise>()[di::override]),
-
-            // inherit kademlia injector
-            // libp2p::injector::makeKademliaInjector(),
-            // bind_by_lambda<libp2p::protocol::kademlia::Config>(
-            //     [random_walk{config->getRandomWalkInterval()}](
-            //         const auto &injector) {
-            //       return get_kademlia_config(
-            //         injector.template create<const blockchain::GenesisBlockHash &>(),
-            //         injector.template create<const application::ChainSpec &>(), random_walk);
-            //     })[boost::di::override],
-
-            di::bind<app::StateManager>.template to<app::StateManagerImpl>(),
-            di::bind<app::Application>.template to<app::ApplicationImpl>(),
-            di::bind<Watchdog>.template to<Watchdog>(),
-
-            di::bind<app::Configuration>.to(config),
-            di::bind<log::LoggingSystem>.to(logsys),
-
-            // di::bind<api::Listener *[]>()  // NOLINT
-            //     .template to<api::WsListenerImpl>(),
-
-            // hardfix for Mac clang
-            // di::bind<metrics::Session::Configuration>.to(
-            //     [](const auto &injector) {
-            //       return metrics::Session::Configuration{};
-            //     }),
-
-            // user-defined overrides...
-            std::forward<decltype(args)>(args)...);
+        // user-defined overrides...
+        std::forward<decltype(args)>(args)...);
     // clang-format on
   }
 

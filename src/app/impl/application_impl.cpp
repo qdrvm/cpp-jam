@@ -9,18 +9,18 @@
 #include <unistd.h>
 #include <thread>
 
-#include <log/logger.hpp>
 #include <soralog/macro.hpp>
 
 #include "app/configuration.hpp"
 #include "app/state_manager.hpp"
+#include "log/logger.hpp"
 
 // #include "application/impl/util.hpp"
 // #include "application/modes/precompile_wasm.hpp"
 // #include "application/modes/print_chain_info_mode.hpp"
 // #include "application/modes/recovery_mode.hpp"
 // #include "injector/application_injector.hpp"
-// #include "metrics/metrics.hpp"
+#include "metrics/metrics.hpp"
 // #include "parachain/pvf/secure_mode_precheck.hpp"
 // #include "telemetry/service.hpp"
 
@@ -28,14 +28,28 @@
 
 namespace jam::app {
 
-  ApplicationImpl::ApplicationImpl(std::shared_ptr<log::LoggingSystem> logsys,
-                                   std::shared_ptr<Configuration> config,
-                                   std::shared_ptr<StateManager> state_manager,
-                                   std::shared_ptr<Watchdog> watchdog)
+  ApplicationImpl::ApplicationImpl(
+      std::shared_ptr<log::LoggingSystem> logsys,
+      std::shared_ptr<Configuration> config,
+      std::shared_ptr<StateManager> state_manager,
+      std::shared_ptr<Watchdog> watchdog,
+      std::shared_ptr<metrics::Exposer> metrics_exposer)
       : logger_(logsys->getLogger("Application", "application")),
         app_config_(std::move(config)),
         state_manager_(std::move(state_manager)),
-        watchdog_(std::move(watchdog)) {}
+        watchdog_(std::move(watchdog)),
+        metrics_exposer_(std::move(metrics_exposer)),
+        metrics_registry_(metrics::createRegistry()) {
+    constexpr auto highestGrandpaRoundMetricName =
+        "kagome_finality_grandpa_round";
+
+    // Register metrics
+    metrics_registry_->registerGaugeFamily(highestGrandpaRoundMetricName,
+                                           "Highest GRANDPA round");
+    metric_highest_round_ =
+        metrics_registry_->registerGaugeMetric(highestGrandpaRoundMetricName);
+    metric_highest_round_->set(0);
+  }
 
   void ApplicationImpl::run() {
     // auto clock = injector_.injectSystemClock();

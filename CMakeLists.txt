@@ -34,6 +34,7 @@ find_package(soralog CONFIG REQUIRED)
 find_package(schnorrkel_crust CONFIG REQUIRED)
 find_package(Boost.DI CONFIG REQUIRED)
 find_package(qtils CONFIG REQUIRED)
+find_package(prometheus-cpp CONFIG REQUIRED)
 
 add_library(headers INTERFACE)
 target_include_directories(headers INTERFACE
