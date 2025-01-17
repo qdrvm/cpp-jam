@@ -110,6 +110,15 @@ int main(int argc, const char **argv, const char **env) {
     std::make_shared<jam::log::LoggingSystem>(std::move(logging_system));
   });
 
+  // Parse CLI args for help, version and config
+  if (auto res = app_configurator->step2(); res.has_value()) {
+    if (res.value()) {
+      return EXIT_SUCCESS;
+    }
+  } else {
+    return EXIT_FAILURE;
+  }
+
   // Setup config
   auto configuration = ({
     auto logger = logging_system->getLogger("Configurator", "jam");

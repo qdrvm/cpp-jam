@@ -14,14 +14,3 @@ target_link_libraries(logger
     qtils::qtils
     Boost::algorithm
     )
-#kagome_install(logger)
-
-#add_library(log_configurator
-#    configurator.cpp
-#    )
-#target_link_libraries(log_configurator
-#    soralog::configurator_yaml
-#    Boost::program_options
-#    soralog::soralog
-#    )
-#kagome_install(log_configurator)

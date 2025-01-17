@@ -6,8 +6,9 @@
 #pragma once
 
 #include <yaml-cpp/yaml.h>
-#include <qtils/outcome.hpp>
+#include <boost/program_options.hpp>
 #include <qtils/enum_error_code.hpp>
+#include <qtils/outcome.hpp>
 
 #include "injector/dont_inject.hpp"
 
@@ -17,7 +18,7 @@ namespace soralog {
 
 namespace jam::app {
   class Configuration;
-}
+}  // namespace jam::app
 
 namespace jam::app {
 
@@ -42,17 +43,31 @@ namespace jam::app {
     // Parse CLI args for help, version and config
     outcome::result<bool> step1();
 
+    // Parse remaining CLI args
+    outcome::result<bool> step2();
+
     outcome::result<YAML::Node> getLoggingConfig();
 
     outcome::result<std::shared_ptr<Configuration>> calculateConfig(
         std::shared_ptr<soralog::Logger> logger);
 
-  private:
+   private:
+    outcome::result<void> initGeneralConfig();
+    outcome::result<void> initOpenMetricsConfig();
+
     int argc_;
     const char **argv_;
     const char **env_;
+
     std::shared_ptr<Configuration> config_;
+
     std::optional<YAML::Node> config_file_;
+    bool file_has_warn_ = false;
+    bool file_has_error_ = false;
+    std::ostringstream file_errors_;
+
+    boost::program_options::options_description cli_options_;
+    boost::program_options::variables_map cli_values_map_;
   };
 
 }  // namespace jam::app

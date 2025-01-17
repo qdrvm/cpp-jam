@@ -7,13 +7,20 @@
 
 namespace jam::app {
 
-    std::string_view Configuration::nodeVersion() const
-        {
-      return "version";
-      }
+  Configuration::Configuration()
+      : version_("undefined"), name_("unnamed"), metrics_endpoint_() {}
 
-    std::string_view Configuration::nodeName() const{
-      return "node";
-    }
+  std::string Configuration::nodeVersion() const {
+    return version_;
+  }
+
+  std::string Configuration::nodeName() const {
+    return name_;
+  }
+
+  std::optional<Configuration::Endpoint> Configuration::metricsEndpoint()
+      const {
+    return metrics_endpoint_;
+  }
 
 }  // namespace jam::app

@@ -1,3 +1,11 @@
+general:
+  name: NameFromConfig
+
+metrics:
+  enabled: true
+  host: 127.0.0.1
+  port: 9615
+
 logging:
   sinks:
     - name: console
@@ -18,4 +26,4 @@ logging:
             - name: application
             - name: rpc
             - name: metrics
-            - name: thread
+            - name: threads

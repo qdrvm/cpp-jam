@@ -8,25 +8,25 @@
 
 #include <thread>
 
+#include "app/configuration.hpp"
 #include "app/state_manager.hpp"
 #include "log/logger.hpp"
 #include "metrics/exposer.hpp"
 #include "metrics/impl/session_impl.hpp"
-#include "utils/tuner.hpp"
 #include "metrics/metrics.hpp"
+#include "utils/tuner.hpp"
 
 namespace jam::metrics {
   ExposerImpl::ExposerImpl(std::shared_ptr<log::LoggingSystem> logsys,
                            std::shared_ptr<app::StateManager> state_manager,
-                           Exposer::Configuration exposer_config,
+                           std::shared_ptr<app::Configuration> config,
                            std::shared_ptr<metrics::Handler> handler,
                            Session::Configuration session_config)
-      : logger_{logsys->getLogger("OpenMetrics", "metrics")},
+      : logger_{logsys->getLogger("MetricsExposer", "metrics")},
         logsys_{std::move(logsys)},
         context_{std::make_shared<Context>()},
-        config_{std::move(exposer_config)},
+        config_{config->metricsEndpoint().value_or(Endpoint{})},
         session_config_{session_config} {
-
     auto registry = metrics::createRegistry();
     registry->setHandler(*handler.get());
     setHandler(handler);
@@ -71,7 +71,7 @@ namespace jam::metrics {
     acceptOnce();
 
     thread_ = std::make_unique<std::thread>([context = context_] {
-      soralog::util::setThreadName("metric-exposer");
+      soralog::util::setThreadName("metrics");
       context->run();
     });
 

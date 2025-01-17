@@ -49,7 +49,7 @@ namespace jam {
     Singleton() {
       if (exists.test_and_set(std::memory_order_acquire)) {
         throw std::logic_error(
-            "Attempt to create one more instance for singleton");
+            "Attempt to create one more instance of singleton");
       }
     }
     ~Singleton() {

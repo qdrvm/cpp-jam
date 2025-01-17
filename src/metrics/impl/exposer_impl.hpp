@@ -12,6 +12,7 @@
 
 namespace jam::app {
   class StateManager;
+  class Configuration;
 }  // namespace jam::app
 
 namespace soralog {
@@ -29,7 +30,7 @@ namespace jam::metrics {
    public:
     ExposerImpl(std::shared_ptr<log::LoggingSystem> logsys,
                 std::shared_ptr<app::StateManager> state_manager,
-                Exposer::Configuration exposer_config,
+                std::shared_ptr<app::Configuration> config,
                 std::shared_ptr<metrics::Handler> handler,
                 Session::Configuration session_config);
 

@@ -19,4 +19,4 @@ namespace jam::app {
     virtual void run() = 0;
   };
 
-}  // namespace kagome::application
+}  // namespace jam::app

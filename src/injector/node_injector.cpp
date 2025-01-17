@@ -17,7 +17,6 @@
 #include "app/impl/state_manager_impl.hpp"
 #include "app/impl/watchdog.hpp"
 #include "injector/bind_by_lambda.hpp"
-#include "log/configurator.hpp"
 #include "log/logger.hpp"
 #include "metrics/impl/exposer_impl.hpp"
 #include "metrics/impl/prometheus/handler_impl.hpp"

@@ -33,56 +33,29 @@ namespace jam::app {
       std::shared_ptr<Configuration> config,
       std::shared_ptr<StateManager> state_manager,
       std::shared_ptr<Watchdog> watchdog,
-      std::shared_ptr<metrics::Exposer> metrics_exposer)
+      std::shared_ptr<metrics::Exposer> metrics_exposer
+      //,std::shared_ptr<clock::SystemClock> system_clock
+      )
       : logger_(logsys->getLogger("Application", "application")),
         app_config_(std::move(config)),
         state_manager_(std::move(state_manager)),
         watchdog_(std::move(watchdog)),
         metrics_exposer_(std::move(metrics_exposer)),
         metrics_registry_(metrics::createRegistry()) {
-    constexpr auto highestGrandpaRoundMetricName =
-        "kagome_finality_grandpa_round";
+    constexpr auto exampleMetricName = "jam_metric";
 
     // Register metrics
-    metrics_registry_->registerGaugeFamily(highestGrandpaRoundMetricName,
-                                           "Highest GRANDPA round");
+    metrics_registry_->registerGaugeFamily(exampleMetricName, "Example metric");
     metric_highest_round_ =
-        metrics_registry_->registerGaugeMetric(highestGrandpaRoundMetricName);
+        metrics_registry_->registerGaugeMetric(exampleMetricName);
     metric_highest_round_->set(0);
   }
 
   void ApplicationImpl::run() {
-    // auto clock = injector_.injectSystemClock();
-
-    // injector_.injectOpenMetricsService();
-    // injector_.injectRpcApiService();
-    //
-    // kagome::telemetry::setTelemetryService(injector_.injectTelemetryService());
-    //
-    // injector_.kademliaRandomWalk();
-    // injector_.injectAddressPublisher();
-    // injector_.injectTimeline();
-
     logger_->info("Start as node version '{}' named as '{}' with PID {}",
                   app_config_->nodeVersion(),
                   app_config_->nodeName(),
                   getpid());
-
-    // auto chain_path = app_config_->chainPath(chain_spec_->id());
-    // auto storage_backend = app_config_->storageBackend()
-    //                             == AppConfiguration::StorageBackend::RocksDB
-    //                          ? "RocksDB"
-    //                          : "Unknown";
-    // logger_->info("Chain path is {}, storage backend is {}",
-    //               chain_path.native(),
-    //               storage_backend);
-    // auto res = util::init_directory(chain_path);
-    // if (not res) {
-    //   logger_->critical("Error initializing chain directory {}: {}",
-    //                     chain_path.native(),
-    //                     res.error());
-    //   exit(EXIT_FAILURE);
-    // }
 
     std::thread watchdog_thread([this] {
       soralog::util::setThreadName("watchdog");
@@ -91,37 +64,27 @@ namespace jam::app {
 
     state_manager_->atShutdown([this] { watchdog_->stop(); });
 
-    // {  // Metrics
-    //   auto metrics_registry = metrics::createRegistry();
-    //
-    //   constexpr auto startTimeMetricName =
-    //   "kagome_process_start_time_seconds";
-    //   metrics_registry->registerGaugeFamily(
-    //       startTimeMetricName,
-    //       "UNIX timestamp of the moment the process started");
-    //   auto metric_start_time =
-    //       metrics_registry->registerGaugeMetric(startTimeMetricName);
-    //   metric_start_time->set(clock->nowUint64());
-    //
-    //   constexpr auto nodeRolesMetricName = "kagome_node_roles";
-    //   metrics_registry->registerGaugeFamily(nodeRolesMetricName,
-    //                                         "The roles the node is running
-    //                                         as");
-    //   auto metric_node_roles =
-    //       metrics_registry->registerGaugeMetric(nodeRolesMetricName);
-    //   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access)
-    //   metric_node_roles->set(app_config_->roles().value);
-    //
-    //   constexpr auto buildInfoMetricName = "kagome_build_info";
-    //   metrics_registry->registerGaugeFamily(
-    //       buildInfoMetricName,
-    //       "A metric with a constant '1' value labeled by name, version");
-    //   auto metric_build_info = metrics_registry->registerGaugeMetric(
-    //       buildInfoMetricName,
-    //       {{"name", app_config_->nodeName()},
-    //        {"version", app_config_->nodeVersion()}});
-    //   metric_build_info->set(1);
-    // }
+    {  // Metrics
+      auto metrics_registry = metrics::createRegistry();
+
+      constexpr auto startTimeMetricName = "jam_process_start_time_seconds";
+      metrics_registry->registerGaugeFamily(
+          startTimeMetricName,
+          "UNIX timestamp of the moment the process started");
+      auto metric_start_time =
+          metrics_registry->registerGaugeMetric(startTimeMetricName);
+      metric_start_time->set(123);  // system_clock->nowUint64());
+
+      constexpr auto buildInfoMetricName = "jam_build_info";
+      metrics_registry->registerGaugeFamily(
+          buildInfoMetricName,
+          "A metric with a constant '1' value labeled by name, version");
+      auto metric_build_info = metrics_registry->registerGaugeMetric(
+          buildInfoMetricName,
+          {{"name", app_config_->nodeName()},
+           {"version", app_config_->nodeVersion()}});
+      metric_build_info->set(1);
+    }
 
     state_manager_->run();
 
@@ -129,12 +92,5 @@ namespace jam::app {
 
     watchdog_thread.join();
   }
-
-  // int ApplicationImpl::runMode(Mode &mode) {
-  //   auto watchdog = injector_.injectWatchdog();
-  //   auto r = mode.run();
-  //   watchdog->stop();
-  //   return r;
-  // }
 
 }  // namespace jam::app

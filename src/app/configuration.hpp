@@ -5,28 +5,33 @@
 
 #pragma once
 
-#include <string_view>
+#include <string>
+
+#include <boost/asio/ip/tcp.hpp>
+#include <utils/ctor_limiters.hpp>
 
 namespace jam::app {
-  class Configuration {
+  class Configuration final : Singleton<Configuration> {
    public:
-    Configuration() = default;
-    Configuration(Configuration &&) noexcept = delete;
-    Configuration(const Configuration &) = delete;
-    virtual ~Configuration() = default;
-    Configuration &operator=(Configuration &&) noexcept = delete;
-    Configuration &operator=(const Configuration &) = delete;
+    using Endpoint = boost::asio::ip::tcp::endpoint;
+
+    Configuration();
 
     // /// Generate yaml-file with actual config
     // virtual void generateConfigFile() const = 0;
 
-    std::string_view nodeVersion() const;
-    std::string_view nodeName() const;
+    [[nodiscard]] std::string nodeVersion() const;
+    [[nodiscard]] std::string nodeName() const;
+    [[nodiscard]] std::optional<Endpoint> metricsEndpoint() const;
 
    private:
-    friend class Configurator;
-    std::string_view _version;
-    std::string_view _name;
+    friend class Configurator;  // for external configure
+
+    std::string version_;
+    std::string name_;
+
+    Endpoint metrics_endpoint_;
+    std::optional<bool> metrics_enabled_;
   };
 
 }  // namespace jam::app
