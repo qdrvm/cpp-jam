@@ -21,3 +21,6 @@ add_subdirectory(log)
 # Metrics subsystem
 add_subdirectory(metrics)
 
+# Clocks and time subsystem
+add_subdirectory(clock)
+

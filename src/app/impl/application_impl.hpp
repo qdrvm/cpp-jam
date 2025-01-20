@@ -9,6 +9,7 @@
 #include "app/application.hpp"
 
 #include <memory>
+
 #include <metrics/registry.hpp>
 
 namespace jam {
@@ -19,6 +20,10 @@ namespace jam::app {
   class Configuration;
   class StateManager;
 }  // namespace jam::app
+
+namespace jam::clock {
+  class SystemClock;
+}  // namespace jam::clock
 
 namespace soralog {
   class Logger;
@@ -42,8 +47,8 @@ namespace jam::app {
                     std::shared_ptr<Configuration> config,
                     std::shared_ptr<StateManager> state_manager,
                     std::shared_ptr<Watchdog> watchdog,
-                    std::shared_ptr<metrics::Exposer> metrics_exposer
-                    );
+                    std::shared_ptr<metrics::Exposer> metrics_exposer,
+                    std::shared_ptr<clock::SystemClock> system_clock);
 
     void run() override;
 
@@ -53,10 +58,10 @@ namespace jam::app {
     std::shared_ptr<StateManager> state_manager_;
     std::shared_ptr<Watchdog> watchdog_;
     std::shared_ptr<metrics::Exposer> metrics_exposer_;
+    std::shared_ptr<clock::SystemClock> system_clock_;
 
     // Metrics
     std::unique_ptr<metrics::Registry> metrics_registry_;
-    metrics::Gauge *metric_highest_round_;
   };
 
 }  // namespace jam::app

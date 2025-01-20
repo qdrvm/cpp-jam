@@ -14,12 +14,12 @@
 #include <thread>
 #include <unordered_map>
 
-#include <fmt/format.h>
 #include <boost/asio/io_context.hpp>
-#include <log/logger.hpp>
+#include <fmt/format.h>
 #include <soralog/soralog.hpp>
 
 #include "app/configuration.hpp"
+#include "log/logger.hpp"
 
 #include "injector/dont_inject.hpp"
 
@@ -54,8 +54,8 @@ namespace {
 
 #else
 
-#include <sys/syscall.h>
 #include <unistd.h>
+#include <sys/syscall.h>
 
 inline uint64_t getPlatformThreadId() {
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)

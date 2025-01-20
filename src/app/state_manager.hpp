@@ -127,4 +127,4 @@ namespace jam::app {
     explicit AppStateException(std::string message)
         : std::runtime_error("Wrong workflow at " + std::move(message)) {}
   };
-}  // namespace kagome::application
+}  // namespace jam::app

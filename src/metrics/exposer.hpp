@@ -59,4 +59,4 @@ namespace jam::metrics {
     std::shared_ptr<Handler> handler_;
   };
 
-}  // namespace kagome::metrics
+}  // namespace jam::metrics

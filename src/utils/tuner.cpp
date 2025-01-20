@@ -37,4 +37,4 @@ namespace jam::api {
     }
   }
 
-}  // namespace kagome::api
+}  // namespace jam::api

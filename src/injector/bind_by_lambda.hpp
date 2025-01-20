@@ -66,4 +66,4 @@ namespace jam::injector {
   auto bind_by_lambda(const F &f) {
     return boost::di::core::dependency<BindByLambda, T, F>{f};
   }
-}  // namespace kagome::injector
+}  // namespace jam::injector

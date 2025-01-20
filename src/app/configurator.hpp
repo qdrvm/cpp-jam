@@ -5,10 +5,10 @@
 
 #pragma once
 
-#include <yaml-cpp/yaml.h>
 #include <boost/program_options.hpp>
 #include <qtils/enum_error_code.hpp>
 #include <qtils/outcome.hpp>
+#include <yaml-cpp/yaml.h>
 
 #include "injector/dont_inject.hpp"
 

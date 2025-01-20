@@ -6,10 +6,10 @@
 
 extern "C" {
 #include <dlfcn.h>
-#include <mach-o/dyld.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mach-o/dyld.h>
 }
 
 int main(int argc, const char **argv, const char **env) {

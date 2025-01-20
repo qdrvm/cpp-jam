@@ -30,4 +30,4 @@ namespace jam {
     }
   }
 
-}  // namespace kagome
+}  // namespace jam

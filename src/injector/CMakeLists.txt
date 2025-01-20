@@ -5,13 +5,14 @@
 #
 
 add_library(node_injector
-  node_injector.cpp
+    node_injector.cpp
 )
 target_link_libraries(node_injector
-  Boost::Boost.DI
-  logger
-  app_configurator
-  app_state_manager
-  application
-  metrics
+    Boost::Boost.DI
+    logger
+    app_configurator
+    app_state_manager
+    application
+    metrics
+    clock
 )

@@ -15,4 +15,4 @@ namespace jam::injector {
   struct DontInjectHelper {
     explicit DontInjectHelper() = default;
   };
-}  // namespace kagome
+}  // namespace jam::injector
