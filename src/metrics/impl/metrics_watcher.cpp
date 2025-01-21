@@ -4,33 +4,43 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "metrics_watcher.hpp"
-
-#include "filesystem/common.hpp"
-
-namespace {
-  constexpr auto storageSizeMetricName = "jam_storage_size";
-}  // namespace
+#include "metrics/impl/metrics_watcher.hpp"
+#include <filesystem>
+#include "app/configuration.hpp"
+#include "app/state_manager.hpp"
+#include "log/logger.hpp"
+#include "metrics/registry.hpp"
 
 namespace jam::metrics {
-  namespace fs = jam::filesystem;
+  namespace fs = std::filesystem;
 
   MetricsWatcher::MetricsWatcher(
-      std::shared_ptr<application::AppStateManager> app_state_manager,
-      const application::AppConfiguration &app_config,
-      std::shared_ptr<application::ChainSpec> chain_spec)
-      : storage_path_(app_config.databasePath(chain_spec->id())) {
-    BOOST_ASSERT(app_state_manager);
+      std::shared_ptr<app::StateManager> state_manager,
+      std::shared_ptr<app::Configuration> app_config)
+      : state_manager_(std::move(state_manager)),
+        app_config_(std::move(app_config)),
+        metrics_registry_(metrics::createRegistry()) {
+    BOOST_ASSERT(state_manager);
 
-    // Metrics
-    metrics_registry_ = metrics::createRegistry();
+    // Metric for exposing name and version of node
+    constexpr auto buildInfoMetricName = "jam_build_info";
+    metrics_registry_->registerGaugeFamily(
+        buildInfoMetricName,
+        "A metric with a constant '1' value labeled by name, version");
+    auto metric_build_info = metrics_registry_->registerGaugeMetric(
+        buildInfoMetricName,
+        {{"name", app_config_->nodeName()},
+         {"version", app_config_->nodeVersion()}});
+    metric_build_info->set(1);
 
+    // Metric for exposing current storage size
+    constexpr auto storageSizeMetricName = "jam_storage_size";
     metrics_registry_->registerGaugeFamily(
         storageSizeMetricName, "Consumption of disk space by storage");
     metric_storage_size_ =
         metrics_registry_->registerGaugeMetric(storageSizeMetricName);
 
-    app_state_manager->takeControl(*this);
+    state_manager_->takeControl(*this);
   }
 
   bool MetricsWatcher::start() {

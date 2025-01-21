@@ -46,7 +46,7 @@ namespace jam::metrics {
     std::shared_ptr<soralog::Logger> logger_;
     std::shared_ptr<log::LoggingSystem> logsys_;
     std::shared_ptr<Context> context_;
-    const Exposer::Configuration config_;
+    std::shared_ptr<app::Configuration> config_;
     const Session::Configuration session_config_;
 
     std::unique_ptr<Acceptor> acceptor_;

@@ -25,7 +25,7 @@ namespace jam::metrics {
       : logger_{logsys->getLogger("MetricsExposer", "metrics")},
         logsys_{std::move(logsys)},
         context_{std::make_shared<Context>()},
-        config_{config->metricsEndpoint().value_or(Endpoint{})},
+        config_{std::move(config)},
         session_config_{session_config} {
     auto registry = metrics::createRegistry();
     registry->setHandler(*handler.get());
@@ -37,7 +37,10 @@ namespace jam::metrics {
   bool ExposerImpl::prepare() {
     try {
       acceptor_ = jam::api::acceptOnFreePort(
-          context_, config_.endpoint, jam::api::kDefaultPortTolerance, logger_);
+          context_,
+          config_->metricsEndpoint().value_or(Endpoint{}),
+          jam::api::kDefaultPortTolerance,
+          logger_);
     } catch (const boost::wrapexcept<boost::system::system_error> &exception) {
       SL_CRITICAL(
           logger_, "Failed to prepare a listener: {}", exception.what());
@@ -65,9 +68,10 @@ namespace jam::metrics {
       return false;
     }
 
-    logger_->info("Listening for new connections on {}:{}",
-                  config_.endpoint.address().to_string(),
-                  acceptor_->local_endpoint().port());
+    logger_->info(
+        "Listening for new connections on {}:{}",
+        config_->metricsEndpoint().value_or(Endpoint{}).address().to_string(),
+        acceptor_->local_endpoint().port());
     acceptOnce();
 
     thread_ = std::make_unique<std::thread>([context = context_] {
