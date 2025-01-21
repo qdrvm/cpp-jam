@@ -42,7 +42,7 @@ ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ContinuationIndentWidth: 4
 DerivePointerAlignment: false
 FixNamespaceComments: true
-IncludeBlocks: Preserve
+IncludeBlocks: Regroup
 IncludeCategories:
   - Regex: '^["<]MAIN_INCLUDE_FILE[">]$'
     Priority: 1
