@@ -429,8 +429,8 @@ class GenCommonTypes:
             "#include <test-vectors/config-types-scale.hpp>",
             '#include <test-vectors/common-types.hpp>',
             "",
-            # *self.g_scale,
-            # *self.enum_trait,
+            *self.g_scale,
+            *self.enum_trait,
         ]
         self.g_diff = flatten([ty.diff for ty in self.types])
         self.g_diff = [

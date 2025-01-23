@@ -20,6 +20,9 @@ project(cpp-jam
     LANGUAGES CXX
 )
 
+message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Boost_DIR: ${Boost_DIR}")
+
 find_package(Python3 REQUIRED)
 
 find_package(PkgConfig REQUIRED)

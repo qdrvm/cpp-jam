@@ -58,6 +58,24 @@ namespace jam {
 
     // auto operator<=>(const Tagged<T, Tag> &other) const = default;
     // bool operator==(const Tagged<T, Tag> &other) const = default;
+
+    friend ::scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s,
+                                                   const Tagged &tagged) {
+      if constexpr (std::is_scalar_v<T>) {
+        return s << tagged.Wrapper<const T>::value;
+      } else {
+        return s << static_cast<const T &>(tagged);
+      }
+    }
+
+    friend ::scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s,
+                                                   Tagged &tagged) {
+      if constexpr (std::is_scalar_v<T>) {
+        return s >> tagged.Wrapper<T>::value;
+      } else {
+        return s >> static_cast<T &>(tagged);
+      }
+    }
   };
 
   template <
@@ -68,22 +86,3 @@ namespace jam {
                            const Tagged<T, Tag, Base> &view) = delete;
 }  // namespace jam
 
-template <typename T, typename Tag>
-::scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s,
-                                        const jam::Tagged<T, Tag> &tagged) {
-  if constexpr (std::is_scalar_v<T>) {
-    return s << tagged.template Wrapper<const T>::value;
-  } else {
-    return s << static_cast<const T &>(tagged);
-  }
-}
-
-template <typename T, typename Tag>
-::scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s,
-                                        jam::Tagged<T, Tag> &tagged) {
-  if constexpr (std::is_scalar_v<T>) {
-    return s >> tagged.template Wrapper<T>::value;
-  } else {
-    return s >> static_cast<T &>(tagged);
-  }
-}
