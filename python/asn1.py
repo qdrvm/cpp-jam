@@ -7,6 +7,7 @@ import sys
 DIR = os.path.dirname(__file__)
 TEST_VECTORS_DIR = os.path.join(DIR, "../test-vectors")
 
+
 def flatten(aaa: list[list]):
     return [a for aa in aaa for a in aa]
 
@@ -248,7 +249,8 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
             ]
             continue
         if t["type"] == "ENUMERATED":
-            base_type = c_fittest_int_type(min((x for _, x in t["values"]), default=0), max((x for _, x in t["values"]), default=0))
+            base_type = c_fittest_int_type(min((x for _, x in t["values"]), default=0),
+                                           max((x for _, x in t["values"]), default=0))
             if base_type is None: raise TypeError(t)
             ty.decl = [
                 "enum class %s : %s {" % (tname, base_type),
@@ -422,12 +424,13 @@ class GenCommonTypes:
             "#pragma once",
             "",
             "#include <scale/scale.hpp>",
+            "#include <src_/TODO_scale/aggregate.hpp>",
             "",
             "#include <test-vectors/config-types-scale.hpp>",
             '#include <test-vectors/common-types.hpp>',
             "",
-            *self.g_scale,
-            *self.enum_trait,
+            # *self.g_scale,
+            # *self.enum_trait,
         ]
         self.g_diff = flatten([ty.diff for ty in self.types])
         self.g_diff = [
@@ -465,7 +468,8 @@ class GenSpecialTypes:
         self.types, self.enum_trait = parse_types("%s::%s" % (cpp_namespace, name), [], self.asn_file, module,
                                                   flatten(asn_imports.values()))
         self.g_types = flatten([[*ty.c_tdecl(), *ty.decl] for ty in self.types])
-        self.g_types = ["namespace %s::%s {" % (cpp_namespace, name), "", *indent(usings), "", *indent(self.g_types), "", "}"]
+        self.g_types = ["namespace %s::%s {" % (cpp_namespace, name), "", *indent(usings), "", *indent(self.g_types),
+                        "", "}"]
         self.g_types = [
             "// Auto-generated file",
             "",

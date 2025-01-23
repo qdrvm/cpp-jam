@@ -30,3 +30,7 @@ endif ()
 #if (BACKWARD)
 #  add_backward(jam_node)
 #endif ()
+
+
+add_executable(experiment experiment.cpp)
+target_link_libraries(experiment scale::scale)
