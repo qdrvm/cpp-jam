@@ -41,7 +41,6 @@ if (NOT TARGET generate_common_types)
   set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
   set(GENERATED_FILES
       ${DIR}/common-types.hpp
-      ${DIR}/common-scale.hpp
       ${DIR}/common-diff.hpp
   )
 
@@ -72,7 +71,6 @@ function(generate_from_asn1 name)
   set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
   set(GENERATED_FILES
       ${DIR}/${name}-types.hpp
-      ${DIR}/${name}-scale.hpp
       ${DIR}/${name}-diff.hpp
   )
 
@@ -100,7 +98,7 @@ function(add_test_vector name)
 
   file(GLOB HPP_FILES_ "${VECTOR_DIR}/*.hpp")
   set(HPP_FILES)
-  set(REGEX "${name}-(types|scale|diff).*\\.hpp$")
+  set(REGEX "${name}-(types|diff).*\\.hpp$")
   foreach (FILE ${HPP_FILES_})
     string(REGEX MATCH ${REGEX} MATCH_RESULT ${FILE})
     if (MATCH_RESULT)

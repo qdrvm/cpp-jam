@@ -51,7 +51,7 @@ class Type:
         self.name = name
         self.args: list[str] = []
         self.decl: list[str] = []
-        self.scale: list[str] = []
+        # self.scale: list[str] = []
         self.diff: list[str] = []
 
     def c_tdecl(self):
@@ -114,29 +114,29 @@ def asn_args(ARGS: list[str], types: dict, deps2: dict[str, set[str]]):
     return {k: [a for a in ARGS if a in aa] for k, aa in args.items()}
 
 
-def c_scale(ty: Type, encode: list[str], decode: list[str]):
-    return [
-        *ty.c_tdecl(),
-        "inline scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s, const %s &v) {"
-        % ty.c_tname(),
-        *indent(encode),
-        "  return s;",
-        "}",
-        *ty.c_tdecl(),
-        "inline scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s, %s &v) {"
-        % ty.c_tname(),
-        *indent(decode),
-        "  return s;",
-        "}",
-    ]
-
-
-def c_scale_struct(ty: Type, members: list[str]):
-    return c_scale(
-        ty,
-        ["s << v.%s;" % x for x in members],
-        ["s >> v.%s;" % x for x in members],
-    )
+# def c_scale(ty: Type, encode: list[str], decode: list[str]):
+#     return [
+#         *ty.c_tdecl(),
+#         "inline scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s, const %s &v) {"
+#         % ty.c_tname(),
+#         *indent(encode),
+#         "  return s;",
+#         "}",
+#         *ty.c_tdecl(),
+#         "inline scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s, %s &v) {"
+#         % ty.c_tname(),
+#         *indent(decode),
+#         "  return s;",
+#         "}",
+#     ]
+#
+#
+# def c_scale_struct(ty: Type, members: list[str]):
+#     return c_scale(
+#         ty,
+#         ["s << v.%s;" % x for x in members],
+#         ["s >> v.%s;" % x for x in members],
+#     )
 
 
 def c_diff(NS: str, ty: Type, lines: list[str]):
@@ -282,10 +282,10 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
             ty.decl = c_struct(
                 tname, [(c_dash(x["name"]), asn_member(x)) for x in t["members"]]
             )
-            ty.scale += c_scale_struct(ty, [c_dash(x["name"]) for x in t["members"]])
-            ty.diff = c_diff(
-                cpp_namespace, ty, ["DIFF_M(%s);" % c_dash(x["name"]) for x in t["members"]]
-            )
+            # ty.scale += c_scale_struct(ty, [c_dash(x["name"]) for x in t["members"]])
+            # ty.diff = c_diff(
+            #     cpp_namespace, ty, ["DIFF_M(%s);" % c_dash(x["name"]) for x in t["members"]]
+            # )
             ty.diff = c_diff(
                 cpp_namespace, ty, ["DIFF_M(%s);" % c_dash(x["name"]) for x in t["members"]]
             )
@@ -413,25 +413,25 @@ class GenCommonTypes:
             "",
             *self.g_types,
         ]
-        self.g_scale = flatten([ty.scale for ty in self.types])
-        self.g_scale = [
-            "namespace %s {" % cpp_namespace,
-            *indent(self.g_scale), "}"
-        ]
-        self.g_scale = [
-            "// Auto-generated file",
-            "",
-            "#pragma once",
-            "",
-            "#include <scale/scale.hpp>",
-            "#include <src_/TODO_scale/aggregate.hpp>",
-            "",
-            "#include <test-vectors/config-types-scale.hpp>",
-            '#include <test-vectors/common-types.hpp>',
-            "",
-            *self.g_scale,
-            *self.enum_trait,
-        ]
+        # self.g_scale = flatten([ty.scale for ty in self.types])
+        # self.g_scale = [
+        #     "namespace %s {" % cpp_namespace,
+        #     *indent(self.g_scale), "}"
+        # ]
+        # self.g_scale = [
+        #     "// Auto-generated file",
+        #     "",
+        #     "#pragma once",
+        #     "",
+        #     "#include <scale/scale.hpp>",
+        #     "#include <src_/TODO_scale/aggregate.hpp>",
+        #     "",
+        #     "#include <test-vectors/config-types-scale.hpp>",
+        #     '#include <test-vectors/common-types.hpp>',
+        #     "",
+        #     *self.g_scale,
+        #     *self.enum_trait,
+        # ]
         self.g_diff = flatten([ty.diff for ty in self.types])
         self.g_diff = [
             "// Auto-generated file",
@@ -447,7 +447,7 @@ class GenCommonTypes:
     def write(self):
         prefix = os.path.join(TEST_VECTORS_DIR)
         write(prefix + "/common-types.hpp", self.g_types)
-        write(prefix + "/common-scale.hpp", self.g_scale)
+        # write(prefix + "/common-scale.hpp", self.g_scale)
         write(prefix + "/common-diff.hpp", self.g_diff)
 
 
@@ -488,21 +488,21 @@ class GenSpecialTypes:
             "",
             *self.g_types,
         ]
-        self.g_scale = flatten([ty.scale for ty in self.types])
-        self.g_scale = ["namespace %s::%s {" % (cpp_namespace, name), "", *indent(self.g_scale), "", "}"]
-        self.g_scale = [
-            "// Auto-generated file",
-            "",
-            "#pragma once",
-            "",
-            "#include <scale/scale.hpp>",
-            "",
-            '#include <test-vectors/common-scale.hpp>',
-            '#include <test-vectors/%s/%s-types.hpp>' % (name, name),
-            "",
-            *self.g_scale,
-            *self.enum_trait,
-        ]
+        # self.g_scale = flatten([ty.scale for ty in self.types])
+        # self.g_scale = ["namespace %s::%s {" % (cpp_namespace, name), "", *indent(self.g_scale), "", "}"]
+        # self.g_scale = [
+        #     "// Auto-generated file",
+        #     "",
+        #     "#pragma once",
+        #     "",
+        #     "#include <scale/scale.hpp>",
+        #     "",
+        #     '#include <test-vectors/common-scale.hpp>',
+        #     '#include <test-vectors/%s/%s-types.hpp>' % (name, name),
+        #     "",
+        #     *self.g_scale,
+        #     *self.enum_trait,
+        # ]
         self.g_diff = flatten([ty.diff for ty in self.types])
         self.g_diff = [
             "// Auto-generated file",
@@ -519,7 +519,7 @@ class GenSpecialTypes:
     def write(self, name: str):
         prefix = os.path.join(TEST_VECTORS_DIR, name, name)
         write(prefix + "-types.hpp", self.g_types)
-        write(prefix + "-scale.hpp", self.g_scale)
+        # write(prefix + "-scale.hpp", self.g_scale)
         write(prefix + "-diff.hpp", self.g_diff)
 
 
