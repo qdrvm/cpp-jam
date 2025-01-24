@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#pragma once
+
 #include <type_traits>
 
 namespace scale::detail {
@@ -29,7 +31,7 @@ namespace scale::detail {
   template <typename T, int N = -1>
     requires std::is_aggregate_v<T>
   struct field_number_of_impl
-      : public std::integral_constant<
+      : std::integral_constant<
             int,
             std::conditional_t<
                 std::is_empty_v<T>,
@@ -55,17 +57,16 @@ namespace scale::detail {
           T,
           std::array<typename T::value_type, std::tuple_size<T>::value>>;
 
-
   template <typename T>
-  concept SimpleCodeableAggregate = std::is_aggregate_v<std::decay_t<T>>  //
-                                and (not std::is_array_v<T>)              //
-                                and (not is_std_array<T>)                 //
-                                and (detail::field_number_of<T> <= 20);
+  concept SimpleCodeableAggregate =
+      std::is_aggregate_v<std::decay_t<T>>  //
+      and (not std::is_array_v<T>)          //
+      and (not is_std_array<T>)             //
+      and (detail::field_number_of<T> <= MAX_FIELD_NUM);
 
   template <typename T, typename F>
     requires SimpleCodeableAggregate<T>
-  // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward)
-  auto as_decomposed(T &&v, const F &f) {
+  auto &as_decomposed(T &&v, const F &f) {
     constexpr auto N = field_number_of<T>;
     // clang-format off
     if constexpr (N == 0) {
@@ -142,26 +143,27 @@ namespace scale::detail {
 
 namespace scale {
 
-  class ScaleEncoderStream;
   class ScaleDecoderStream;
+  class ScaleEncoderStream;
 
-  template <typename T,
-            typename = decltype(detail::as_decomposed(std::declval<T>(),
-                                                      [](const auto &...) {}))>
+  template <typename T>
     requires detail::SimpleCodeableAggregate<T>
   ScaleEncoderStream &operator<<(ScaleEncoderStream &s, const T &v) {
-    detail::as_decomposed(
-        v, [&](const auto &...args) { return (s << ... << args); });
-    return s;
+    return detail::as_decomposed(  //
+        v,
+        [&](const auto &...args) -> ScaleEncoderStream & {
+          return (s << ... << args);
+        });
   }
 
-  template <typename T,
-            typename = decltype(detail::as_decomposed(std::declval<T>(),
-                                                      [](auto &...) {}))>
+  template <typename T>
     requires detail::SimpleCodeableAggregate<T>
   ScaleDecoderStream &operator>>(ScaleDecoderStream &s, T &v) {
-    detail::as_decomposed(v, [&](auto &...args) { return (s >> ... >> args); });
-    return s;
+    return detail::as_decomposed(  //
+        v,
+        [&](auto &...args) -> ScaleDecoderStream & {
+          return (s >> ... >> args);
+        });
   }
 
 }  // namespace scale
