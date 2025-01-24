@@ -58,9 +58,6 @@ int main() {
   auto saa = scale::detail::is_std_array<std::array<int, 3>>;
   auto nsa = scale::detail::is_std_array<X>;
 
-
-  s >> v;
-
   const jam::Tagged<jam::Empty, jam::test_vectors::_1> tagged_o;
 
   scale::ScaleEncoderStream es;
