@@ -1,7 +1,6 @@
 #include <iostream>
 #include <type_traits>
 
-#include <../src_/TODO_scale/aggregate.hpp>
 #include <../src_/jam/empty.hpp>
 #include <../src_/jam/tagged.hpp>
 #include <scale/scale.hpp>

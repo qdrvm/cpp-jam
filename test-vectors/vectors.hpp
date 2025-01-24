@@ -15,8 +15,6 @@
 #include <qtils/read_file.hpp>
 #include <qtils/test/outcome.hpp>
 #include <scale/scale.hpp>
-#include <test-vectors/../src_/TODO_scale/aggregate.hpp>
-#include <test-vectors/../src_/TODO_scale/scale.hpp>
 #include <test-vectors/config-types.hpp>
 
 
@@ -58,7 +56,7 @@
     ASSERT_OUTCOME_SUCCESS(raw_data, qtils::readBytes(path));                  \
                                                                                \
     ASSERT_OUTCOME_SUCCESS(testcase,                                           \
-                           jam::decode<jam::test_vectors::NsPart::TestCase>( \
+                           scale::decode<jam::test_vectors::NsPart::TestCase>( \
                                raw_data, vectors.config));                     \
                                                                                \
     auto [state, output] = jam::NsPart::transition(                            \
@@ -91,10 +89,10 @@
     const auto &original = raw_data;                                           \
                                                                                \
     ASSERT_OUTCOME_SUCCESS(decoded,                                            \
-                           jam::decode<jam::test_vectors::NsPart::TestCase>( \
+                           scale::decode<jam::test_vectors::NsPart::TestCase>( \
                                original, vectors.config));                     \
                                                                                \
-    ASSERT_OUTCOME_SUCCESS(reencoded, jam::encode(decoded, vectors.config)); \
+    ASSERT_OUTCOME_SUCCESS(reencoded, scale::encode(decoded, vectors.config)); \
                                                                                \
     EXPECT_EQ(reencoded, original);                                            \
   }
@@ -167,18 +165,6 @@ namespace jam::test_vectors {
         paths.emplace(path);
       }
     }
-
-    // auto decode(qtils::BytesIn raw) const {
-    //   return jam::decode<T>(raw, config);
-    // }
-    //
-    // auto encode(const auto &value) const {
-    //   return jam::encode(value, config);
-    // }
-    //
-    // static auto readRaw(const std::filesystem::path &path) {
-    //   return qtils::readBytes(path);
-    // }
   };
 
   template <typename T>
