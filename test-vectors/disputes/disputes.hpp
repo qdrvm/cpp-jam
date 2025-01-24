@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include <algorithm>
 #include <map>
 #include <ranges>
 #include <set>
@@ -14,11 +13,9 @@
 #include <TODO_qtils/bytes_std_hash.hpp>
 #include <TODO_qtils/cxx23/ranges/contains.hpp>
 #include <qtils/append.hpp>
-#include <scale/scale.hpp>
 
 #include <jam/bandersnatch.hpp>
 #include <jam/ed25519.hpp>
-#include <test-vectors/common-scale.hpp>
 #include <test-vectors/common-types.hpp>
 #include <test-vectors/common.hpp>
 #include <test-vectors/disputes/disputes-types.hpp>

@@ -6,15 +6,12 @@
 
 #pragma once
 
-#include <algorithm>
-#include <ranges>
 #include <set>
 #include <unordered_map>
 
 #include <TODO_qtils/cxx23/ranges/contains.hpp>
 #include <jam/bandersnatch.hpp>
 #include <src_/jam/tagged.hpp>
-#include <test-vectors/common-scale.hpp>
 #include <test-vectors/common-types.hpp>
 #include <test-vectors/common.hpp>
 #include <test-vectors/config-full.hpp>

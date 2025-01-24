@@ -8,7 +8,7 @@
 
 #include <test-vectors/config-full.hpp>
 #include <test-vectors/config-tiny.hpp>
-#include <test-vectors/safrole/safrole-scale.hpp>
+#include <test-vectors/safrole/safrole-types.hpp>
 #include <test-vectors/vectors.hpp>
 
 namespace jam::test_vectors::safrole {
