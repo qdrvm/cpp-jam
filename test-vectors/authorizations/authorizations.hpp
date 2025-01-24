@@ -29,14 +29,14 @@ namespace jam::authorizations {
 
     // [GP 0.4.5 8 85]
     // [α[c]] - set of authorizers allowable for a particular core
-    const auto &pool = state.auth_pools.v;
+    const auto &pool = state.auth_pools;
 
     // [GP 0.4.5 8 85]
     // [φ[c]] - the core’s current authorizer queue, from which we draw values
     // to fill the pool
     // The portion of state φ may be altered only through an exogenous call made
     // from the accumulate logic of an appropriately privileged service.
-    const auto &queues = state.auth_queues.v;
+    const auto &queues = state.auth_queues;
 
     // Since α′ is dependent on φ′, practically speaking, this step must be
     // computed after accumulation, the stage in which φ′ is defined.
@@ -45,7 +45,7 @@ namespace jam::authorizations {
     auto pools = [&] {
       std::vector<std::list<types::AuthorizerHash>> pools{config.cores_count};
       for (types::CoreIndex core = 0; core < config.cores_count; ++core) {
-        const auto &pool = state.auth_pools.v[core];
+        const auto &pool = state.auth_pools[core];
         assert(pool.size() <= config.auth_pool_max_size);
         pools[core] = {pool.begin(), pool.end()};
       }
@@ -64,9 +64,9 @@ namespace jam::authorizations {
       if (erase(pool, authorizer) != 0) {
         deleted[core] = true;
 
-        assert(state.auth_queues.v[core].v.size() == config.auth_queue_size);
+        assert(state.auth_queues[core].size() == config.auth_queue_size);
         const auto index = input.slot % config.auth_queue_size;
-        const auto &queueing = state.auth_queues.v[core].v[index];
+        const auto &queueing = state.auth_queues[core][index];
         pool.emplace_back(queueing);
       }
     }
@@ -87,22 +87,22 @@ namespace jam::authorizations {
     for (types::CoreIndex core = 0; core < config.cores_count; ++core) {
       auto &pool = pools[core];
       if (pool.size() < config.auth_pool_max_size) {
-        assert(state.auth_queues.v[core].v.size() == config.auth_queue_size);
+        assert(state.auth_queues[core].size() == config.auth_queue_size);
         const auto index = input.slot % config.auth_queue_size;
-        const auto &queueing = state.auth_queues.v[core].v[index];
+        const auto &queueing = state.auth_queues[core][index];
         pool.emplace_back(queueing);
       }
     }
 
     types::authorizations::State new_state;
 
-    new_state.auth_pools.v.resize(config.cores_count);
+    new_state.auth_pools.resize(config.cores_count);
     for (types::CoreIndex core = 0; core < config.cores_count; ++core) {
       auto &pool = pools[core];
-      new_state.auth_pools.v[core] = {pool.begin(), pool.end()};
+      new_state.auth_pools[core] = {pool.begin(), pool.end()};
     }
 
-    new_state.auth_queues.v = queues;
+    new_state.auth_queues = queues;
 
     return {new_state, Empty{}};
   }

@@ -87,7 +87,7 @@ DIFF_F(jam::Empty) {}
 
 template <typename T, typename ConfigField>
 DIFF_F(jam::ConfigVec<T, ConfigField>) {
-  diff(indent, v1.v, v2.v);
+  diff(indent, v1, v2);
 }
 
 template <typename T>

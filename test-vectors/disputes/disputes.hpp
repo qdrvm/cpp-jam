@@ -177,7 +177,7 @@ namespace jam::disputes {
       for (const auto &verdict : verdicts) {
         const auto &work_report = verdict.target;
         const auto &epoch = verdict.age;
-        const auto &judgements = verdict.votes.v;
+        const auto &judgements = verdict.votes;
 
         if (epoch != current_epoch and epoch != previous_epoch) {
           return error(Error::bad_judgement_age);
@@ -197,8 +197,8 @@ namespace jam::disputes {
         }
 
         const auto &validators_set = epoch == current_epoch
-                                       ? current_epoch_validator_set.v
-                                       : previous_epoch_validator_set.v;
+                                       ? current_epoch_validator_set
+                                       : previous_epoch_validator_set;
 
         std::optional<types::U16> prev_validator_index{};
         for (const auto &judgement : judgements) {
@@ -280,7 +280,7 @@ namespace jam::disputes {
 
         // [GP 0.4.5 10.2 (101)/2]
         // Ensure validator from the set of current epoch
-        const auto &validators_set = current_epoch_validator_set.v;
+        const auto &validators_set = current_epoch_validator_set;
         if (not qtils::cxx23::ranges::contains_if(
                 validators_set, [&](const auto &val) {
                   return val.ed25519 == validator_key;
@@ -338,7 +338,7 @@ namespace jam::disputes {
 
         // [GP 0.4.5 10.2 (102)/2]
         // Ensure validator from the set of current epoch
-        const auto &validators_set = current_epoch_validator_set.v;
+        const auto &validators_set = current_epoch_validator_set;
         if (not qtils::cxx23::ranges::contains_if(
                 validators_set, [&](const auto &val) {
                   return val.ed25519 == validator_key;
@@ -495,7 +495,7 @@ namespace jam::disputes {
     // We clear any work-reports which we judged as uncertain or invalid from
     // their core
     // [GP 0.4.5 10.2 (111)]
-    for (auto &row_work_report : work_reports.v) {
+    for (auto &row_work_report : work_reports) {
       if (row_work_report.has_value()) {
         auto work_report = mathcal_H(
             jam::encode(row_work_report.value().report, config).value());

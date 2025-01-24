@@ -24,10 +24,10 @@ namespace jam {
   template <typename T, typename ConfigField>
   scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s,
                                         const ConfigVec<T, ConfigField> &v) {
-    auto &config = s.getConfig<jam::test_vectors::Config>();
+    const auto &config = s.getConfig<jam::test_vectors::Config>();
     auto n = v.configSize(config);
-    assert(v.v.size() == n);
-    for (auto &item : v.v) {
+    assert(v.size() == n);
+    for (auto &item : v) {
       s << item;
     }
     return s;
@@ -36,10 +36,10 @@ namespace jam {
   template <typename T, typename ConfigField>
   scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s,
                                         ConfigVec<T, ConfigField> &v) {
-    auto &config = s.getConfig<jam::test_vectors::Config>();
+    const auto &config = s.getConfig<jam::test_vectors::Config>();
     auto n = v.configSize(config);
-    v.v.resize(n);
-    for (auto &item : v.v) {
+    v.resize(n);
+    for (auto &item : v) {
       s >> item;
     }
     return s;

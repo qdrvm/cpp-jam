@@ -68,8 +68,9 @@ namespace jam::safrole {
   inline BandersnatchKeys bandersnatch_keys(
       const types::ValidatorsData &validators) {
     BandersnatchKeys keys;
-    for (auto &validator : validators.v) {
-      keys.v.emplace_back(validator.bandersnatch);
+    keys.reserve(validators.size());
+    for (auto &validator : validators) {
+      keys.emplace_back(validator.bandersnatch);
     }
     return keys;
   }
@@ -78,7 +79,7 @@ namespace jam::safrole {
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/bandersnatch.tex#L15
   inline GammaZ mathcal_O(const types::Config &config,
                           const BandersnatchKeys &pks) {
-    return ring_ctx(config).commitment(pks.v).value();
+    return ring_ctx(config).commitment(pks).value();
   }
 
   // [GP 0.4.5 G 341]
@@ -202,8 +203,8 @@ namespace jam::safrole {
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L101
     const auto phi = [&](const types::ValidatorsData &k) {
       types::ValidatorsData k_tick;
-      for (auto &validator : k.v) {
-        k_tick.v.emplace_back(
+      for (auto &validator : k) {
+        k_tick.emplace_back(
             qtils::cxx23::ranges::contains(post_offenders, validator.ed25519)
                 ? types::ValidatorData{}
                 : validator);
@@ -310,7 +311,7 @@ namespace jam::safrole {
       auto it1 = s.begin(), it2 = std::prev(s.end());
       auto odd = true;
       for (uint32_t i = 0; i < TicketsBodies::configSize(config); ++i) {
-        tickets.v.emplace_back(odd ? *it1 : *it2);
+        tickets.emplace_back(odd ? *it1 : *it2);
         if (odd) {
           ++it1;
         } else {
@@ -329,9 +330,9 @@ namespace jam::safrole {
           std::variant_alternative_t<1, types::TicketsOrKeys::type>;
       EpochKeys keys;
       for (uint32_t i = 0; i < E; ++i) {
-        keys.v.emplace_back(
+        keys.emplace_back(
             circlearrowleft(
-                k.v, de(first_bytes<4>(mathcal_H(frown(r, mathcal_E<4>(i))))))
+                k, de(first_bytes<4>(mathcal_H(frown(r, mathcal_E<4>(i))))))
                 .bandersnatch);
       }
       return keys;
