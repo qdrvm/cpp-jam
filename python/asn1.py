@@ -406,8 +406,8 @@ class GenCommonTypes:
             "",
             "#include <test-vectors/config-types.hpp>",
             "#include <test-vectors/config.hpp>",
-            "#include <src/jam/empty.hpp>",
-            "#include <src/jam/tagged.hpp>",
+            "#include <src_/jam/empty.hpp>",
+            "#include <src_/jam/tagged.hpp>",
             "",
             *self.g_types,
         ]
