@@ -7,9 +7,9 @@
 cmake_minimum_required(VERSION 3.25)
 
 option(TESTING "Build and run test suite" ON)
-if(TESTING)
-    list(APPEND VCPKG_MANIFEST_FEATURES test)
-endif()
+if (TESTING)
+  list(APPEND VCPKG_MANIFEST_FEATURES test)
+endif ()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -49,12 +49,12 @@ add_subdirectory(src_)
 
 add_subdirectory(src)
 
-if(TESTING)
-    enable_testing()
+if (TESTING)
+  enable_testing()
 
-    find_package(GTest CONFIG REQUIRED)
-    set(GTEST_DEPS GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+  find_package(GTest CONFIG REQUIRED)
+  set(GTEST_DEPS GTest::gtest_main)
 
-    add_subdirectory(test-vectors)
-    add_subdirectory(tests)
+  add_subdirectory(test-vectors)
+  add_subdirectory(tests)
 endif ()
