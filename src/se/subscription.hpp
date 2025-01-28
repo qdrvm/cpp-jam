@@ -24,22 +24,22 @@ namespace jam::se {
         data);
   }
 
-  template <typename ObjectType, typename EventData>
+  template <typename ObjectType, typename... EventData>
   struct SubscriberCreator {
     template <EventTypes key, typename F, typename... Args>
     static auto create(SubscriptionEngineHandlers tid,
                        F &&callback,
                        Args &&...args) {
-      auto subscriber = BaseSubscriber<ObjectType, EventData>::create(
-          getSubscription()->getEngine<EventTypes, EventData>(),
+      auto subscriber = BaseSubscriber<ObjectType, EventData...>::create(
+          getSubscription()->getEngine<EventTypes, EventData...>(),
           std::forward<Args>(args)...);
       subscriber->setCallback(
           [f{std::forward<F>(callback)}](auto /*set_id*/,
                                          auto &object,
                                          auto event_key,
-                                         EventData args) mutable {
+                                         EventData... args) mutable {
             assert(key == event_key);
-            std::forward<F>(f)(object, std::move(args));
+            std::forward<F>(f)(object, std::move(args)...);
           });
       subscriber->subscribe(0, key, tid);
       return subscriber;

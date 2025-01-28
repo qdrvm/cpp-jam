@@ -32,7 +32,7 @@ namespace jam::se {
         utils::NoMove,
         utils::NoCopy {
    public:
-    using Dispatcher = subscription::IDispatcher;
+    using Dispatcher = jam::se::IDispatcher;
 
    private:
     using EngineHash = uint64_t;

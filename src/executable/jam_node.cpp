@@ -5,6 +5,8 @@
  */
 
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 #include <soralog/impl/configurator_from_yaml.hpp>
 #include <soralog/logging_system.hpp>
@@ -16,6 +18,7 @@
 #include "app/configurator.hpp"
 #include "injector/node_injector.hpp"
 #include "log/logger.hpp"
+#include "se/subscription.hpp"
 
 using std::string_view_literals::operator""sv;
 
@@ -54,6 +57,22 @@ namespace {
 
 int main(int argc, const char **argv, const char **env) {
   soralog::util::setThreadName("jam-node");
+  auto deleter = [se_manager{jam::se::getSubscription()}](void*) {
+    se_manager->dispose();
+  };
+  std::unique_ptr<void, decltype(deleter)> p((void*)1, deleter);
+
+  auto mst_state_update_ = jam::se::SubscriberCreator<bool, std::string, int, std::string>::
+      template create<jam::EventTypes::kOnTestOperationComplete>(
+          jam::SubscriptionEngineHandlers::kTest,
+          [](auto &, std::string data, int data2, std::string data3) {
+            std::cout << data << std::endl;
+            std::cout << data2 << std::endl;
+            std::cout << data3 << std::endl;
+          });
+  jam::se::getSubscription()->notifyDelayed(std::chrono::seconds(1), jam::EventTypes::kOnTestOperationComplete, std::string("111111"), 15, std::string("test"));
+
+  std::this_thread::sleep_for(std::chrono::seconds(2));
 
   qtils::FinalAction flush_std_streams_at_exit([] {
     std::cout.flush();

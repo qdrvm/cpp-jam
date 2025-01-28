@@ -8,70 +8,21 @@
 
 #include <memory>
 
-namespace jam::se {
+namespace jam {
   enum SubscriptionEngineHandlers {
-    kYac = 0,
-    kRequestProposal,
-    kVoteProcess,
-    kProposalProcessing,
-    kMetrics,
-    kNotifications,
+    kTest = 0,
     //---------------
     kTotalCount
   };
 
   enum EventTypes {
-    kOnOutcome = 0,
-    kOnSynchronization,
-    kOnInitialSynchronization,
-    kOnCurrentRoundPeers,
-    kOnRoundSwitch,
-    kOnProposal,
-    kOnVerifiedProposal,
-    kOnProcessedHashes,
-    kOnOutcomeFromYac,
-    kOnOutcomeDelayed,
-    kOnBlock,
-    kOnInitialBlock,
-    kOnBlockCreatorEvent,
-    kOnFinalizedTxs,
-    kOnApplyState,
-    kOnNeedProposal,
-    kOnNewProposal,
-    kOnTxsEnoughForProposal,
-    kOnPackProposal,
-    kOnProposalResponse,
-    kOnProposalSingleEvent,
-    kOnProposalResponseFailed,
-    kOnTransactionResponse,
-    kOnConsensusGateEvent,
-    kSendBatchComplete,
-
-    kRemoteProposalDiff,
-
-    // RDB
-    kOnRdbStats,
-
-    // Node status
-    kOnIrohaStatus,
-
-    // MST
-    kOnMstStateUpdate,
-    kOnMstPreparedBatches,
-    kOnMstExpiredBatches,
-    kOnMstMetrics,
-
-    // YAC
-    kTimer,
-    kOnState,
-
     // TEST
     kOnTestOperationComplete
   };
 
   static constexpr uint32_t kThreadPoolSize = 3u;
 
-  namespace jam::se {
+  namespace se {
     struct IDispatcher;
 
     template <uint32_t kHandlersCount, uint32_t kPoolSize>
@@ -84,12 +35,12 @@ namespace jam::se {
     class SubscriberImpl;
   }  // namespace jam::se
 
-  using Dispatcher = jam::se::IDispatcher;
+  using Dispatcher = se::IDispatcher;
   using Subscription =
-      jam::se::SubscriptionManager<SubscriptionEngineHandlers::kTotalCount,
+      se::SubscriptionManager<SubscriptionEngineHandlers::kTotalCount,
                                    kThreadPoolSize>;
   template <typename ObjectType, typename... EventData>
-  using BaseSubscriber = subscription::
+  using BaseSubscriber = se::
       SubscriberImpl<EventTypes, Dispatcher, ObjectType, EventData...>;
 
 }  // namespace jam::se
