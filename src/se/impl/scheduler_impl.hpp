@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include <assert.h>
 #include <algorithm>
+#include <assert.h>
 #include <atomic>
 #include <chrono>
 #include <deque>

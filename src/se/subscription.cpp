@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <mutex>
-
 #include "subscription.hpp"
+
+#include <mutex>
 
 namespace jam::se {
 

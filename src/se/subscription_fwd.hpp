@@ -33,14 +33,14 @@ namespace jam {
               typename Receiver,
               typename... Arguments>
     class SubscriberImpl;
-  }  // namespace jam::se
+  }  // namespace se
 
   using Dispatcher = se::IDispatcher;
   using Subscription =
       se::SubscriptionManager<SubscriptionEngineHandlers::kTotalCount,
-                                   kThreadPoolSize>;
+                              kThreadPoolSize>;
   template <typename ObjectType, typename... EventData>
-  using BaseSubscriber = se::
-      SubscriberImpl<EventTypes, Dispatcher, ObjectType, EventData...>;
+  using BaseSubscriber =
+      se::SubscriberImpl<EventTypes, Dispatcher, ObjectType, EventData...>;
 
-}  // namespace jam::se
+}  // namespace jam

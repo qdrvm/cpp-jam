@@ -5,16 +5,16 @@
  */
 
 #include <memory>
-#include "subscription.hpp"
 
 #include "impl/sync_dispatcher_impl.hpp"
+#include "subscription.hpp"
 
 namespace jam::se {
 
   std::shared_ptr<Dispatcher> getDispatcher() {
     return std::make_shared<
         SyncDispatcher<SubscriptionEngineHandlers::kTotalCount,
-                                     kThreadPoolSize>>();
+                       kThreadPoolSize>>();
   }
 
 }  // namespace jam::se

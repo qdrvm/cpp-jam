@@ -6,9 +6,8 @@
 
 #pragma once
 
-#include "dispatcher.hpp"
-
 #include "common.hpp"
+#include "dispatcher.hpp"
 #include "thread_handler.hpp"
 
 namespace jam::se {
