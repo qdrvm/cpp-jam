@@ -19,6 +19,12 @@
 #include "log/logger.hpp"
 #include "se/subscription.hpp"
 
+#include "ftxui/component/captured_mouse.hpp"  // for ftxui
+#include "ftxui/component/component.hpp"  // for Slider, Checkbox, Vertical, Renderer, Button, Input, Menu, Radiobox, Toggle
+#include "ftxui/component/component_base.hpp"  // for ComponentBase
+#include "ftxui/component/screen_interactive.hpp"  // for Component, ScreenInteractive
+#include "ftxui/dom/elements.hpp"
+
 using std::string_view_literals::operator""sv;
 
 // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
@@ -54,12 +60,88 @@ namespace {
 
 }  // namespace
 
+using namespace ftxui;
+ 
+// Display a component nicely with a title on the left.
+Component Wrap(std::string name, Component component) {
+  return Renderer(component, [name, component] {
+    return hbox({
+               text(name) | size(WIDTH, EQUAL, 8),
+               separator(),
+               component->Render() | xflex,
+           }) |
+           xflex;
+  });
+}
+
 int main(int argc, const char **argv, const char **env) {
   soralog::util::setThreadName("jam-node");
   auto deleter = [se_manager{jam::se::getSubscription()}](void *) {
     se_manager->dispose();
   };
   std::unique_ptr<void, decltype(deleter)> p((void *)1, deleter);
+
+  std::vector<std::string> tab_values{
+      "Status",
+      "BEEFY",
+      "Parachain",
+      "Logs",
+  };
+  int tab_selected = 0;
+  auto tab_toggle = Toggle(&tab_values, &tab_selected);
+ 
+  std::vector<std::string> tab_1_entries{
+      "Forest",
+      "Water",
+      "I don't know",
+  };
+  int tab_1_selected = 0;
+ 
+  std::vector<std::string> tab_2_entries{
+      "Hello",
+      "Hi",
+      "Hay",
+  };
+  int tab_2_selected = 0;
+ 
+  // std::vector<std::string> tab_3_entries{
+  //     "Table",
+  //     "Nothing",
+  //     "Is",
+  //     "Empty",
+  // };
+  // int tab_3_selected = 0;
+
+  Component input_list = Container::Vertical({});
+  std::vector<std::string> items(5, "");
+  for (size_t i = 0; i < items.size(); ++i) {
+    input_list->Add(Input(&(items[i]), "placeholder " + std::to_string(i)));
+  }
+
+    auto tab_container = Container::Tab(
+      {
+          Radiobox(&tab_1_entries, &tab_1_selected),
+          Radiobox(&tab_2_entries, &tab_2_selected),
+          input_list,//Radiobox(&tab_3_entries, &tab_3_selected),
+      },
+      &tab_selected);
+ 
+  auto container = Container::Vertical({
+      tab_toggle,
+      tab_container,
+  });
+ 
+  auto renderer = Renderer(container, [&] {
+    return vbox({
+               tab_toggle->Render(),
+               separator(),
+               tab_container->Render(),
+           }) |
+           border;
+  });
+ 
+  auto screen = ScreenInteractive::TerminalOutput();
+  screen.Loop(renderer);
 
   auto mst_state_update_ =
       jam::se::SubscriberCreator<bool, std::string, int, std::string>::

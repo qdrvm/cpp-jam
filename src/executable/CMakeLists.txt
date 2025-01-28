@@ -9,6 +9,9 @@ set(CMAKE_OSX_ARCHITECTURES "arm64")
 set(LIBRARIES
     node_injector
     se_async
+    ftxui::dom 
+    ftxui::screen 
+    ftxui::component
 )
 
 # fix for dyld bug on mac

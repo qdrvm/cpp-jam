@@ -12,7 +12,8 @@
     "boost-program-options",
     "boost-asio",
     "boost-beast",
-    "prometheus-cpp"
+    "prometheus-cpp",
+    "ftxui"
   ],
   "features": {
     "test": { "description": "Test", "dependencies": ["gtest"]}
