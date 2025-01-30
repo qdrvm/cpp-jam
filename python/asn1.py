@@ -197,11 +197,11 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
         if t["type"] == "NULL":
             if "tag" in t:
                 if "number" in t["tag"]:
-                    r = "Tagged<Empty, struct _%d>" % t["tag"]["number"]
+                    r = "qtils::Tagged<qtils::Empty, qtils::NumTag<%d>>" % t["tag"]["number"]
                 else:
-                    r = "Tagged<Empty, struct %s>" % c_dash(t["tag"]["str"])
+                    r = "qtils::Tagged<qtils::Empty, qtils::StrTag<\"%s\">" % c_dash(t["tag"]["str"])
             else:
-                r = "Empty"
+                r = "qtils::Empty"
         elif t["type"] == "SEQUENCE OF":
             r = asn_sequence_of(t)
         elif t["type"] in types:
@@ -233,7 +233,7 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
                     )
                     continue
             ty.decl = [
-                "using %s = Tagged<std::variant<" % tname,
+                "using %s = qtils::Tagged<std::variant<" % tname,
                 *["  %s, // %s" % (asn_member(x), c_dash(x["name"])) for x in t["members"][:-1]],
                 *["  %s // %s" % (asn_member(x), c_dash(x["name"])) for x in t["members"][-1:]],
                 ">, struct %s_Tag>;" % tname
@@ -291,7 +291,7 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
             )
             continue
         if t["type"] == "NULL":
-            ty.decl = c_using(tname, "Empty");
+            ty.decl = c_using(tname, "qtils::Empty");
             continue
         ty.decl = c_using(tname, asn_member(t))
 
@@ -405,11 +405,11 @@ class GenCommonTypes:
             "#include <variant>",
             "",
             "#include <qtils/bytes.hpp>",
+            "#include <qtils/empty.hpp>",
+            "#include <qtils/tagged.hpp>",
             "",
             "#include <test-vectors/config-types.hpp>",
             "#include <test-vectors/config.hpp>",
-            "#include <src_/jam/empty.hpp>",
-            "#include <src_/jam/tagged.hpp>",
             "",
             *self.g_types,
         ]

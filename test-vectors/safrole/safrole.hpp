@@ -9,9 +9,9 @@
 #include <set>
 #include <unordered_map>
 
-#include <TODO_qtils/cxx23/ranges/contains.hpp>
 #include <jam/bandersnatch.hpp>
-#include <src_/jam/tagged.hpp>
+#include <qtils/cxx23/ranges/contains.hpp>
+#include <qtils/tagged.hpp>
 #include <test-vectors/common-types.hpp>
 #include <test-vectors/common.hpp>
 #include <test-vectors/config-full.hpp>
@@ -300,7 +300,7 @@ namespace jam::safrole {
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L182
     const auto Z = [&](const GammaA &s) {
       using TicketsBodies =
-          std::variant_alternative_t<0, types::TicketsOrKeys::type>;
+          std::variant_alternative_t<0, types::TicketsOrKeys::Type>;
       TicketsBodies tickets;
       if (s.size() != E) {
         throw std::logic_error{"Z"};
@@ -324,7 +324,7 @@ namespace jam::safrole {
     const auto F = [&](const types::OpaqueHash &r,
                        const types::ValidatorsData &k) {
       using EpochKeys =
-          std::variant_alternative_t<1, types::TicketsOrKeys::type>;
+          std::variant_alternative_t<1, types::TicketsOrKeys::Type>;
       EpochKeys keys;
       for (uint32_t i = 0; i < E; ++i) {
         keys.emplace_back(

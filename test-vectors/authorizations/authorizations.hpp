@@ -104,6 +104,6 @@ namespace jam::authorizations {
 
     new_state.auth_queues = queues;
 
-    return {new_state, Empty{}};
+    return {new_state, qtils::Empty{}};
   }
 }  // namespace jam::authorizations

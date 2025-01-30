@@ -10,6 +10,12 @@ set(LIBRARIES
     node_injector
 )
 
+include_directories(
+    ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/src_
+)
+
 # fix for dyld bug on mac
 # we should actually check the target platform here, not the host platform,
 # but not that we explicitly support cross-compilation anyway
@@ -33,4 +39,4 @@ endif ()
 
 
 add_executable(experiment experiment.cpp)
-target_link_libraries(experiment scale::scale)
+target_link_libraries(experiment scale::scale fmt::fmt)
