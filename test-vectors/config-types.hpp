@@ -7,8 +7,9 @@
 #pragma once
 
 #include <vector>
+#include <limits>
 
-#include <test-vectors/config.hpp>
+#include <jam_types/config.hpp>
 #include <scale/scale.hpp>
 
 namespace jam {
@@ -32,6 +33,9 @@ namespace jam {
                                                  const ConfigVec &v) {
       const auto &config = s.getConfig<test_vectors::Config>();
       auto n = v.configSize(config);
+      if (n == std::numeric_limits<decltype(n)>::max()) {
+        return s << static_cast<const std::vector<T>&>(v);
+      }
       assert(v.size() == n);
       for (auto &item : v) {
         s << item;
@@ -43,6 +47,9 @@ namespace jam {
                                                  ConfigVec &v) {
       const auto &config = s.getConfig<test_vectors::Config>();
       auto n = v.configSize(config);
+      if (n == std::numeric_limits<decltype(n)>::max()) {
+        return s >> static_cast<std::vector<T>&>(v);
+      }
       v.resize(n);
       for (auto &item : v) {
         s >> item;

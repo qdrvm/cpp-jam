@@ -16,9 +16,9 @@
 
 #include <crypto/bandersnatch.hpp>
 #include <crypto/ed25519.hpp>
-#include <test-vectors/common-types.hpp>
+#include <jam_types/common-types.hpp>
 #include <test-vectors/common.hpp>
-#include <test-vectors/disputes/disputes-types.hpp>
+#include <jam_types/disputes-types.hpp>
 
 namespace jam::disputes {
   namespace types = jam::test_vectors;

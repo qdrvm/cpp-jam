@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include <test-vectors/config-full.hpp>
-#include <test-vectors/config-tiny.hpp>
-#include <test-vectors/authorizations/authorizations-types.hpp>
+#include <jam_types/config-full.hpp>
+#include <jam_types/config-tiny.hpp>
+#include <jam_types/authorizations-types.hpp>
 #include <test-vectors/vectors.hpp>
 
 namespace jam::test_vectors::authorizations {

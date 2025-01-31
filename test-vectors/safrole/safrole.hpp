@@ -12,9 +12,9 @@
 #include <crypto/bandersnatch.hpp>
 #include <qtils/cxx23/ranges/contains.hpp>
 #include <qtils/tagged.hpp>
-#include <test-vectors/common-types.hpp>
+#include <jam_types/common-types.hpp>
 #include <test-vectors/common.hpp>
-#include <test-vectors/config-full.hpp>
+#include <jam_types/config-full.hpp>
 
 namespace jam::safrole {
   namespace types = jam::test_vectors;

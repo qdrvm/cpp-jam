@@ -6,8 +6,9 @@
 
 add_library(test_vectors_headers INTERFACE)
 target_include_directories(test_vectors_headers INTERFACE
-    ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_BINARY_DIR}/generated
 )
 
 include(asn1.cmake)

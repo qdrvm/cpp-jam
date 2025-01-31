@@ -4,8 +4,10 @@ import asn1tools
 import os.path
 import sys
 
-DIR = os.path.dirname(__file__)
-TEST_VECTORS_DIR = os.path.join(DIR, "../test-vectors")
+DIR = os.path.abspath(os.path.dirname(__file__))
+PROJECT_DIR = os.path.abspath(os.path.join(DIR, ".."))
+TEST_VECTORS_DIR = os.path.abspath(os.path.join(PROJECT_DIR, "test-vectors"))
+OUTPUT_DIR = os.curdir;
 
 
 def flatten(aaa: list[list]):
@@ -51,7 +53,6 @@ class Type:
         self.name = name
         self.args: list[str] = []
         self.decl: list[str] = []
-        # self.scale: list[str] = []
         self.diff: list[str] = []
 
     def c_tdecl(self):
@@ -114,31 +115,6 @@ def asn_args(ARGS: list[str], types: dict, deps2: dict[str, set[str]]):
     return {k: [a for a in ARGS if a in aa] for k, aa in args.items()}
 
 
-# def c_scale(ty: Type, encode: list[str], decode: list[str]):
-#     return [
-#         *ty.c_tdecl(),
-#         "inline scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s, const %s &v) {"
-#         % ty.c_tname(),
-#         *indent(encode),
-#         "  return s;",
-#         "}",
-#         *ty.c_tdecl(),
-#         "inline scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s, %s &v) {"
-#         % ty.c_tname(),
-#         *indent(decode),
-#         "  return s;",
-#         "}",
-#     ]
-#
-#
-# def c_scale_struct(ty: Type, members: list[str]):
-#     return c_scale(
-#         ty,
-#         ["s << v.%s;" % x for x in members],
-#         ["s >> v.%s;" % x for x in members],
-#     )
-
-
 def c_diff(NS: str, ty: Type, lines: list[str]):
     return [
         *ty.c_tdecl(),
@@ -199,7 +175,7 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
                 if "number" in t["tag"]:
                     r = "qtils::Tagged<qtils::Empty, qtils::NumTag<%d>>" % t["tag"]["number"]
                 else:
-                    r = "qtils::Tagged<qtils::Empty, qtils::StrTag<\"%s\">" % c_dash(t["tag"]["str"])
+                    r = "qtils::Tagged<qtils::Empty, qtils::StrTag<\"%s\">" % t["tag"]["str"]
             else:
                 r = "qtils::Empty"
         elif t["type"] == "SEQUENCE OF":
@@ -282,10 +258,6 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
             ty.decl = c_struct(
                 tname, [(c_dash(x["name"]), asn_member(x)) for x in t["members"]]
             )
-            # ty.scale += c_scale_struct(ty, [c_dash(x["name"]) for x in t["members"]])
-            # ty.diff = c_diff(
-            #     cpp_namespace, ty, ["DIFF_M(%s);" % c_dash(x["name"]) for x in t["members"]]
-            # )
             ty.diff = c_diff(
                 cpp_namespace, ty, ["DIFF_M(%s);" % c_dash(x["name"]) for x in t["members"]]
             )
@@ -367,8 +339,8 @@ class GenConstants:
                 "",
                 "#pragma once",
                 "",
-                "#include <test-vectors/config.hpp>",
-                "#include <test-vectors/constants-%s.hpp>" % set_name,
+                "#include <jam_types/config.hpp>",
+                "#include <jam_types/constants-%s.hpp>" % set_name,
                 "",
                 "namespace %s::config {" % cpp_namespace,
                 "",
@@ -381,7 +353,7 @@ class GenConstants:
             self.configs[set_name] = content
 
     def write(self):
-        prefix = os.path.join(TEST_VECTORS_DIR)
+        prefix = OUTPUT_DIR
         write(prefix + "/config.hpp", self.struct)
         for (set_name, content) in self.constants.items():
             write(prefix + "/constants-%s.hpp" % set_name, content)
@@ -408,46 +380,26 @@ class GenCommonTypes:
             "#include <qtils/empty.hpp>",
             "#include <qtils/tagged.hpp>",
             "",
+            "#include <jam_types/config.hpp>",
             "#include <test-vectors/config-types.hpp>",
-            "#include <test-vectors/config.hpp>",
             "",
             *self.g_types,
         ]
-        # self.g_scale = flatten([ty.scale for ty in self.types])
-        # self.g_scale = [
-        #     "namespace %s {" % cpp_namespace,
-        #     *indent(self.g_scale), "}"
-        # ]
-        # self.g_scale = [
-        #     "// Auto-generated file",
-        #     "",
-        #     "#pragma once",
-        #     "",
-        #     "#include <scale/scale.hpp>",
-        #     "#include <src_/TODO_scale/aggregate.hpp>",
-        #     "",
-        #     "#include <test-vectors/config-types-scale.hpp>",
-        #     '#include <test-vectors/common-types.hpp>',
-        #     "",
-        #     *self.g_scale,
-        #     *self.enum_trait,
-        # ]
         self.g_diff = flatten([ty.diff for ty in self.types])
         self.g_diff = [
             "// Auto-generated file",
             "",
             "#pragma once",
             "",
+            '#include <jam_types/common-types.hpp>',
             "#include <test-vectors/diff.hpp>",
-            '#include <test-vectors/common-types.hpp>',
             "",
             *self.g_diff,
         ]
 
     def write(self):
-        prefix = os.path.join(TEST_VECTORS_DIR)
+        prefix = os.path.join(OUTPUT_DIR)
         write(prefix + "/common-types.hpp", self.g_types)
-        # write(prefix + "/common-scale.hpp", self.g_scale)
         write(prefix + "/common-diff.hpp", self.g_diff)
 
 
@@ -462,7 +414,7 @@ class GenSpecialTypes:
         for module_name, importing_types in asn_imports.items():
             match module_name:
                 case 'JamTypes':
-                    includes += ["#include <test-vectors/common-types.hpp>"]
+                    includes += ["#include <jam_types/common-types.hpp>"]
                     usings += ["using ::%s::%s;" % (cpp_namespace, t) for t in importing_types]
 
         self.types, self.enum_trait = parse_types("%s::%s" % (cpp_namespace, name), [], self.asn_file, module,
@@ -482,44 +434,28 @@ class GenSpecialTypes:
             "",
             "#include <qtils/bytes.hpp>",
             "",
-            "#include <test-vectors/config-types.hpp>",
-            "#include <test-vectors/config.hpp>",
             *includes,
+            "#include <test-vectors/config-types.hpp>",
             "",
             *self.g_types,
         ]
-        # self.g_scale = flatten([ty.scale for ty in self.types])
-        # self.g_scale = ["namespace %s::%s {" % (cpp_namespace, name), "", *indent(self.g_scale), "", "}"]
-        # self.g_scale = [
-        #     "// Auto-generated file",
-        #     "",
-        #     "#pragma once",
-        #     "",
-        #     "#include <scale/scale.hpp>",
-        #     "",
-        #     '#include <test-vectors/common-scale.hpp>',
-        #     '#include <test-vectors/%s/%s-types.hpp>' % (name, name),
-        #     "",
-        #     *self.g_scale,
-        #     *self.enum_trait,
-        # ]
         self.g_diff = flatten([ty.diff for ty in self.types])
         self.g_diff = [
             "// Auto-generated file",
             "",
             "#pragma once",
             "",
+            '#include <jam_types/common-diff.hpp>',
+            "",
+            '#include <jam_types/%s-types.hpp>' % name,
             "#include <test-vectors/diff.hpp>",
-            '#include <test-vectors/common-diff.hpp>',
-            '#include <test-vectors/%s/%s-types.hpp>' % (name, name),
             "",
             *self.g_diff,
         ]
 
     def write(self, name: str):
-        prefix = os.path.join(TEST_VECTORS_DIR, name, name)
+        prefix = os.path.join(OUTPUT_DIR, name)
         write(prefix + "-types.hpp", self.g_types)
-        # write(prefix + "-scale.hpp", self.g_scale)
         write(prefix + "-diff.hpp", self.g_diff)
 
 
@@ -579,13 +515,29 @@ def authorizations():
     g.write("authorizations")
 
 
+generators = {
+    "constants": constants,
+    "types": types,
+    "history": history,
+    "safrole": safrole,
+    "disputes": disputes,
+    "authorizations": authorizations,
+}
+
 if __name__ == "__main__":
-    for arg in sys.argv[1:]:
-        dict(
-            constants=constants,
-            types=types,
-            history=history,
-            safrole=safrole,
-            disputes=disputes,
-            authorizations=authorizations,
-        )[arg]()
+    if len(sys.argv) < 3:
+        print(f"python {sys.argv[0]} <output_path> <target> [<target> ...]")
+
+    OUTPUT_DIR = os.path.abspath(sys.argv[1])
+    if not OUTPUT_DIR.startswith(PROJECT_DIR):
+        print(f"<output_path> must be nested into {PROJECT_DIR}>")
+        sys.exit(1)
+
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
+
+    for name in sys.argv[2:]:
+        if name not in generators:
+            print(f"Generator '{name}' does not exist")
+            sys.exit(1)
+        generators[name]()

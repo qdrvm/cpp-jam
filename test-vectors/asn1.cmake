@@ -11,20 +11,20 @@ set(ASN1_PY ${PROJECT_SOURCE_DIR}/python/asn1.py)
 if (NOT TARGET generate_constants)
   file(GLOB ASN_FILES "${ASN_DIR}/jam-types-asn/*-const.asn")
 
-  set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
+  set(TARGET_DIR ${CMAKE_BINARY_DIR}/generated/jam_types)
+  file(MAKE_DIRECTORY ${TARGET_DIR})
   set(GENERATED_FILES
-      ${DIR}/config.hpp
-      ${DIR}/config-tiny.hpp
-      ${DIR}/config-full.hpp
-      ${DIR}/constants-tiny.hpp
-      ${DIR}/constants-full.hpp
+      ${TARGET_DIR}/config.hpp
+      ${TARGET_DIR}/config-tiny.hpp
+      ${TARGET_DIR}/config-full.hpp
+      ${TARGET_DIR}/constants-tiny.hpp
+      ${TARGET_DIR}/constants-full.hpp
   )
 
   add_custom_command(
       OUTPUT ${GENERATED_FILES}
-      COMMAND ${Python3_EXECUTABLE} ${ASN1_PY} constants
+      COMMAND ${Python3_EXECUTABLE} ${ASN1_PY} ${TARGET_DIR} constants
       DEPENDS ${ASN1_PY} ${ASN_FILES}
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Generating constants files: ${CMAKE_CURRENT_SOURCE_DIR}"
   )
 
@@ -38,22 +38,22 @@ endif ()
 if (NOT TARGET generate_common_types)
   file(GLOB ASN_FILES "${ASN_DIR}/jam-types-asn/jam-types.asn")
 
-  set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
+  set(TARGET_DIR ${CMAKE_BINARY_DIR}/generated/jam_types)
+  file(MAKE_DIRECTORY ${TARGET_DIR})
   set(GENERATED_FILES
-      ${DIR}/common-types.hpp
-      ${DIR}/common-diff.hpp
+      ${TARGET_DIR}/common-types.hpp
+      ${TARGET_DIR}/common-diff.hpp
   )
 
   add_custom_command(
       OUTPUT ${GENERATED_FILES}
-      COMMAND ${Python3_EXECUTABLE} ${ASN1_PY} types
+      COMMAND ${Python3_EXECUTABLE} ${ASN1_PY} ${TARGET_DIR} types
       DEPENDS ${ASN1_PY} ${ASN_FILES}
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Generating types files: ${CMAKE_CURRENT_SOURCE_DIR}"
   )
 
   add_custom_target(generate_common_types
-      DEPENDS ${GENERATED_FILES}
+      DEPENDS generate_constants ${GENERATED_FILES}
       COMMENT "Building generated files..."
   )
 endif ()
@@ -68,23 +68,24 @@ function(generate_from_asn1 name)
 
   file(GLOB ASN_FILES "${ASN_DIR}/${name}/${name}.asn")
 
-  set(DIR ${CMAKE_CURRENT_SOURCE_DIR})
+  set(TARGET_DIR ${CMAKE_BINARY_DIR}/generated/jam_types)
+  file(MAKE_DIRECTORY ${TARGET_DIR})
   set(GENERATED_FILES
-      ${DIR}/${name}-types.hpp
-      ${DIR}/${name}-diff.hpp
+      ${TARGET_DIR}/${name}-types.hpp
+      ${TARGET_DIR}/${name}-diff.hpp
   )
 
   message(STATUS "${GENERATED_FILES}")
   add_custom_command(
       OUTPUT ${GENERATED_FILES}
-      COMMAND ${Python3_EXECUTABLE} ${ASN1_PY} ${name}
+      COMMAND ${Python3_EXECUTABLE} ${ASN1_PY} ${TARGET_DIR} ${name}
       DEPENDS ${ASN1_PY} ${ASN_FILES}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Generating types files of ${name}: ${CMAKE_CURRENT_SOURCE_DIR}"
   )
 
   add_custom_target(${TARGET_NAME}
-      DEPENDS ${GENERATED_FILES}
+      DEPENDS generate_common_types ${GENERATED_FILES}
       COMMENT "Building generated files..."
   )
 endfunction()
