@@ -78,8 +78,7 @@ if [ -x "$(command -v git)" ] && [ -d "$(git rev-parse --git-dir 2>/dev/null)" ]
   [ "$BRANCH" != "$MAIN_BRANCH" ] && RESULT="$RESULT-$BRANCH-$FORK_TO_HEAD_DISTANCE-$HEAD"
 
   git diff --quiet || DIRTY="-dirty"
-  RESULT="$RESULT$DIRTY"
-
+  RESULT="$RESULT${DIRTY:-}"
 else
   RESULT="Unknown(no git)"
 fi
