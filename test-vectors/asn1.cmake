@@ -5,7 +5,7 @@
 #
 
 set(ASN_DIR ${PROJECT_SOURCE_DIR}/test-vectors/jamtestvectors)
-set(ASN1_PY ${PROJECT_SOURCE_DIR}/python/asn1.py)
+set(ASN1_PY ${PROJECT_SOURCE_DIR}/scripts/asn1.py)
 
 # Generating constants
 if (NOT TARGET generate_constants)

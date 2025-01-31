@@ -1,5 +1,42 @@
 #!/usr/bin/env python3
 
+"""
+ASN.1 to C++ Code Generator
+
+This script generates C++ header files from ASN.1 definitions.
+It processes ASN.1 type definitions, constants, and structures, then translates them into
+C++ data structures with serialization and deserialization capabilities.
+
+Usage:
+    python asn1.py <output_path> <target> [<target> ...]
+
+Arguments:
+    <output_path>  The directory where the generated files will be saved.
+    <target>       One or more targets to generate. Available targets:
+                   - "constants"       : Generates configuration constants.
+                   - "types"           : Generates common ASN.1 types.
+                   - "history"         : Generates history module types.
+                   - "safrole"         : Generates safrole module types.
+                   - "disputes"        : Generates dispute module types.
+                   - "authorizations"  : Generates authorization module types.
+
+Requirements:
+    - Python 3
+    - asn1tools (install with `pip install asn1tools`)
+
+Example:
+    python asn1.py ./output constants types
+
+This command will generate the required header files for constants and common types
+and place them in the `./output` directory.
+
+Notes:
+    - The script enforces that <output_path> must be inside the project directory.
+    - It parses ASN.1 files located in predefined subdirectories.
+    - The generated C++ files include type declarations, enums, and diff functions.
+
+"""
+
 import asn1tools
 import os.path
 import sys

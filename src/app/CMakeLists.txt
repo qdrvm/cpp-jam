@@ -4,23 +4,26 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-set(BUILD_VERSION_CPP "${CMAKE_CURRENT_BINARY_DIR}/build_version.cpp")
+set(BUILD_VERSION_CPP "${CMAKE_BINARY_DIR}/generated/app/build_version.cpp")
+set(GET_VERSION_SCRIPT "${CMAKE_SOURCE_DIR}/scripts/get_version.sh")
 add_custom_command(
     OUTPUT ${BUILD_VERSION_CPP}
-    COMMAND echo "#include <string>" > ${BUILD_VERSION_CPP}
+    COMMAND echo "// Auto-generated file\\n" > ${BUILD_VERSION_CPP}
+    COMMAND echo "#include <string>\\n" >> ${BUILD_VERSION_CPP}
     COMMAND echo "namespace jam {" >> ${BUILD_VERSION_CPP}
     COMMAND echo "  const std::string &buildVersion() {" >> ${BUILD_VERSION_CPP}
     COMMAND printf "    static const std::string buildVersion(\"" >> ${BUILD_VERSION_CPP}
-    COMMAND ${PROJECT_SOURCE_DIR}/get_version.sh >> ${BUILD_VERSION_CPP}
+    COMMAND ${GET_VERSION_SCRIPT} >> ${BUILD_VERSION_CPP}
     COMMAND echo "\");" >> ${BUILD_VERSION_CPP}
     COMMAND echo "    return buildVersion;" >> ${BUILD_VERSION_CPP}
     COMMAND echo "  }" >> ${BUILD_VERSION_CPP}
     COMMAND echo "}" >> ${BUILD_VERSION_CPP}
     COMMENT "Generate build_version.cpp"
+    DEPENDS ${GET_VERSION_SCRIPT}
     VERBATIM
 )
 add_library(build_version
-    ${CMAKE_CURRENT_BINARY_DIR}/build_version.cpp
+    ${CMAKE_BINARY_DIR}/generated/app/build_version.cpp
 )
 
 add_library(app_configuration SHARED configuration.cpp)
