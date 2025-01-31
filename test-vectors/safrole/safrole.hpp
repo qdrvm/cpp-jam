@@ -9,7 +9,7 @@
 #include <set>
 #include <unordered_map>
 
-#include <jam/bandersnatch.hpp>
+#include <crypto/bandersnatch.hpp>
 #include <qtils/cxx23/ranges/contains.hpp>
 #include <qtils/tagged.hpp>
 #include <test-vectors/common-types.hpp>
@@ -27,7 +27,7 @@ namespace jam::safrole {
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/bandersnatch.tex#L17
   inline std::optional<types::OpaqueHash> banderout(
       const BandersnatchSignature &signature) {
-    return bandersnatch::output(signature);
+    return crypto::bandersnatch::output(signature);
   }
 
   struct TicketBodyLess {
@@ -42,11 +42,11 @@ namespace jam::safrole {
   using BandersnatchKeys = decltype(types::EpochMark::validators);
 
   inline auto &ring_ctx(const types::Config &config) {
-    static std::unordered_map<uint32_t, bandersnatch::Ring> map;
+    static std::unordered_map<uint32_t, crypto::bandersnatch::Ring> map;
     auto &n = config.validators_count;
     auto it = map.find(n);
     if (it == map.end()) {
-      it = map.emplace(n, bandersnatch::Ring{n}).first;
+      it = map.emplace(n, crypto::bandersnatch::Ring{n}).first;
     }
     return it->second;
   }

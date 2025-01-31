@@ -14,8 +14,8 @@
 #include <qtils/cxx23/ranges/contains.hpp>
 #include <qtils/append.hpp>
 
-#include <jam/bandersnatch.hpp>
-#include <jam/ed25519.hpp>
+#include <crypto/bandersnatch.hpp>
+#include <crypto/ed25519.hpp>
 #include <test-vectors/common-types.hpp>
 #include <test-vectors/common.hpp>
 #include <test-vectors/disputes/disputes-types.hpp>
@@ -70,14 +70,14 @@ namespace jam::disputes {
   template <typename M>
   MultimapGroups(const M &) -> MultimapGroups<M>;
 
-  inline bool ed25519_verify(const jam::ed25519::Signature &sig,
-                             const jam::ed25519::Public &pub,
+  inline bool ed25519_verify(const jam::crypto::ed25519::Signature &sig,
+                             const jam::crypto::ed25519::Public &pub,
                              qtils::BytesIn X,
                              const types::WorkReportHash &work_report) {
     qtils::Bytes payload;
     qtils::append(payload, X);
     qtils::append(payload, work_report);
-    return jam::ed25519::verify(sig, payload, pub);
+    return jam::crypto::ed25519::verify(sig, payload, pub);
   }
 
   // [GP 0.4.5 I.4.5]

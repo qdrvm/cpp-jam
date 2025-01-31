@@ -45,8 +45,6 @@ target_include_directories(headers INTERFACE
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-add_subdirectory(src_)
-
 add_subdirectory(src)
 
 if (TESTING)

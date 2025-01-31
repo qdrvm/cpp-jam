@@ -10,7 +10,7 @@
  * Keccak hash
  */
 
-namespace jam {
+namespace jam::crypto {
   struct Keccak {
     using Hash32 = qtils::BytesN<32>;
     uint64_t state[5][5] = {};

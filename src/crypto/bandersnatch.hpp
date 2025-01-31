@@ -12,7 +12,7 @@
 #include <jam_crust.h>
 #include <qtils/bytes.hpp>
 
-namespace jam::bandersnatch {
+namespace jam::crypto::bandersnatch {
   using Output = qtils::BytesN<JAM_BANDERSNATCH_OUTPUT>;
   using Public = qtils::BytesN<JAM_BANDERSNATCH_PUBLIC>;
   using RingCommitment = qtils::BytesN<JAM_BANDERSNATCH_RING_COMMITMENT>;
