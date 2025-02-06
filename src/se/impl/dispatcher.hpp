@@ -7,8 +7,8 @@
 #pragma once
 
 #include <optional>
+#include <memory>
 
-#include "common.hpp"
 #include "scheduler.hpp"
 
 namespace jam::se {

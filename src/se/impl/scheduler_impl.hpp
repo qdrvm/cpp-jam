@@ -14,7 +14,6 @@
 #include <functional>
 #include <mutex>
 #include <optional>
-#include <shared_mutex>
 #include <thread>
 
 #include "common.hpp"

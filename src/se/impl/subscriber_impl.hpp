@@ -11,7 +11,6 @@
 #include <memory>
 #include <mutex>
 
-#include "common.hpp"
 #include "subscriber.hpp"
 #include "subscription_engine.hpp"
 

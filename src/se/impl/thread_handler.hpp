@@ -6,16 +6,9 @@
 
 #pragma once
 
-#include <algorithm>
 #include <assert.h>
-#include <chrono>
-#include <deque>
-#include <functional>
-#include <mutex>
-#include <shared_mutex>
 #include <thread>
 
-#include "common.hpp"
 #include "scheduler_impl.hpp"
 
 namespace jam::se {

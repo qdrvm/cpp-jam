@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace jam::se::utils {
 
   class Hasher {

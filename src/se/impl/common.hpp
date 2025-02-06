@@ -55,13 +55,6 @@ namespace jam::se::utils {
       return std::forward<F>(f)(t_);
     }
 
-    auto operator^=(auto &&f) {
-      return exclusiveAccess(std::forward<decltype(f)>(f));
-    }
-    auto operator|=(auto &&f) const {
-      return sharedAccess(std::forward<decltype(f)>(f));
-    }
-
     T &unsafeGet() {
       return t_;
     }

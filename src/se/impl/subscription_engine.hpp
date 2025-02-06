@@ -13,7 +13,6 @@
 #include <unordered_map>
 
 #include "common.hpp"
-#include "dispatcher.hpp"
 #include "subscriber.hpp"
 
 namespace jam::se {
