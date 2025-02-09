@@ -6,21 +6,29 @@
 
 #pragma once
 
-#include "modules/module.hpp"
 #include "injector/node_injector.hpp"
+#include "modules/module.hpp"
 
 namespace jam::loaders {
 
-class Loader {
-public:
-    Loader(const Loader&) = delete;
-    Loader& operator=(const Loader&) = delete;
+  class Loader {
+   public:
+    Loader(const Loader &) = delete;
+    Loader &operator=(const Loader &) = delete;
 
     virtual ~Loader() = default;
     virtual void start() = 0;
 
-protected:
+    std::optional<std::string> get_module_name_and_version() {
+        auto result = module_.getFunctionFromLibrary<const char*()>("get_module_name_and_version");
+        if (result) {
+            return std::string((*result)());
+        }
+        return std::nullopt;
+    }    
+
+   protected:
     injector::NodeInjector injector_;
     modules::Module module_;
-};
-}
+  };
+}  // namespace jam::loaders
