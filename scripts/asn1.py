@@ -208,13 +208,7 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
             else:
                 t = dict(type="SEQUENCE OF", element=dict(type="U8"))
         if t["type"] == "NULL":
-            if "tag" in t:
-                if "number" in t["tag"]:
-                    r = "qtils::Tagged<qtils::Empty, qtils::NumTag<%d>>" % t["tag"]["number"]
-                else:
-                    r = "qtils::Tagged<qtils::Empty, qtils::StrTag<\"%s\">" % t["tag"]["str"]
-            else:
-                r = "qtils::Empty"
+            r = "qtils::Empty"
         elif t["type"] == "SEQUENCE OF":
             r = asn_sequence_of(t)
         elif t["type"] in types:
@@ -223,6 +217,11 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
             raise TypeError(t)
         if t.get("optional", False):
             return "std::optional<%s>" % r
+        if "tag" in t:
+            if "number" in t["tag"]:
+                r = "qtils::Tagged<%s, struct _%d>" % (r, t["tag"]["number"])
+            else:
+                r = "qtils::Tagged<%s, struct %s>" % (r, c_dash(t["tag"]["str"]))
         return r
 
     asn_types: dict = asn1tools.parse_files([path])[key]["types"]
