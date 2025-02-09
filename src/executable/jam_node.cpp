@@ -8,7 +8,7 @@
 #include <iostream>
 #include <thread>
 
-#include <../src_/TODO_qtils/final_action.hpp>
+#include "../src_/TODO_qtils/final_action.hpp"
 #include <soralog/impl/configurator_from_yaml.hpp>
 #include <soralog/logging_system.hpp>
 
@@ -61,7 +61,7 @@ namespace {
 }  // namespace
 
 using namespace ftxui;
- 
+
 // Display a component nicely with a title on the left.
 Component Wrap(std::string name, Component component) {
   return Renderer(component, [name, component] {
@@ -75,12 +75,11 @@ Component Wrap(std::string name, Component component) {
 }
 
 int main(int argc, const char **argv, const char **env) {
-  soralog::util::setThreadName("jam-node");
-  auto deleter = [se_manager{jam::se::getSubscription()}](void *) {
+  qtils::FinalAction dispose_se_on_exit([se_manager{jam::se::getSubscription()}] {
     se_manager->dispose();
-  };
-  std::unique_ptr<void, decltype(deleter)> p((void *)1, deleter);
+  });
 
+  soralog::util::setThreadName("jam-node");
   std::vector<std::string> tab_values{
       "Status",
       "BEEFY",
@@ -89,21 +88,21 @@ int main(int argc, const char **argv, const char **env) {
   };
   int tab_selected = 0;
   auto tab_toggle = Toggle(&tab_values, &tab_selected);
- 
+
   std::vector<std::string> tab_1_entries{
       "Forest",
       "Water",
       "I don't know",
   };
   int tab_1_selected = 0;
- 
+
   std::vector<std::string> tab_2_entries{
       "Hello",
       "Hi",
       "Hay",
   };
   int tab_2_selected = 0;
- 
+
   // std::vector<std::string> tab_3_entries{
   //     "Table",
   //     "Nothing",
@@ -115,22 +114,31 @@ int main(int argc, const char **argv, const char **env) {
   Component input_list = Container::Vertical({});
   std::vector<std::string> items(5, "");
   for (size_t i = 0; i < items.size(); ++i) {
-    input_list->Add(Input(&(items[i]), "placeholder " + std::to_string(i)));
+    //input_list->Add(Input(&(items[i]), "placeholder " + std::to_string(i)));
+    // CheckboxOption option;
+    // option.label = "Make a sandwidth";
+    // option.checked = true;
+    bool checkbox_1_selected = true;
+    input_list->Add(Checkbox("checkbox1", &checkbox_1_selected));
   }
 
+  RadioboxOption options = {};
+  options.on_change = []() {
+    std::cout << "===========\n";
+  };
     auto tab_container = Container::Tab(
       {
-          Radiobox(&tab_1_entries, &tab_1_selected),
+          Radiobox(&tab_1_entries, &tab_1_selected, options),
           Radiobox(&tab_2_entries, &tab_2_selected),
           input_list,//Radiobox(&tab_3_entries, &tab_3_selected),
       },
       &tab_selected);
- 
+
   auto container = Container::Vertical({
       tab_toggle,
       tab_container,
   });
- 
+
   auto renderer = Renderer(container, [&] {
     return vbox({
                tab_toggle->Render(),
@@ -139,7 +147,7 @@ int main(int argc, const char **argv, const char **env) {
            }) |
            border;
   });
- 
+
   auto screen = ScreenInteractive::TerminalOutput();
   screen.Loop(renderer);
 
