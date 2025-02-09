@@ -11,6 +11,7 @@
 #include <dlfcn.h>
 #include <cstring>
 #include <cerrno>
+#include <optional>
 
 namespace jam::modules {
 
@@ -28,8 +29,19 @@ public:
 
     // Getter for loader Id
     const std::string& get_loader_id() const {
+        std::function<void(int)> p;
         return loader_id_;
     }
+
+    // Get function address from library
+    template <typename ReturnType, typename... ArgTypes>
+    std::optional<ReturnType> getFunctionFromLibrary(const char* funcName) {
+        void* funcAddr = dlsym(handle_.get(), funcName);
+        if (!funcAddr) {
+            return std::nullopt;  
+        }
+        return reinterpret_cast<ReturnType(*)(ArgTypes...)>(funcAddr);
+    }      
 
 private:
     Module(const std::string& path, std::unique_ptr<void, decltype(&dlclose)> handle, const std::string& loader_id)
