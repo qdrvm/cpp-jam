@@ -26,3 +26,6 @@ add_subdirectory(clock)
 
 # Subscription Engine subsystem
 add_subdirectory(se)
+
+# Modules subsystem
+add_subdirectory(modules)

@@ -9,6 +9,7 @@ set(CMAKE_OSX_ARCHITECTURES "arm64")
 set(LIBRARIES
     node_injector
     se_async
+    modules
     ftxui::dom 
     ftxui::screen 
     ftxui::component
