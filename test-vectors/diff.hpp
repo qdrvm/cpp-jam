@@ -73,11 +73,20 @@ void diff_m(Indent indent, const T &v1, const T &v2, std::string_view name) {
   diff(~indent, v1, v2);
 }
 
-DIFF_F(uint32_t) {
-  fmt::println("{}{} != {}", indent, v1, v2);
+template <typename T>
+  requires std::is_integral_v<std::remove_cvref_t<T>>
+DIFF_F(T) {
+  if (v1 != v2) {
+    fmt::println("{}{} != {}", indent, v1, v2);
+  }
 }
 
 DIFF_F(qtils::Empty) {}
+
+template <typename T, typename Tag>
+DIFF_F(qtils::Tagged<T, Tag>) {
+  diff(indent, untagged(v1), untagged(v2));
+}
 
 template <typename T>
 DIFF_F(std::optional<T>) {
@@ -151,7 +160,7 @@ void diff_v_i(Indent indent,
               const std::variant<Ts...> &v2,
               const size_t index) {
   if (index == I) {
-    using T = std::tuple_element_t<I, std::tuple<Ts...>>;
+  using T = std::tuple_element_t<I, std::tuple<Ts...>>;
     diff(~indent, std::get<T>(v1), std::get<T>(v2));
     return;
   }
