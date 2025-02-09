@@ -6,11 +6,11 @@
 
 #pragma once
 
-#include <vector>
 #include <limits>
+#include <vector>
 
 #include <jam_types/config.hpp>
-#include <scale/scale.hpp>
+#include <scale/jam_scale.hpp>
 
 namespace jam {
   template <typename T, typename ConfigField>
@@ -29,32 +29,28 @@ namespace jam {
     using std::vector<T>::emplace;
 
    public:
-    friend scale::ScaleEncoderStream &operator<<(scale::ScaleEncoderStream &s,
-                                                 const ConfigVec &v) {
-      const auto &config = s.getConfig<test_vectors::Config>();
+    friend void encode(const ConfigVec &v, scale::ScaleEncoder auto &encoder) {
+      const auto &config = encoder.template getConfig<test_vectors::Config>();
       auto n = v.configSize(config);
       if (n == std::numeric_limits<decltype(n)>::max()) {
-        return s << static_cast<const std::vector<T>&>(v);
+        return encode(static_cast<const std::vector<T> &>(v), encoder);
       }
       assert(v.size() == n);
       for (auto &item : v) {
-        s << item;
+        encode(item, encoder);
       }
-      return s;
     }
 
-    friend scale::ScaleDecoderStream &operator>>(scale::ScaleDecoderStream &s,
-                                                 ConfigVec &v) {
-      const auto &config = s.getConfig<test_vectors::Config>();
+    friend void decode(ConfigVec &v, scale::ScaleDecoder auto &decoder) {
+      const auto &config = decoder.template getConfig<test_vectors::Config>();
       auto n = v.configSize(config);
       if (n == std::numeric_limits<decltype(n)>::max()) {
-        return s >> static_cast<std::vector<T>&>(v);
+        return decode(static_cast<std::vector<T> &>(v), decoder);
       }
       v.resize(n);
       for (auto &item : v) {
-        s >> item;
+        decode(item, decoder);
       }
-      return s;
     }
   };
 }  // namespace jam

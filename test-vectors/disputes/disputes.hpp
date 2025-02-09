@@ -495,7 +495,7 @@ namespace jam::disputes {
     for (auto &row_work_report : work_reports) {
       if (row_work_report.has_value()) {
         auto work_report = mathcal_H(
-            scale::encode(row_work_report.value().report, config).value());
+            encode_with_config(row_work_report.value().report, config).value());
         if (new_bad_set.contains(work_report)
             or new_wonky_set.contains(work_report)) {
           row_work_report.reset();
