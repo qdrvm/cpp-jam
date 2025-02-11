@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <cstring>
 #include <optional>
 #include <qtils/bytes.hpp>
 #include <stdexcept>
