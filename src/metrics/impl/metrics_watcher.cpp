@@ -22,17 +22,6 @@ namespace jam::metrics {
         metrics_registry_(metrics::createRegistry()) {
     BOOST_ASSERT(state_manager);
 
-    // Metric for exposing name and version of node
-    constexpr auto buildInfoMetricName = "jam_build_info";
-    metrics_registry_->registerGaugeFamily(
-        buildInfoMetricName,
-        "A metric with a constant '1' value labeled by name, version");
-    auto metric_build_info = metrics_registry_->registerGaugeMetric(
-        buildInfoMetricName,
-        {{"name", app_config_->nodeName()},
-         {"version", app_config_->nodeVersion()}});
-    metric_build_info->set(1);
-
     // Metric for exposing current storage size
     constexpr auto storageSizeMetricName = "jam_storage_size";
     metrics_registry_->registerGaugeFamily(

@@ -19,18 +19,21 @@ include_directories(
 # fix for dyld bug on mac
 # we should actually check the target platform here, not the host platform,
 # but not that we explicitly support cross-compilation anyway
-if (CMAKE_HOST_APPLE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_library(jam_node SHARED jam_node.cpp)
-    set_target_properties(jam_node PROPERTIES PREFIX "" DEBUG_POSTFIX "")
-    target_compile_definitions(jam_node PRIVATE BUILD_AS_LIBRARY)
-    target_link_libraries(jam_node ${LIBRARIES})
+if (CMAKE_HOST_APPLE)
+  option(MACOS_BIG_EXE_USE_DYLIB "compile dylib instead of exe to work around dyld cache error when loading big exe" ON)
+endif ()
+if (MACOS_BIG_EXE_USE_DYLIB)
+  add_library(jam_node SHARED jam_node.cpp)
+  set_target_properties(jam_node PROPERTIES PREFIX "" DEBUG_POSTFIX "")
+  target_compile_definitions(jam_node PRIVATE BUILD_AS_LIBRARY)
+  target_link_libraries(jam_node ${LIBRARIES})
 
   add_executable(jam_node_dlopen dlopen.cpp)
   set_target_properties(jam_node_dlopen PROPERTIES OUTPUT_NAME jam_node)
   set_target_properties(jam_node_dlopen PROPERTIES LINKER_LANGUAGE CXX)
 else ()
-    add_executable(jam_node jam_node.cpp)
-    target_link_libraries(jam_node ${LIBRARIES})
+  add_executable(jam_node jam_node.cpp)
+  target_link_libraries(jam_node ${LIBRARIES})
 endif ()
 
 #if (BACKWARD)

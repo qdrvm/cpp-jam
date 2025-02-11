@@ -7,8 +7,8 @@
 #pragma once
 
 #include "metrics/metrics.hpp"
-
-#include "../../src_/TODO_qtils/final_action.hpp"
+#include "metrics/registry.hpp"
+#include "qtils/final_action.hpp"
 
 namespace jam::metrics {
   inline std::vector<double> exponentialBuckets(double start,
@@ -21,6 +21,7 @@ namespace jam::metrics {
     return buckets;
   }
 
+  // TODO(xDimon): Improve helpers to support labels
   struct GaugeHelper {
     GaugeHelper(const std::string &name, const std::string &help) {
       registry_->registerGaugeFamily(name, help);
@@ -31,7 +32,7 @@ namespace jam::metrics {
       return metric_;
     }
 
-    metrics::RegistryPtr registry_ = metrics::createRegistry();
+    std::unique_ptr<metrics::Registry> registry_ = metrics::createRegistry();
     metrics::Gauge *metric_;
   };
 
@@ -47,7 +48,7 @@ namespace jam::metrics {
       metric_->observe(value);
     }
 
-    metrics::RegistryPtr registry_ = metrics::createRegistry();
+    std::unique_ptr<metrics::Registry> registry_ = metrics::createRegistry();
     metrics::Histogram *metric_;
   };
 
@@ -72,4 +73,4 @@ namespace jam::metrics {
       return std::make_optional(qtils::MovableFinalAction(manual()));
     }
   };
-}  // namespace kagome::metrics
+}  // namespace jam::metrics

@@ -23,8 +23,8 @@ namespace jam {
    public:
     // To prevent movement of instance
     NonMovable() = default;
-    NonMovable(const NonMovable &) = delete;
-    NonMovable &operator=(const NonMovable &) = delete;
+    NonMovable(NonMovable &&) = delete;
+    NonMovable &operator=(NonMovable &&) = delete;
   };
 
   class StackOnly {

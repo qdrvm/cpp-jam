@@ -14,6 +14,7 @@
 #include "app/state_manager.hpp"
 #include "clock/clock.hpp"
 #include "log/logger.hpp"
+#include "metrics/histogram_timer.hpp"
 #include "metrics/metrics.hpp"
 
 namespace jam::app {
@@ -57,15 +58,10 @@ namespace jam::app {
 
     state_manager_->atShutdown([this] { watchdog_->stop(); });
 
-    {  // Metric storing start time
-      constexpr auto startTimeMetricName = "jam_process_start_time_seconds";
-      metrics_registry_->registerGaugeFamily(
-          startTimeMetricName,
-          "UNIX timestamp of the moment the process started");
-      auto metric_start_time =
-          metrics_registry_->registerGaugeMetric(startTimeMetricName);
-      metric_start_time->set(system_clock_->nowSec());
-    }
+    // Metric storing start time
+    metrics::GaugeHelper("jam_process_start_time_seconds",
+                         "UNIX timestamp of the moment the process started")
+        ->set(system_clock_->nowSec());
 
     state_manager_->run();
 
