@@ -2,10 +2,17 @@
   "name": "cpp-jam",
   "version": "0.0.1",
   "dependencies": [
+    "qtils",
+    "scale",
     "fmt",
+    "soralog",
     "kagome-crates",
     "libb2",
-    "scale"
+    "boost-di",
+    "boost-program-options",
+    "boost-asio",
+    "boost-beast",
+    "prometheus-cpp"
   ],
   "features": {
     "test": { "description": "Test", "dependencies": ["gtest"]}

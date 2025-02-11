@@ -9,10 +9,8 @@
 #include <qtils/option_take.hpp>
 
 #include <test-vectors/common.hpp>
-#include <test-vectors/common-scale.hpp>
-#include <test-vectors/common-types.hpp>
-#include <test-vectors/common.hpp>
-#include <test-vectors/history/history-types.hpp>
+#include <jam_types/common-types.hpp>
+#include <jam_types/history-types.hpp>
 
 namespace jam::history {
   namespace types = jam::test_vectors;

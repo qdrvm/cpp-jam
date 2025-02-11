@@ -5,7 +5,7 @@
  */
 
 #include <test-vectors/history/vectors.hpp>
-#include <test-vectors/safrole/safrole-types.hpp>
+#include <jam_types/safrole-types.hpp>
 
 GTEST_VECTORS(History, history);
 

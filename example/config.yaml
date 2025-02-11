@@ -1,0 +1,29 @@
+general:
+  name: NameFromConfig
+
+metrics:
+  enabled: true
+  host: 127.0.0.1
+  port: 9615
+
+logging:
+  sinks:
+    - name: console
+      type: console
+      stream: stdout
+      thread: name
+      color: true
+      latency: 0
+  groups:
+    - name: main
+      sink: console
+      level: info
+      is_fallback: true
+      children:
+        - name: jam
+          children:
+            - name: injector
+            - name: application
+            - name: rpc
+            - name: metrics
+            - name: threads

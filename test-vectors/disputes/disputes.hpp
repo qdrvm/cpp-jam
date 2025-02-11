@@ -6,22 +6,19 @@
 
 #pragma once
 
-#include <algorithm>
 #include <map>
 #include <ranges>
 #include <set>
 
-#include <TODO_qtils/bytes_std_hash.hpp>
-#include <TODO_qtils/cxx23/ranges/contains.hpp>
+#include <qtils/bytes_std_hash.hpp>
+#include <qtils/cxx23/ranges/contains.hpp>
 #include <qtils/append.hpp>
-#include <scale/scale.hpp>
 
-#include <jam/bandersnatch.hpp>
-#include <jam/ed25519.hpp>
-#include <test-vectors/common-scale.hpp>
-#include <test-vectors/common-types.hpp>
+#include <crypto/bandersnatch.hpp>
+#include <crypto/ed25519.hpp>
+#include <jam_types/common-types.hpp>
 #include <test-vectors/common.hpp>
-#include <test-vectors/disputes/disputes-types.hpp>
+#include <jam_types/disputes-types.hpp>
 
 namespace jam::disputes {
   namespace types = jam::test_vectors;
@@ -73,14 +70,14 @@ namespace jam::disputes {
   template <typename M>
   MultimapGroups(const M &) -> MultimapGroups<M>;
 
-  inline bool ed25519_verify(const jam::ed25519::Signature &sig,
-                             const jam::ed25519::Public &pub,
+  inline bool ed25519_verify(const jam::crypto::ed25519::Signature &sig,
+                             const jam::crypto::ed25519::Public &pub,
                              qtils::BytesIn X,
                              const types::WorkReportHash &work_report) {
     qtils::Bytes payload;
     qtils::append(payload, X);
     qtils::append(payload, work_report);
-    return jam::ed25519::verify(sig, payload, pub);
+    return jam::crypto::ed25519::verify(sig, payload, pub);
   }
 
   // [GP 0.4.5 I.4.5]
@@ -177,7 +174,7 @@ namespace jam::disputes {
       for (const auto &verdict : verdicts) {
         const auto &work_report = verdict.target;
         const auto &epoch = verdict.age;
-        const auto &judgements = verdict.votes.v;
+        const auto &judgements = verdict.votes;
 
         if (epoch != current_epoch and epoch != previous_epoch) {
           return error(Error::bad_judgement_age);
@@ -197,8 +194,8 @@ namespace jam::disputes {
         }
 
         const auto &validators_set = epoch == current_epoch
-                                       ? current_epoch_validator_set.v
-                                       : previous_epoch_validator_set.v;
+                                       ? current_epoch_validator_set
+                                       : previous_epoch_validator_set;
 
         std::optional<types::U16> prev_validator_index{};
         for (const auto &judgement : judgements) {
@@ -280,7 +277,7 @@ namespace jam::disputes {
 
         // [GP 0.4.5 10.2 (101)/2]
         // Ensure validator from the set of current epoch
-        const auto &validators_set = current_epoch_validator_set.v;
+        const auto &validators_set = current_epoch_validator_set;
         if (not qtils::cxx23::ranges::contains_if(
                 validators_set, [&](const auto &val) {
                   return val.ed25519 == validator_key;
@@ -338,7 +335,7 @@ namespace jam::disputes {
 
         // [GP 0.4.5 10.2 (102)/2]
         // Ensure validator from the set of current epoch
-        const auto &validators_set = current_epoch_validator_set.v;
+        const auto &validators_set = current_epoch_validator_set;
         if (not qtils::cxx23::ranges::contains_if(
                 validators_set, [&](const auto &val) {
                   return val.ed25519 == validator_key;
@@ -495,10 +492,10 @@ namespace jam::disputes {
     // We clear any work-reports which we judged as uncertain or invalid from
     // their core
     // [GP 0.4.5 10.2 (111)]
-    for (auto &row_work_report : work_reports.v) {
+    for (auto &row_work_report : work_reports) {
       if (row_work_report.has_value()) {
-        auto work_report =
-            mathcal_H(jam::encode(row_work_report.value().report, config).value());
+        auto work_report = mathcal_H(
+            encode_with_config(row_work_report.value().report, config).value());
         if (new_bad_set.contains(work_report)
             or new_wonky_set.contains(work_report)) {
           row_work_report.reset();

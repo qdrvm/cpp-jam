@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <test-vectors/authorizations/authorizations-diff.hpp>
+#include <jam_types/authorizations-diff.hpp>
 #include <test-vectors/authorizations/authorizations.hpp>
 #include <test-vectors/authorizations/vectors.hpp>
 

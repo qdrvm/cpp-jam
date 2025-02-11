@@ -7,7 +7,7 @@ init_py() {
   python3 -m venv "$VENV"
   source $VENV/bin/activate
   pip3 install cmake==${CMAKE_VERSION}
-  pip3 install --no-cache-dir -r ${PROJECT}/python/requirements.txt
+  pip3 install --no-cache-dir asn1tools
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

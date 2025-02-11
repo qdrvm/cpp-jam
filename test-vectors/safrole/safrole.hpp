@@ -6,18 +6,15 @@
 
 #pragma once
 
-#include <algorithm>
-#include <ranges>
 #include <set>
 #include <unordered_map>
 
-#include <TODO_qtils/cxx23/ranges/contains.hpp>
-#include <jam/bandersnatch.hpp>
-#include <src/jam/tagged.hpp>
-#include <test-vectors/common-scale.hpp>
-#include <test-vectors/common-types.hpp>
+#include <crypto/bandersnatch.hpp>
+#include <qtils/cxx23/ranges/contains.hpp>
+#include <qtils/tagged.hpp>
+#include <jam_types/common-types.hpp>
 #include <test-vectors/common.hpp>
-#include <test-vectors/config-full.hpp>
+#include <jam_types/config-full.hpp>
 
 namespace jam::safrole {
   namespace types = jam::test_vectors;
@@ -30,7 +27,7 @@ namespace jam::safrole {
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/bandersnatch.tex#L17
   inline std::optional<types::OpaqueHash> banderout(
       const BandersnatchSignature &signature) {
-    return bandersnatch::output(signature);
+    return crypto::bandersnatch::output(signature);
   }
 
   struct TicketBodyLess {
@@ -45,11 +42,11 @@ namespace jam::safrole {
   using BandersnatchKeys = decltype(types::EpochMark::validators);
 
   inline auto &ring_ctx(const types::Config &config) {
-    static std::unordered_map<uint32_t, bandersnatch::Ring> map;
+    static std::unordered_map<uint32_t, crypto::bandersnatch::Ring> map;
     auto &n = config.validators_count;
     auto it = map.find(n);
     if (it == map.end()) {
-      it = map.emplace(n, bandersnatch::Ring{n}).first;
+      it = map.emplace(n, crypto::bandersnatch::Ring{n}).first;
     }
     return it->second;
   }
@@ -68,8 +65,9 @@ namespace jam::safrole {
   inline BandersnatchKeys bandersnatch_keys(
       const types::ValidatorsData &validators) {
     BandersnatchKeys keys;
-    for (auto &validator : validators.v) {
-      keys.v.emplace_back(validator.bandersnatch);
+    keys.reserve(validators.size());
+    for (auto &validator : validators) {
+      keys.emplace_back(validator.bandersnatch);
     }
     return keys;
   }
@@ -78,7 +76,7 @@ namespace jam::safrole {
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/bandersnatch.tex#L15
   inline GammaZ mathcal_O(const types::Config &config,
                           const BandersnatchKeys &pks) {
-    return ring_ctx(config).commitment(pks.v).value();
+    return ring_ctx(config).commitment(pks).value();
   }
 
   // [GP 0.4.5 G 341]
@@ -202,8 +200,8 @@ namespace jam::safrole {
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L101
     const auto phi = [&](const types::ValidatorsData &k) {
       types::ValidatorsData k_tick;
-      for (auto &validator : k.v) {
-        k_tick.v.emplace_back(
+      for (auto &validator : k) {
+        k_tick.emplace_back(
             qtils::cxx23::ranges::contains(post_offenders, validator.ed25519)
                 ? types::ValidatorData{}
                 : validator);
@@ -302,7 +300,7 @@ namespace jam::safrole {
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L182
     const auto Z = [&](const GammaA &s) {
       using TicketsBodies =
-          std::variant_alternative_t<0, types::TicketsOrKeys::type>;
+          std::variant_alternative_t<0, types::TicketsOrKeys::Type>;
       TicketsBodies tickets;
       if (s.size() != E) {
         throw std::logic_error{"Z"};
@@ -310,7 +308,7 @@ namespace jam::safrole {
       auto it1 = s.begin(), it2 = std::prev(s.end());
       auto odd = true;
       for (uint32_t i = 0; i < TicketsBodies::configSize(config); ++i) {
-        tickets.v.emplace_back(odd ? *it1 : *it2);
+        tickets.emplace_back(odd ? *it1 : *it2);
         if (odd) {
           ++it1;
         } else {
@@ -326,12 +324,12 @@ namespace jam::safrole {
     const auto F = [&](const types::OpaqueHash &r,
                        const types::ValidatorsData &k) {
       using EpochKeys =
-          std::variant_alternative_t<1, types::TicketsOrKeys::type>;
+          std::variant_alternative_t<1, types::TicketsOrKeys::Type>;
       EpochKeys keys;
       for (uint32_t i = 0; i < E; ++i) {
-        keys.v.emplace_back(
+        keys.emplace_back(
             circlearrowleft(
-                k.v, de(first_bytes<4>(mathcal_H(frown(r, mathcal_E<4>(i))))))
+                k, de(first_bytes<4>(mathcal_H(frown(r, mathcal_E<4>(i))))))
                 .bandersnatch);
       }
       return keys;

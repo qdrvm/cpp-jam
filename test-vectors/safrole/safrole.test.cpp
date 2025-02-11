@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <test-vectors/safrole/safrole-diff.hpp>
+#include <jam_types/safrole-diff.hpp>
 #include <test-vectors/safrole/safrole.hpp>
 #include <test-vectors/safrole/vectors.hpp>
 
