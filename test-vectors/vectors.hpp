@@ -6,15 +6,17 @@
 
 #pragma once
 
+#include <gtest/gtest.h>
+
 #include <filesystem>
 #include <set>
 
 #include <fmt/format.h>
-#include <gtest/gtest.h>
 #include <qtils/read_file.hpp>
-#include <scale/scale.hpp>
 #include <qtils/test/outcome.hpp>
-#include <test-vectors/config-types-scale.hpp>
+#include <scale/jam_scale.hpp>
+#include <test-vectors/config-types.hpp>
+
 
 /**
  * Common functions for test vectors
@@ -46,30 +48,31 @@
  * @when transition with `input`
  * @then get expected `post_state` and `output`
  */
-#define GTEST_VECTORS_TEST_TRANSITION(VectorName, NsPart)                    \
-  TEST_P(VectorName##Test, Transition) {                                     \
-    using jam::test_vectors::getTestLabel;                                   \
-    fmt::println("Test transition for '{}'\n", getTestLabel(path));          \
-                                                                             \
-    ASSERT_OUTCOME_SUCCESS(raw_data, qtils::readBytes(path));                \
-                                                                             \
-    ASSERT_OUTCOME_SUCCESS(testcase,                                         \
-                           jam::decode<jam::test_vectors::NsPart::TestCase>( \
-                               raw_data, vectors.config));                   \
-                                                                             \
-    auto [state, output] = jam::NsPart::transition(                          \
-        vectors.config, testcase.pre_state, testcase.input);                 \
-    Indent indent{1};                                                        \
-    EXPECT_EQ(state, testcase.post_state)                                    \
-        << "Actual and expected states are differ";                          \
-    if (state != testcase.post_state) {                                      \
-      diff_m(indent, state, testcase.post_state, "state");                   \
-    }                                                                        \
-    EXPECT_EQ(output, testcase.output)                                       \
-        << "Actual and expected outputs are differ";                         \
-    if (output != testcase.output) {                                         \
-      diff_m(indent, output, testcase.output, "output");                     \
-    }                                                                        \
+#define GTEST_VECTORS_TEST_TRANSITION(VectorName, NsPart)              \
+  TEST_P(VectorName##Test, Transition) {                               \
+    using jam::test_vectors::getTestLabel;                             \
+    fmt::println("Test transition for '{}'\n", getTestLabel(path));    \
+                                                                       \
+    ASSERT_OUTCOME_SUCCESS(raw_data, qtils::readBytes(path));          \
+                                                                       \
+    ASSERT_OUTCOME_SUCCESS(                                            \
+        testcase,                                                      \
+        (jam::decode_with_config<jam::test_vectors::NsPart::TestCase>( \
+            raw_data, vectors.config)));                               \
+                                                                       \
+    auto [state, output] = jam::NsPart::transition(                    \
+        vectors.config, testcase.pre_state, testcase.input);           \
+    Indent indent{1};                                                  \
+    EXPECT_EQ(state, testcase.post_state)                              \
+        << "Actual and expected states are differ";                    \
+    if (state != testcase.post_state) {                                \
+      diff_m(indent, state, testcase.post_state, "state");             \
+    }                                                                  \
+    EXPECT_EQ(output, testcase.output)                                 \
+        << "Actual and expected outputs are differ";                   \
+    if (output != testcase.output) {                                   \
+      diff_m(indent, output, testcase.output, "output");               \
+    }                                                                  \
   }
 
 /**
@@ -78,21 +81,23 @@
  * @when decode it and encode back
  * @then `actual` result has the same value as `original`
  */
-#define GTEST_VECTORS_TEST_REENCODE(VectorName, NsPart)                      \
-  TEST_P(VectorName##Test, Reencode) {                                       \
-    using jam::test_vectors::getTestLabel;                                   \
-    fmt::println("Test reencode for '{}'\n", getTestLabel(path));            \
-                                                                             \
-    ASSERT_OUTCOME_SUCCESS(raw_data, qtils::readBytes(path));                \
-    const auto &original = raw_data;                                         \
-                                                                             \
-    ASSERT_OUTCOME_SUCCESS(decoded,                                          \
-                           jam::decode<jam::test_vectors::NsPart::TestCase>( \
-                               original, vectors.config));                   \
-                                                                             \
-    ASSERT_OUTCOME_SUCCESS(reencoded, jam::encode(decoded, vectors.config)); \
-                                                                             \
-    EXPECT_EQ(reencoded, original);                                          \
+#define GTEST_VECTORS_TEST_REENCODE(VectorName, NsPart)                 \
+  TEST_P(VectorName##Test, Reencode) {                                  \
+    using jam::test_vectors::getTestLabel;                              \
+    fmt::println("Test reencode for '{}'\n", getTestLabel(path));       \
+                                                                        \
+    ASSERT_OUTCOME_SUCCESS(raw_data, qtils::readBytes(path));           \
+    const auto &original = raw_data;                                    \
+                                                                        \
+    ASSERT_OUTCOME_SUCCESS(                                             \
+        decoded,                                                        \
+        (jam::decode_with_config<jam::test_vectors::NsPart::TestCase>(  \
+            original, vectors.config)));                                \
+                                                                        \
+    ASSERT_OUTCOME_SUCCESS(                                             \
+        reencoded, (jam::encode_with_config(decoded, vectors.config))); \
+                                                                        \
+    EXPECT_EQ(reencoded, original);                                     \
   }
 
 namespace jam::test_vectors {
@@ -163,18 +168,6 @@ namespace jam::test_vectors {
         paths.emplace(path);
       }
     }
-
-    // auto decode(qtils::BytesIn raw) const {
-    //   return jam::decode<T>(raw, config);
-    // }
-    //
-    // auto encode(const auto &value) const {
-    //   return jam::encode(value, config);
-    // }
-    //
-    // static auto readRaw(const std::filesystem::path &path) {
-    //   return qtils::readBytes(path);
-    // }
   };
 
   template <typename T>

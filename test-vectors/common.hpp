@@ -11,8 +11,8 @@
 
 #include <boost/endian/conversion.hpp>
 
-#include <jam/blake.hpp>
-#include <jam/keccak.hpp>
+#include <crypto/blake.hpp>
+#include <crypto/keccak.hpp>
 
 /**
  * Common functions used in tests
@@ -74,12 +74,12 @@ namespace jam {
   // [GP 0.4.5 3.8.1]
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/notation.tex#L153
   inline auto mathcal_H(qtils::BytesIn m) {
-    return Blake::hash(m);
+    return crypto::Blake::hash(m);
   }
 
   // [GP 0.4.5 3.8.1]
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/notation.tex#L153
   inline auto mathcal_H_K(qtils::BytesIn m) {
-    return Keccak::hash(m);
+    return crypto::Keccak::hash(m);
   }
 }  // namespace jam

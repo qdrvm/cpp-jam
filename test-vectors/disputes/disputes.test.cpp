@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <test-vectors/disputes/disputes-diff.hpp>
+#include <jam_types/disputes-diff.hpp>
 #include <test-vectors/disputes/disputes.hpp>
 #include <test-vectors/disputes/vectors.hpp>
 
