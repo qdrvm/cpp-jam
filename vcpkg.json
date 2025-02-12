@@ -3,14 +3,20 @@
   "version": "0.0.1",
   "dependencies": [
     "boost-asio",
+    "boost-beast",
+    "boost-di",
+    "boost-program-options",
     "cppcodec",
     "fmt",
     "kagome-crates",
     "libb2",
     "liblsquic",
-    "scale"
+    "prometheus-cpp",
+    "qtils",
+    "scale",
+    "soralog"
   ],
   "features": {
-    "test": { "description": "Test", "dependencies": ["gtest"]}
+    "test": { "description": "Test", "dependencies": ["gtest"] }
   }
 }

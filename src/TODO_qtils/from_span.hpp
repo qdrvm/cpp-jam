@@ -8,8 +8,9 @@
 
 #include <cstring>
 #include <optional>
-#include <qtils/bytes.hpp>
 #include <stdexcept>
+
+#include <qtils/bytes.hpp>
 
 namespace qtils {
   inline bool fromSpan(BytesOut out, BytesIn span) {

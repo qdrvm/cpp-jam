@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <test-vectors/history/history-diff.hpp>
+#include <jam_types/history-diff.hpp>
 #include <test-vectors/history/history.hpp>
 #include <test-vectors/history/vectors.hpp>
 

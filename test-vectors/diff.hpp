@@ -13,10 +13,9 @@
 #include <unordered_map>
 #include <variant>
 
+#include <qtils/empty.hpp>
 #include <qtils/hex.hpp>
-
-#include <jam/empty.hpp>
-#include <jam/tagged.hpp>
+#include <qtils/tagged.hpp>
 #include <test-vectors/config-types.hpp>
 
 /**
@@ -74,20 +73,19 @@ void diff_m(Indent indent, const T &v1, const T &v2, std::string_view name) {
   diff(~indent, v1, v2);
 }
 
-DIFF_F(uint32_t) {
-  fmt::println("{}{} != {}", indent, v1, v2);
+template <typename T>
+  requires std::is_integral_v<std::remove_cvref_t<T>>
+DIFF_F(T) {
+  if (v1 != v2) {
+    fmt::println("{}{} != {}", indent, v1, v2);
+  }
 }
 
-DIFF_F(jam::Empty) {}
+DIFF_F(qtils::Empty) {}
 
-//template <typename T, typename Tag>
-//DIFF_F(jam::Tagged<T, Tag>) {
-//  diff(indent, (const T &)v1, (const T &)v2);
-//}
-
-template <typename T, typename ConfigField>
-DIFF_F(jam::ConfigVec<T, ConfigField>) {
-  diff(indent, v1.v, v2.v);
+template <typename T, typename Tag>
+DIFF_F(qtils::Tagged<T, Tag>) {
+  diff(indent, untagged(v1), untagged(v2));
 }
 
 template <typename T>
@@ -130,7 +128,7 @@ void diff(Indent indent, const T &_v1, const T &_v2) {
   }
 }
 
-DIFF_F(qtils::BytesIn) {
+void diff(Indent indent, const qtils::BytesIn &v1, const qtils::BytesIn &v2) {
   if (v1.size() == v2.size() && memcmp(v1.data(), v2.data(), v1.size()) == 0) {
     return;
   }
@@ -146,7 +144,7 @@ void diff_e(Indent indent, const E &v1, const E &v2, const auto &names) {
   }
 
   auto get_name = [&](auto v) {
-    using IntType = std::decay_t<decltype(names)>::key_type;
+    using IntType = std::remove_cvref_t<decltype(names)>::key_type;
     if (auto it = names.find((IntType)v); it != names.end()) {
       return std::string(it->second);
     }
@@ -154,6 +152,21 @@ void diff_e(Indent indent, const E &v1, const E &v2, const auto &names) {
   };
 
   fmt::println("{}{} != {}", indent, get_name(v1), get_name(v2));
+}
+
+template <size_t I, typename... Ts>
+void diff_v_i(Indent indent,
+              const std::variant<Ts...> &v1,
+              const std::variant<Ts...> &v2,
+              const size_t index) {
+  if (index == I) {
+  using T = std::tuple_element_t<I, std::tuple<Ts...>>;
+    diff(~indent, std::get<T>(v1), std::get<T>(v2));
+    return;
+  }
+  if constexpr (I + 1 < sizeof...(Ts)) {
+    diff_v_i<I + 1, Ts...>(indent, v1, v2, index);
+  }
 }
 
 template <typename... Ts>
@@ -170,9 +183,7 @@ void diff_v(Indent indent,
   }
 
   fmt::println("{}{}", indent, tags[v1.index()]);
-  std::visit(
-      [&](auto &&v) {
-        diff(~indent, v, std::get<std::decay_t<decltype(v)>>(v2));
-      },
-      v1);
+  assert(v1.index() == v2.index());
+
+  diff_v_i<0>(indent, v1, v2, v1.index());
 }

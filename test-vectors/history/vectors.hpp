@@ -6,9 +6,8 @@
 
 #pragma once
 
-#include <test-vectors/config-full.hpp>
-#include <test-vectors/config-tiny.hpp>
-#include <test-vectors/history/history-scale.hpp>
+#include <jam_types/config.hpp>
+#include <jam_types/history-types.hpp>
 #include <test-vectors/vectors.hpp>
 
 namespace jam::test_vectors::history {
