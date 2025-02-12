@@ -24,3 +24,6 @@ add_subdirectory(metrics)
 # Clocks and time subsystem
 add_subdirectory(clock)
 
+# Simple Network Protocol
+add_subdirectory(snp)
+

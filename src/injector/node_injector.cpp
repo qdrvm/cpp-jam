@@ -50,6 +50,7 @@ namespace {
         di::bind<log::LoggingSystem>.to(logsys),
         di::bind<metrics::Handler>.to<metrics::PrometheusHandler>(),
         di::bind<metrics::Exposer>.to<metrics::ExposerImpl>(),
+        useConfig(metrics::Session::Configuration{}),
         di::bind<metrics::Exposer::Configuration>.to([](const auto &injector) {
           return metrics::Exposer::Configuration{
               {boost::asio::ip::address_v4::from_string("127.0.0.1"), 7777}
@@ -92,7 +93,7 @@ namespace jam::injector {
   NodeInjector::NodeInjector(std::shared_ptr<log::LoggingSystem> logsys,
                              std::shared_ptr<app::Configuration> config)
       : pimpl_{std::make_unique<NodeInjectorImpl>(
-          makeNodeInjector(std::move(logsys), std::move(config)))} {}
+            makeNodeInjector(std::move(logsys), std::move(config)))} {}
 
   std::shared_ptr<app::Application> NodeInjector::injectApplication() {
     return pimpl_->injector_

@@ -4,10 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#pragma once
+
 #include <schnorrkel_crust.h>
+
+#include <TODO_qtils/from_span.hpp>
 #include <qtils/bytes.hpp>
 
 namespace jam::crypto::ed25519 {
+  using Seed = qtils::BytesN<ED25519_SEED_LENGTH>;
   using Secret = qtils::BytesN<ED25519_SECRET_KEY_LENGTH>;
   using Public = qtils::BytesN<ED25519_PUBLIC_KEY_LENGTH>;
   using KeyPair = qtils::BytesN<ED25519_KEYPAIR_LENGTH>;
@@ -34,4 +39,22 @@ namespace jam::crypto::ed25519 {
                               message.size_bytes());
     return res == ED25519_RESULT_OK;
   }
-}  // namespace jam::ed25519
+
+  inline KeyPair from_seed(const Seed &seed) {
+    KeyPair keypair;
+    ed25519_keypair_from_seed(keypair.data(), seed.data());
+    return keypair;
+  }
+
+  inline Public get_public(const KeyPair &keypair) {
+    return qtils::fromSpan<Public>(
+               std::span{keypair}.subspan(ED25519_SECRET_KEY_LENGTH))
+        .value();
+  }
+
+  inline Public get_secret(const KeyPair &keypair) {
+    return qtils::fromSpan<Secret>(
+               std::span{keypair}.first(ED25519_SECRET_KEY_LENGTH))
+        .value();
+  }
+}  // namespace jam::crypto::ed25519
