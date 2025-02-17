@@ -33,13 +33,16 @@ namespace qtils {
     }
     auto &operator*() {
       if (not has()) {
-        throw std::logic_error{"MapEntry::operator*"};
+        throw std::logic_error{
+            "Call dereference operator of MapEntry without valid iterator"};
       }
       return std::get<I>(it_or_key)->second;
     }
     auto *operator->() {
       if (not has()) {
-        throw std::logic_error{"MapEntry::operator->"};
+        throw std::logic_error{
+            "Call member access through pointer operator of MapEntry without "
+            "valid iterator"};
       }
       return &std::get<I>(it_or_key)->second;
     }
