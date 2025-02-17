@@ -11,6 +11,8 @@ if (TESTING)
   list(APPEND VCPKG_MANIFEST_FEATURES test)
 endif ()
 
+option(BUILD_EXAMPLES "Build examples" ON)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -45,6 +47,8 @@ find_package(ZLIB REQUIRED)
 
 include(vcpkg-overlay/cppcodec.cmake)
 
+include_directories(${CMAKE_SOURCE_DIR}/src)
+
 add_subdirectory(src)
 
 if (TESTING)
@@ -55,4 +59,8 @@ if (TESTING)
 
   add_subdirectory(test-vectors)
   add_subdirectory(tests)
+endif ()
+
+if (BUILD_EXAMPLES)
+  add_subdirectory(example)
 endif ()

@@ -4,8 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
 # Executables (should contain `main()` function)
 add_subdirectory(executable)
 
