@@ -365,7 +365,7 @@ namespace jam::snp::lsquic {
     }
     auto remaining = message;
     while (not remaining.empty()) {
-      if (not stream_ctx->ls_stream) {
+      [[unlikely]] if (not stream_ctx->ls_stream) {
         co_return ConnectionsError::STREAM_READ_CLOSED;
       }
       auto n = lsquic_stream_read(
@@ -399,7 +399,7 @@ namespace jam::snp::lsquic {
     }
     auto remaining = message;
     while (not remaining.empty()) {
-      if (not stream_ctx->ls_stream) {
+      [[unlikely]] if (not stream_ctx->ls_stream) {
         co_return ConnectionsError::STREAM_WRITE_CLOSED;
       }
       auto n = lsquic_stream_write(
