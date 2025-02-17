@@ -9,7 +9,7 @@
 #include <qtils/enum_error_code.hpp>
 
 namespace jam::snp {
-  enum class OpenSslError {
+  enum class OpenSslError : uint8_t {
     EVP_PKEY_get_raw_public_key,
     EVP_PKEY_new_raw_private_key,
     SSL_CTX_set_alpn_protos,
@@ -53,7 +53,7 @@ namespace jam::snp {
     }
   }
 
-  enum class LsQuicError {
+  enum class LsQuicError : uint8_t {
     lsquic_conn_make_stream,
     lsquic_engine_connect,
     lsquic_engine_new,
@@ -73,7 +73,7 @@ namespace jam::snp {
     }
   }
 
-  enum class ConnectionsError {
+  enum class ConnectionsError : uint8_t {
     CONNECTION_OPEN_CLOSED,
     CONNECTION_OPEN_DUPLICATE,
     CONNECTIONS_INIT,
