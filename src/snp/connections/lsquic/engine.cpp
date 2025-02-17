@@ -18,8 +18,6 @@
 #include "snp/connections/lsquic/init.hpp"
 #include "snp/connections/stream.hpp"
 
-#define SELF_FROM_VOID Engine *self = static_cast<Engine *>(void_self)
-
 // TODO(turuslan): unique streams
 // TODO(turuslan): connection/stream close event lag
 
@@ -428,7 +426,7 @@ namespace jam::snp::lsquic {
 
   lsquic_conn_ctx_t *Engine::on_new_conn(void *void_self,
                                          lsquic_conn_t *ls_conn) {
-    SELF_FROM_VOID;
+    Engine *self = static_cast<Engine *>(void_self);
     auto connecting = qtils::optionTake(self->connecting_);
     auto is_connecting = connecting.has_value();
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
@@ -500,7 +498,7 @@ namespace jam::snp::lsquic {
 
   lsquic_stream_ctx_t *Engine::on_new_stream(void *void_self,
                                              lsquic_stream_t *ls_stream) {
-    SELF_FROM_VOID;
+    Engine *self = static_cast<Engine *>(void_self);
     auto *conn_ctx =
         from_ls<ConnCtx>(lsquic_conn_get_ctx(lsquic_stream_conn(ls_stream)));
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
@@ -559,14 +557,14 @@ namespace jam::snp::lsquic {
   }
 
   ssl_ctx_st *Engine::ea_get_ssl_ctx(void *void_self, const sockaddr *) {
-    SELF_FROM_VOID;
+    Engine *self = static_cast<Engine *>(void_self);
     return self->certificate_;
   }
 
   int Engine::ea_packets_out(void *void_self,
                              const lsquic_out_spec *out_spec,
                              unsigned n_packets_out) {
-    SELF_FROM_VOID;
+    Engine *self = static_cast<Engine *>(void_self);
     // https://github.com/cbodley/nexus/blob/d1d8486f713fd089917331239d755932c7c8ed8e/src/socket.cc#L218
     int r = 0;
     for (auto &spec : std::span{out_spec, n_packets_out}) {
