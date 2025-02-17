@@ -22,7 +22,7 @@ namespace jam::snp {
     friend lsquic::Engine;
 
    public:
-    using Self = std::shared_ptr<Connection>;
+    using SelfSPtr = std::shared_ptr<Connection>;
 
     Connection(IoContextPtr io_context_ptr,
                lsquic::ConnCtx *conn_ctx,
@@ -34,7 +34,7 @@ namespace jam::snp {
     /**
      * Open stream with specified `ProtocolId`.
      */
-    static StreamPtrCoroOutcome open(Self self, ProtocolId protocol_id);
+    static StreamPtrCoroOutcome open(SelfSPtr self, ProtocolId protocol_id);
 
    private:
     IoContextPtr io_context_ptr_;

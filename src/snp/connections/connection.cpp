@@ -32,7 +32,7 @@ namespace jam::snp {
     return info_;
   }
 
-  StreamPtrCoroOutcome Connection::open(Self self, ProtocolId protocol_id) {
+  StreamPtrCoroOutcome Connection::open(SelfSPtr self, ProtocolId protocol_id) {
     co_await setCoroThread(self->io_context_ptr_);
     co_return co_await Engine::openStream(self->conn_ctx_, protocol_id);
   }

@@ -37,7 +37,7 @@ namespace jam::snp {
   class Connections : public std::enable_shared_from_this<Connections>,
                       public lsquic::EngineController {
    public:
-    using Self = std::shared_ptr<Connections>;
+    using SelfSPtr = std::shared_ptr<Connections>;
 
     Connections(IoContextPtr io_context_ptr, ConnectionsConfig config);
 
@@ -46,21 +46,21 @@ namespace jam::snp {
      * Start quic server and client.
      */
     static CoroOutcome<void> init(
-        Self self, std::weak_ptr<ConnectionsController> controller);
+        SelfSPtr self, std::weak_ptr<ConnectionsController> controller);
 
     const Key &key() const;
 
     /**
      * Connect or return existing connection.
      */
-    static ConnectionPtrCoroOutcome connect(Self self, Address address);
+    static ConnectionPtrCoroOutcome connect(SelfSPtr self, Address address);
 
     using ServeProtocol =
         std::function<CoroOutcome<void>(ConnectionInfo, StreamPtr)>;
     /**
      * Set callback to handle protocol on server side.
      */
-    static Coro<void> serve(Self self,
+    static Coro<void> serve(SelfSPtr self,
                             ProtocolId protocol_id,
                             ServeProtocol serve);
 

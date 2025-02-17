@@ -89,7 +89,7 @@ namespace jam::snp::lsquic {
     struct Private {};
 
    public:
-    using Self = std::shared_ptr<Engine>;
+    using SelfSPtr = std::shared_ptr<Engine>;
 
     static outcome::result<std::shared_ptr<Engine>> make(
         IoContextPtr io_context_ptr,
@@ -106,7 +106,7 @@ namespace jam::snp::lsquic {
            std::weak_ptr<EngineController> controller);
     ~Engine();
 
-    static ConnectionPtrCoroOutcome connect(Self self, Address address);
+    static ConnectionPtrCoroOutcome connect(SelfSPtr self, Address address);
 
    private:
     struct Reading {

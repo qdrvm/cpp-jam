@@ -17,12 +17,12 @@ namespace jam {
   template <typename T>
   class SharedFuture {
    public:
-    using Self = std::shared_ptr<SharedFuture<T>>;
+    using SelfSPtr = std::shared_ptr<SharedFuture<T>>;
 
     SharedFuture(IoContextPtr io_context_ptr)
         : io_context_ptr_{std::move(io_context_ptr)} {}
 
-    static Coro<bool> ready(Self self) {
+    static Coro<bool> ready(SelfSPtr self) {
       co_await setCoroThread(self->io_context_ptr_);
       co_return std::holds_alternative<T>(self->state_);
     }
@@ -30,7 +30,7 @@ namespace jam {
     /**
      * Resumes coroutine immediately or inside `set`.
      */
-    static Coro<T> get(Self self) {
+    static Coro<T> get(SelfSPtr self) {
       co_await setCoroThread(self->io_context_ptr_);
       if (auto *value = std::get_if<T>(&self->state_)) {
         co_return *value;
@@ -45,7 +45,7 @@ namespace jam {
      * Set value and wake waiting coroutines.
      * Coroutines may complete before `set` returns.
      */
-    static Coro<void> set(Self self, T value) {
+    static Coro<void> set(SelfSPtr self, T value) {
       co_await setCoroThread(self->io_context_ptr_);
       if (std::holds_alternative<T>(self->state_)) {
         throw std::logic_error{"SharedFuture::set must be called once"};

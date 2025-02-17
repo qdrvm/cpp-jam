@@ -33,7 +33,7 @@ namespace jam::snp {
         key_{crypto::ed25519::get_public(config_.keypair)} {}
 
   CoroOutcome<void> Connections::init(
-      Self self, std::weak_ptr<ConnectionsController> controller) {
+      SelfSPtr self, std::weak_ptr<ConnectionsController> controller) {
     co_await setCoroThread(self->io_context_ptr_);
     auto init = self->init_.init();
     self->controller_ = std::move(controller);
@@ -60,7 +60,8 @@ namespace jam::snp {
     return key_;
   }
 
-  ConnectionPtrCoroOutcome Connections::connect(Self self, Address address) {
+  ConnectionPtrCoroOutcome Connections::connect(SelfSPtr self,
+                                                Address address) {
     co_await setCoroThread(self->io_context_ptr_);
     if (not co_await self->init_.ready()) {
       co_return ConnectionsError::CONNECTIONS_INIT;
@@ -98,7 +99,7 @@ namespace jam::snp {
     co_return co_await connecting->get(connecting);
   }
 
-  Coro<void> Connections::serve(Self self,
+  Coro<void> Connections::serve(SelfSPtr self,
                                 ProtocolId protocol_id,
                                 ServeProtocol serve) {
     co_await setCoroThread(self->io_context_ptr_);

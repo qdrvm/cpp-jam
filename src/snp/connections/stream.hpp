@@ -24,7 +24,7 @@ namespace jam::snp {
     friend lsquic::Engine;
 
    public:
-    using Self = std::shared_ptr<Stream>;
+    using SelfSPtr = std::shared_ptr<Stream>;
 
     Stream(IoContextPtr io_context_ptr,
            ConnectionPtr connection,
@@ -40,26 +40,26 @@ namespace jam::snp {
      * Returns `true` if message was read, or `false` if fin was received or
      * stream was closed.
      */
-    static CoroOutcome<bool> read(Self self,
+    static CoroOutcome<bool> read(SelfSPtr self,
                                   qtils::Bytes &buffer,
                                   MessageSize max);
 
     /**
      * Close reading side of stream.
      */
-    static Coro<void> readFin(Self self);
+    static Coro<void> readFin(SelfSPtr self);
 
     // https://github.com/zdave-parity/jam-np/blob/5d374b53578cdd93646e3ee19e2b19ea132317b8/simple.md?plain=1#L109-L111
     /**
      * Write while size prefixed message.
      */
-    static CoroOutcome<void> write(Self self, qtils::BytesIn message);
+    static CoroOutcome<void> write(SelfSPtr self, qtils::BytesIn message);
 
     /**
      * Write fin.
      * Closes writing side of stream.
      */
-    static Coro<void> writeFin(Self self);
+    static Coro<void> writeFin(SelfSPtr self);
 
    private:
     /**
