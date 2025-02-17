@@ -10,6 +10,8 @@
 #include <stdexcept>
 #include <variant>
 
+#include <TODO_qtils/variant_get.hpp>
+
 #include "coro/handler.hpp"
 #include "coro/set_thread.hpp"
 
@@ -32,7 +34,7 @@ namespace jam {
      */
     static Coro<T> get(SelfSPtr self) {
       co_await setCoroThread(self->io_context_ptr_);
-      if (auto *value = std::get_if<T>(&self->state_)) {
+      if (auto value = qtils::variantGet<T>(self->state_)) {
         co_return *value;
       }
       auto &handlers = std::get<Handlers>(self->state_);

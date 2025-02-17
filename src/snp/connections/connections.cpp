@@ -7,6 +7,7 @@
 #include "snp/connections/connections.hpp"
 
 #include <TODO_qtils/map_entry.hpp>
+#include <TODO_qtils/variant_get.hpp>
 #include <boost/outcome/try.hpp>
 
 #include "coro/set_thread.hpp"
@@ -91,7 +92,7 @@ namespace jam::snp {
         CORO_WEAK_AWAIT_V(
             self, connecting->set(connecting, std::move(connection_result)));
       });
-    } else if (auto *connected = std::get_if<Connected>(&*state)) {
+    } else if (auto connected = qtils::variantGet<Connected>(*state)) {
       co_return *connected;
     }
     auto connecting = std::get<Connecting>(*state);
