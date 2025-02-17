@@ -136,13 +136,13 @@ namespace jam::snp {
                protocol_id,
                stream{std::move(stream)},
                connection_info{connection->info()}]() mutable -> Coro<void> {
-                auto serve = qtils::entry(self->protocols_, protocol_id);
-                if (not serve) {
+                auto serve_it = qtils::entry(self->protocols_, protocol_id);
+                if (not serve_it) {
                   co_return;
                 }
-                auto copy = *serve;
+                auto serve = *serve_it;
                 std::ignore = CORO_WEAK_AWAIT(
-                    self, copy(connection_info, std::move(stream)));
+                    self, serve(connection_info, std::move(stream)));
               });
   }
 }  // namespace jam::snp
