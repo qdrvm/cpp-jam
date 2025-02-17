@@ -69,7 +69,8 @@ namespace jam::snp {
     }
     auto state = qtils::entry(self->connections_, address.key);
     if (not state) {
-      state.insert(MAKE_SHARED_T(Connecting, self->io_context_ptr_));
+      state.insert(
+          std::make_shared<Connecting::element_type>(self->io_context_ptr_));
       co_await coroSpawn([self, address, state]() mutable -> Coro<void> {
         CORO_YIELD;
         auto connection_result = CORO_WEAK_AWAIT(

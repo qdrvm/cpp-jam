@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <TODO_qtils/macro/make_shared.hpp>
-
 #include "coro/future.hpp"
 #include "coro/spawn.hpp"
 
@@ -44,7 +42,9 @@ namespace jam {
 
    public:
     CoroInit(IoContextPtr io_context_ptr)
-        : MOVE_(io_context_ptr), MAKE_SHARED_(future_, io_context_ptr_) {}
+        : MOVE_(io_context_ptr),
+          future_{std::make_shared<decltype(future_)::element_type>(
+              io_context_ptr_)} {}
 
     auto init() {
       if (init_called_) {

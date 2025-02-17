@@ -7,7 +7,6 @@
 #include "snp/connections/tls_certificate.hpp"
 
 #include <TODO_qtils/asio_buffer.hpp>
-#include <TODO_qtils/macro/make_shared.hpp>
 #include <boost/asio/ssl/context.hpp>
 
 #include "snp/connections/alpn.hpp"
@@ -26,8 +25,9 @@ namespace jam::snp {
   }
 
   TlsCertificate::TlsCertificate(const ConnectionsConfig &config)
-      : MAKE_SHARED_(alpn_, config.genesis),
-        MAKE_SHARED_(context_, Context::tlsv13) {}
+      : alpn_{std::make_shared<decltype(alpn_)::element_type>(config.genesis)},
+        context_{std::make_shared<decltype(context_)::element_type>(
+            Context::tlsv13)} {}
 
   outcome::result<TlsCertificate> TlsCertificate::make(
       const ConnectionsConfig &config) {
