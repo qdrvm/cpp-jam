@@ -347,17 +347,15 @@ namespace jam::snp::lsquic {
   }
 
   void Engine::streamReadFin(StreamCtx *stream_ctx) {
-    if (not stream_ctx->ls_stream) {
-      return;
+    if (stream_ctx->ls_stream) {
+      lsquic_stream_shutdown(stream_ctx->ls_stream.value(), SHUT_RD);
     }
-    lsquic_stream_shutdown(stream_ctx->ls_stream.value(), SHUT_RD);
   }
 
   void Engine::streamWriteFin(StreamCtx *stream_ctx) {
-    if (not stream_ctx->ls_stream) {
-      return;
+    if (stream_ctx->ls_stream) {
+      lsquic_stream_shutdown(stream_ctx->ls_stream.value(), SHUT_WR);
     }
-    lsquic_stream_shutdown(stream_ctx->ls_stream.value(), SHUT_WR);
   }
 
   CoroOutcome<bool> Engine::streamReadRaw(StreamCtx *stream_ctx,
