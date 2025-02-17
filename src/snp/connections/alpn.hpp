@@ -17,15 +17,27 @@ struct ssl_st;
 
 namespace jam::snp {
   // https://github.com/zdave-parity/jam-np/blob/5d374b53578cdd93646e3ee19e2b19ea132317b8/simple.md?plain=1#L30-L41
+  /**
+   * TLS ALPN (Application-Layer Protocol Negotiation) used by jam peers.
+   */
   class Alpn {
     static constexpr auto kVersion = 0;
 
    public:
+    /**
+     * Make ALPN from jam genesis hash.
+     */
     Alpn(const GenesisHash &genesis);
 
+    /**
+     * Set ALPN for `ssl_ctx`.
+     */
     outcome::result<void> set(ssl_ctx_st *ssl_ctx);
 
    private:
+    /**
+     * Validate peer ALPN.
+     */
     static int select(ssl_st *ssl,
                       const unsigned char **out,
                       unsigned char *outlen,
