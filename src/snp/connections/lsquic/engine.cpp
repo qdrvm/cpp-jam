@@ -6,7 +6,6 @@
 
 #include "snp/connections/lsquic/engine.hpp"
 
-#include <TODO_qtils/macro/move.hpp>
 #include <TODO_qtils/macro/weak.hpp>
 #include <boost/outcome/try.hpp>
 #include <qtils/option_take.hpp>
@@ -138,12 +137,12 @@ namespace jam::snp::lsquic {
                  Socket &&socket,
                  Socket::endpoint_type socket_local_endpoint,
                  std::weak_ptr<EngineController> controller)
-      : MOVE_(io_context_ptr),
-        MOVE_(connection_id_counter),
-        MOVE_(certificate),
-        MOVE_(socket),
-        MOVE_(socket_local_endpoint),
-        MOVE_(controller),
+      : io_context_ptr_{std::move(io_context_ptr)},
+        connection_id_counter_{std::move(connection_id_counter)},
+        certificate_{std::move(certificate)},
+        socket_{std::move(socket)},
+        socket_local_endpoint_{std::move(socket_local_endpoint)},
+        controller_{std::move(controller)},
         timer_{*io_context_ptr_} {}
 
   Engine::~Engine() {
@@ -322,7 +321,7 @@ namespace jam::snp::lsquic {
   void Engine::streamAccept(StreamPtr &&stream) {
     coroSpawn(*io_context_ptr_,
               [weak_controller{controller_},
-               MOVE(stream)]() mutable -> CoroOutcome<void> {
+               stream{std::move(stream)}]() mutable -> CoroOutcome<void> {
                 // stream not weak, because no other owners yet
                 BOOST_OUTCOME_CO_TRY(auto protocol_id,
                                      co_await stream->readProtocolId());

@@ -42,7 +42,7 @@ namespace jam {
 
    public:
     CoroInit(IoContextPtr io_context_ptr)
-        : MOVE_(io_context_ptr),
+        : io_context_ptr_{std::move(io_context_ptr)},
           future_{std::make_shared<decltype(future_)::element_type>(
               io_context_ptr_)} {}
 

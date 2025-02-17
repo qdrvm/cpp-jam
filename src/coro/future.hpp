@@ -10,8 +10,6 @@
 #include <stdexcept>
 #include <variant>
 
-#include <TODO_qtils/macro/move.hpp>
-
 #include "coro/handler.hpp"
 #include "coro/set_thread.hpp"
 
@@ -21,7 +19,8 @@ namespace jam {
    public:
     using Self = std::shared_ptr<SharedFuture<T>>;
 
-    SharedFuture(IoContextPtr io_context_ptr) : MOVE_(io_context_ptr) {}
+    SharedFuture(IoContextPtr io_context_ptr)
+        : io_context_ptr_{std::move(io_context_ptr)} {}
 
     static Coro<bool> ready(Self self) {
       SET_CORO_THREAD(self->io_context_ptr_);

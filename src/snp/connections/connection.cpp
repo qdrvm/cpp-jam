@@ -6,7 +6,6 @@
 
 #include "snp/connections/connection.hpp"
 
-#include <TODO_qtils/macro/move.hpp>
 #include <boost/asio/dispatch.hpp>
 
 #include "coro/set_thread.hpp"
@@ -19,7 +18,9 @@ namespace jam::snp {
   Connection::Connection(IoContextPtr io_context_ptr,
                          lsquic::ConnCtx *conn_ctx,
                          ConnectionInfo info)
-      : MOVE_(io_context_ptr), MOVE_(conn_ctx), MOVE_(info) {}
+      : io_context_ptr_{std::move(io_context_ptr)},
+        conn_ctx_{std::move(conn_ctx)},
+        info_{std::move(info)} {}
 
   Connection::~Connection() {
     boost::asio::dispatch(*io_context_ptr_, [conn_ctx{conn_ctx_}] {

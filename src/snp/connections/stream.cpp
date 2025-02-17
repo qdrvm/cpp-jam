@@ -6,7 +6,6 @@
 
 #include "snp/connections/stream.hpp"
 
-#include <TODO_qtils/macro/move.hpp>
 #include <boost/asio/dispatch.hpp>
 #include <boost/endian/conversion.hpp>
 #include <boost/outcome/try.hpp>
@@ -25,7 +24,9 @@ namespace jam::snp {
   Stream::Stream(IoContextPtr io_context_ptr,
                  ConnectionPtr connection,
                  lsquic::StreamCtx *stream_ctx)
-      : MOVE_(io_context_ptr), MOVE_(connection), MOVE_(stream_ctx) {}
+      : io_context_ptr_{std::move(io_context_ptr)},
+        connection_{std::move(connection)},
+        stream_ctx_{std::move(stream_ctx)} {}
 
   Stream::~Stream() {
     boost::asio::dispatch(*io_context_ptr_, [stream_ctx{stream_ctx_}] {

@@ -6,7 +6,6 @@
 
 #include "snp/connections/connections.hpp"
 
-#include <TODO_qtils/macro/move.hpp>
 #include <TODO_qtils/macro/weak.hpp>
 #include <TODO_qtils/map_entry.hpp>
 #include <boost/outcome/try.hpp>
@@ -29,9 +28,9 @@ namespace jam::snp {
 
   Connections::Connections(IoContextPtr io_context_ptr,
                            ConnectionsConfig config)
-      : MOVE_(io_context_ptr),
+      : io_context_ptr_{std::move(io_context_ptr)},
         init_{io_context_ptr_},
-        MOVE_(config),
+        config_{std::move(config)},
         key_{crypto::ed25519::get_public(config_.keypair)} {}
 
   CoroOutcome<void> Connections::init(
@@ -136,7 +135,7 @@ namespace jam::snp {
     coroSpawn(*io_context_ptr_,
               [self{shared_from_this()},
                protocol_id,
-               MOVE(stream),
+               stream{std::move(stream)},
                connection_info{connection->info()}]() mutable -> Coro<void> {
                 auto serve = qtils::entry(self->protocols_, protocol_id);
                 if (not serve) {

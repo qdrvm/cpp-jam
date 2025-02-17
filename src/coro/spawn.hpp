@@ -8,7 +8,6 @@
 
 #include <tuple>
 
-#include <TODO_qtils/macro/move.hpp>
 #include <boost/asio/co_spawn.hpp>
 
 #include "coro/coro.hpp"
@@ -27,7 +26,7 @@ namespace jam {
   template <typename T>
   void coroSpawn(auto &&executor, Coro<T> &&coro) {
     coroSpawn(std::forward<decltype(executor)>(executor),
-              [MOVE(coro)]() mutable -> Coro<void> {
+              [coro{std::move(coro)}]() mutable -> Coro<void> {
                 std::ignore = co_await std::move(coro);
               });
   }
