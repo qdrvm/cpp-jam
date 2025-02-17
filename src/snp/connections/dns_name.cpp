@@ -16,14 +16,13 @@ namespace jam::snp::base32 {
     template <typename Codec>
     using codec_impl = cppcodec::detail::stream_codec<Codec, Config>;
 
-    static CPPCODEC_ALWAYS_INLINE constexpr size_t alphabet_size() {
+    static constexpr size_t alphabet_size() {
       return 32;
     }
-    static CPPCODEC_ALWAYS_INLINE constexpr char symbol(
-        cppcodec::detail::alphabet_index_t idx) {
+    static constexpr char symbol(cppcodec::detail::alphabet_index_t idx) {
       return kAlphabet[idx];
     }
-    static CPPCODEC_ALWAYS_INLINE constexpr bool generates_padding() {
+    static constexpr bool generates_padding() {
       return false;
     }
   };
