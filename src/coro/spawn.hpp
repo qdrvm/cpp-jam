@@ -8,7 +8,6 @@
 
 #include <tuple>
 
-#include <TODO_qtils/macro/forward.hpp>
 #include <TODO_qtils/macro/move.hpp>
 #include <boost/asio/co_spawn.hpp>
 
@@ -16,19 +15,21 @@
 
 namespace jam {
   void coroSpawn(auto &&executor, Coro<void> &&coro) {
-    boost::asio::co_spawn(
-        FORWARD(executor), std::move(coro), [](std::exception_ptr e) {
-          if (e != nullptr) {
-            std::rethrow_exception(e);
-          }
-        });
+    boost::asio::co_spawn(std::forward<decltype(executor)>(executor),
+                          std::move(coro),
+                          [](std::exception_ptr e) {
+                            if (e != nullptr) {
+                              std::rethrow_exception(e);
+                            }
+                          });
   }
 
   template <typename T>
   void coroSpawn(auto &&executor, Coro<T> &&coro) {
-    coroSpawn(FORWARD(executor), [MOVE(coro)]() mutable -> Coro<void> {
-      std::ignore = co_await std::move(coro);
-    });
+    coroSpawn(std::forward<decltype(executor)>(executor),
+              [MOVE(coro)]() mutable -> Coro<void> {
+                std::ignore = co_await std::move(coro);
+              });
   }
 
   /**
@@ -42,13 +43,14 @@ namespace jam {
    * works because arguments are stored in coroutine state.
    */
   void coroSpawn(auto &&executor, auto f) {
-    coroSpawn(FORWARD(executor), [](decltype(f) f) -> Coro<void> {
-      if constexpr (std::is_void_v<decltype(f().await_resume())>) {
-        co_await f();
-      } else {
-        std::ignore = co_await f();
-      }
-    }(std::move(f)));
+    coroSpawn(std::forward<decltype(executor)>(executor),
+              [](decltype(f) f) -> Coro<void> {
+                if constexpr (std::is_void_v<decltype(f().await_resume())>) {
+                  co_await f();
+                } else {
+                  std::ignore = co_await f();
+                }
+              }(std::move(f)));
   }
 
   /**
