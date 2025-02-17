@@ -37,7 +37,7 @@ namespace jam::snp {
   CoroOutcome<bool> Stream::read(Self self,
                                  qtils::Bytes &buffer,
                                  MessageSize max) {
-    SET_CORO_THREAD(self->io_context_ptr_);
+    co_await setCoroThread(self->io_context_ptr_);
     MessageSizeBytes size_bytes;
     BOOST_OUTCOME_CO_TRY(
         auto read_size,
@@ -64,13 +64,13 @@ namespace jam::snp {
   }
 
   Coro<void> Stream::readFin(Self self) {
-    SET_CORO_THREAD(self->io_context_ptr_);
+    co_await setCoroThread(self->io_context_ptr_);
     Engine::streamReadFin(self->stream_ctx_);
     co_return;
   }
 
   CoroOutcome<void> Stream::write(Self self, qtils::BytesIn message) {
-    SET_CORO_THREAD(self->io_context_ptr_);
+    co_await setCoroThread(self->io_context_ptr_);
     MessageSizeBytes size_bytes;
     auto size = message.size();
     if (size > kMessageSizeMax) {
@@ -89,7 +89,7 @@ namespace jam::snp {
   }
 
   Coro<void> Stream::writeFin(Self self) {
-    SET_CORO_THREAD(self->io_context_ptr_);
+    co_await setCoroThread(self->io_context_ptr_);
     Engine::streamWriteFin(self->stream_ctx_);
     co_return;
   }

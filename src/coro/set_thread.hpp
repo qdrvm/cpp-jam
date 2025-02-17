@@ -10,11 +10,13 @@
 #include <boost/asio/post.hpp>
 #include <boost/asio/use_awaitable.hpp>
 
+#include "coro/coro.hpp"
 #include "coro/io_context_ptr.hpp"
 
-#define SET_CORO_THREAD(io_context_ptr)                                        \
-  ({                                                                           \
-    if (not io_context_ptr->get_executor().running_in_this_thread()) {         \
-      co_await boost::asio::post(*io_context_ptr, boost::asio::use_awaitable); \
-    }                                                                          \
-  })
+namespace jam {
+  inline Coro<void> setCoroThread(IoContextPtr io_context_ptr) {
+    if (not io_context_ptr->get_executor().running_in_this_thread()) {
+      co_await boost::asio::post(*io_context_ptr, boost::asio::use_awaitable);
+    }
+  }
+}  // namespace jam

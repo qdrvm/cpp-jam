@@ -23,7 +23,7 @@ namespace jam {
         : io_context_ptr_{std::move(io_context_ptr)} {}
 
     static Coro<bool> ready(Self self) {
-      SET_CORO_THREAD(self->io_context_ptr_);
+      co_await setCoroThread(self->io_context_ptr_);
       co_return std::holds_alternative<T>(self->state_);
     }
 
@@ -31,7 +31,7 @@ namespace jam {
      * Resumes coroutine immediately or inside `set`.
      */
     static Coro<T> get(Self self) {
-      SET_CORO_THREAD(self->io_context_ptr_);
+      co_await setCoroThread(self->io_context_ptr_);
       if (auto *value = std::get_if<T>(&self->state_)) {
         co_return *value;
       }
@@ -46,7 +46,7 @@ namespace jam {
      * Coroutines may complete before `set` returns.
      */
     static Coro<void> set(Self self, T value) {
-      SET_CORO_THREAD(self->io_context_ptr_);
+      co_await setCoroThread(self->io_context_ptr_);
       if (std::holds_alternative<T>(self->state_)) {
         throw std::logic_error{"SharedFuture::set must be called once"};
       }

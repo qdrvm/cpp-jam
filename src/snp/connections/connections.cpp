@@ -34,7 +34,7 @@ namespace jam::snp {
 
   CoroOutcome<void> Connections::init(
       Self self, std::weak_ptr<ConnectionsController> controller) {
-    SET_CORO_THREAD(self->io_context_ptr_);
+    co_await setCoroThread(self->io_context_ptr_);
     auto init = self->init_.init();
     self->controller_ = std::move(controller);
     BOOST_OUTCOME_CO_TRY(auto certificate, TlsCertificate::make(self->config_));
@@ -61,7 +61,7 @@ namespace jam::snp {
   }
 
   ConnectionPtrCoroOutcome Connections::connect(Self self, Address address) {
-    SET_CORO_THREAD(self->io_context_ptr_);
+    co_await setCoroThread(self->io_context_ptr_);
     if (not co_await self->init_.ready()) {
       co_return ConnectionsError::CONNECTIONS_INIT;
     }
@@ -101,7 +101,7 @@ namespace jam::snp {
   Coro<void> Connections::serve(Self self,
                                 ProtocolId protocol_id,
                                 ServeProtocol serve) {
-    SET_CORO_THREAD(self->io_context_ptr_);
+    co_await setCoroThread(self->io_context_ptr_);
     qtils::entry(self->protocols_, protocol_id).insert(std::move(serve));
   }
 

@@ -157,7 +157,7 @@ namespace jam::snp::lsquic {
   }
 
   ConnectionPtrCoroOutcome Engine::connect(Self self, Address address) {
-    SET_CORO_THREAD(self->io_context_ptr_);
+    co_await setCoroThread(self->io_context_ptr_);
     if (self->connecting_) {
       co_return ConnectionsError::ENGINE_CONNECT_ALREADY;
     }
