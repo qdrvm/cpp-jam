@@ -10,13 +10,22 @@
 #include <lsquic.h>
 
 namespace jam::snp::lsquic {
-  inline void log() {
+  /**
+   * Enable lsquic log.
+   *
+   * Possible levels: "emerg", "alert", "crit", "error", "warn", "notice",
+   * "info", "debug".
+   */
+  inline void log(const char *level = "debug") {
     static lsquic_logger_if log{
         +[](void *, const char *buf, size_t len) {
           return (int)fwrite(buf, sizeof(char), len, stdout);
         },
     };
-    lsquic_logger_init(&log, nullptr, LLTS_HHMMSSMS);
-    lsquic_set_log_level("debug");
+    static auto init = [] {
+      lsquic_logger_init(&log, nullptr, LLTS_HHMMSSMS);
+      return 0;
+    }();
+    lsquic_set_log_level(level);
   }
 }  // namespace jam::snp::lsquic
