@@ -35,6 +35,11 @@ namespace jam::snp {
       return id_;
     }
 
+    // https://github.com/zdave-parity/jam-np/blob/5d374b53578cdd93646e3ee19e2b19ea132317b8/simple.md?plain=1#L87-L101
+    /**
+     * Unique protocols reuse one stream per peer.
+     * Ephemeral protocols may create multiple streams.
+     */
     bool unique() const {
       return id() < 128;
     }
