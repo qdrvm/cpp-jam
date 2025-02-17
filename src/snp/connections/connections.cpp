@@ -6,7 +6,6 @@
 
 #include "snp/connections/connections.hpp"
 
-#include <TODO_qtils/macro/weak.hpp>
 #include <TODO_qtils/map_entry.hpp>
 #include <boost/outcome/try.hpp>
 

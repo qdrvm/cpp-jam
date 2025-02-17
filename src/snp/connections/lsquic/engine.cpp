@@ -6,7 +6,6 @@
 
 #include "snp/connections/lsquic/engine.hpp"
 
-#include <TODO_qtils/macro/weak.hpp>
 #include <boost/outcome/try.hpp>
 #include <qtils/option_take.hpp>
 
@@ -123,7 +122,10 @@ namespace jam::snp::lsquic {
     }
 
     io_context_ptr->post([weak_self{std::weak_ptr{self}}] {
-      WEAK_LOCK(self);
+      auto self = weak_self.lock();
+      if (not self) {
+        return;
+      }
       self->readLoop();
     });
 
@@ -202,8 +204,11 @@ namespace jam::snp::lsquic {
       return;
     }
     want_process_ = true;
-    boost::asio::post(*io_context_ptr_, [WEAK_SELF] {
-      WEAK_LOCK(self);
+    boost::asio::post(*io_context_ptr_, [weak_self{weak_from_this()}] {
+      auto self = weak_self.lock();
+      if (not self) {
+        return;
+      }
       self->process();
     });
   }
@@ -231,8 +236,11 @@ namespace jam::snp::lsquic {
       return;
     }
     timer_.expires_after(std::chrono::microseconds{us});
-    auto cb = [WEAK_SELF](boost::system::error_code ec) {
-      WEAK_LOCK(self);
+    auto cb = [weak_self{weak_from_this()}](boost::system::error_code ec) {
+      auto self = weak_self.lock();
+      if (not self) {
+        return;
+      }
       if (ec) {
         return;
       }
@@ -253,13 +261,17 @@ namespace jam::snp::lsquic {
                         &len);
       if (n == -1) {
         if (errno == EAGAIN or errno == EWOULDBLOCK) {
-          auto cb = [WEAK_SELF](boost::system::error_code ec) {
-            WEAK_LOCK(self);
-            if (ec) {
-              return;
-            }
-            self->readLoop();
-          };
+          auto cb =
+              [weak_self{weak_from_this()}](boost::system::error_code ec) {
+                auto self = weak_self.lock();
+                if (not self) {
+                  return;
+                }
+                if (ec) {
+                  return;
+                }
+                self->readLoop();
+              };
           socket_.async_wait(boost::asio::socket_base::wait_read,
                              std::move(cb));
         }
@@ -573,7 +585,10 @@ namespace jam::snp::lsquic {
         if (errno == EAGAIN or errno == EWOULDBLOCK) {
           auto cb = [weak_self{self->weak_from_this()}](
                         boost::system::error_code ec) {
-            WEAK_LOCK(self);
+            auto self = weak_self.lock();
+            if (not self) {
+              return;
+            }
             if (ec) {
               return;
             }
