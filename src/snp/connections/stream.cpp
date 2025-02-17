@@ -19,7 +19,7 @@ namespace jam::snp {
   using lsquic::Engine;
 
   using ProtocolIdBytes = qtils::BytesN<1>;
-  using MessageSizeBytes = qtils::BytesN<4>;
+  using MessageSizeBytes = qtils::BytesN<sizeof(MessageSize)>;
 
   Stream::Stream(IoContextPtr io_context_ptr,
                  ConnectionPtr connection,
