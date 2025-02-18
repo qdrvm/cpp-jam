@@ -8,14 +8,31 @@
 
 #include "coro/coro.hpp"
 
+/**
+ * Converts shared pointer to weak pointer for `co_await` duration.
+ * Shared pointer owner can cancel operation by destroying shared pointer.
+ * Checks that state wasn't destroyed during `co_await` before continuing.
+ *   auto cb2 = [cb, tmp_weak = std::weak_ptr{shared}, ...](auto r) {
+ *     auto shared = tmp_weak.lock();
+ *     if (not shared) {
+ *       return cb(...);
+ *     }
+ *     ...
+ *     cb();
+ *   };
+ */
 #define _CORO_WEAK_AWAIT(tmp_weak, tmp_coro, auto_r, r, shared, coro, ...) \
   ({                                                                       \
     auto tmp_weak = std::weak_ptr{shared};                                 \
+    /* coroutine constructor may need `shared` alive */                    \
     auto tmp_coro = (coro);                                                \
+    /* reset `shared` after coroutine is constructed */                    \
     shared.reset();                                                        \
     auto_r co_await std::move(tmp_coro);                                   \
     shared = tmp_weak.lock();                                              \
-    if (not shared) co_return __VA_ARGS__;                                 \
+    if (not shared) {                                                      \
+      co_return __VA_ARGS__;                                               \
+    }                                                                      \
     r                                                                      \
   })
 #define CORO_WEAK_AWAIT(shared, coro, ...)                                   \
