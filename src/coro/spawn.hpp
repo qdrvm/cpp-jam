@@ -41,15 +41,15 @@ namespace jam {
    * `co_spawn([](args){ ... }(capture))`
    * works because arguments are stored in coroutine state.
    */
-  void coroSpawn(auto &&executor, auto f) {
+  void coroSpawn(auto &&executor, auto &&f) {
     coroSpawn(std::forward<decltype(executor)>(executor),
-              [](decltype(f) f) -> Coro<void> {
+              [](std::remove_cvref_t<decltype(f)> f) -> Coro<void> {
                 if constexpr (std::is_void_v<decltype(f().await_resume())>) {
                   co_await f();
                 } else {
                   std::ignore = co_await f();
                 }
-              }(std::move(f)));
+              }(std::forward<decltype(f)>(f)));
   }
 
   /**
