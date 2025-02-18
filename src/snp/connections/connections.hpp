@@ -81,7 +81,7 @@ namespace jam::snp {
     Key key_;
     std::weak_ptr<ConnectionsController> controller_;
     std::shared_ptr<lsquic::Engine> client_;
-    std::optional<std::shared_ptr<lsquic::Engine>> server_;
+    qtils::Optional<std::shared_ptr<lsquic::Engine>> server_;
     std::unordered_map<Key,
                        std::variant<Connecting, Connected>,
                        qtils::BytesStdHash>

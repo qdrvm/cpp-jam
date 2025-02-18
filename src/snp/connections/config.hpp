@@ -15,6 +15,6 @@ namespace jam::snp {
     // https://github.com/zdave-parity/jam-np/blob/5d374b53578cdd93646e3ee19e2b19ea132317b8/simple.md?plain=1#L30-L35
     GenesisHash genesis;
     crypto::ed25519::KeyPair keypair;
-    std::optional<Port> listen_port;
+    qtils::Optional<Port> listen_port;
   };
 }  // namespace jam::snp

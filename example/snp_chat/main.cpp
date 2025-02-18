@@ -107,7 +107,7 @@ struct ChatController : ConnectionsController {
     fmt::println("#{} > {}", i_msg, msg);
   }
 
-  Coro<void> broadcast(std::optional<size_t> i_read,
+  Coro<void> broadcast(qtils::Optional<size_t> i_read,
                        size_t i_msg,
                        std::string msg) {
     for (auto &[i_write, writer] : writers) {
@@ -152,7 +152,7 @@ struct ChatController : ConnectionsController {
 struct Input {
   Input(IoContextPtr io_context_ptr) : fd_{*io_context_ptr, STDIN_FILENO} {}
 
-  Coro<std::optional<std::string>> read() {
+  Coro<qtils::Optional<std::string>> read() {
     auto [ec, n] = co_await boost::asio::async_read_until(
         fd_, buf_, "\n", boost::asio::as_tuple(boost::asio::use_awaitable));
     if (ec) {
@@ -175,7 +175,7 @@ struct Input {
 CoroOutcome<void> co_main(IoContextPtr io_context_ptr, size_t arg_i) {
   fmt::println("#{} (self)", arg_i);
 
-  std::optional<Port> listen_port;
+  qtils::Optional<Port> listen_port;
   GenesisHash genesis;
   ConnectionsConfig config{genesis, keys.at(arg_i)};
   auto is_server = arg_i == 0;
@@ -189,7 +189,7 @@ CoroOutcome<void> co_main(IoContextPtr io_context_ptr, size_t arg_i) {
     Input input{io_context_ptr};
     while (true) {
       auto msg = co_await input.read();
-      if (not msg) {
+      if (not msg.has_value()) {
         break;
       }
       msg->resize(std::min(msg->size(), ChatController::kMaxMsg));
@@ -216,10 +216,9 @@ CoroOutcome<void> co_main(IoContextPtr io_context_ptr, size_t arg_i) {
         [chat](ConnectionInfo info, StreamPtr stream) -> CoroOutcome<void> {
           co_return co_await chat->add(info, stream);
         });
-    std::optional<CoroHandler<void>> work_guard;
-    co_await coroHandler<void>([&](CoroHandler<void> &&handler) {
-      work_guard.emplace(std::move(handler));
-    });
+    qtils::Optional<CoroHandler<void>> work_guard;
+    co_await coroHandler<void>(
+        [&](CoroHandler<void> &&handler) { work_guard = std::move(handler); });
   }
   co_return outcome::success();
 }

@@ -45,7 +45,7 @@ namespace jam::snp {
                                               certificate,
                                               std::nullopt,
                                               self));
-    if (self->config_.listen_port) {
+    if (self->config_.listen_port.has_value()) {
       BOOST_OUTCOME_CO_TRY(self->server_,
                            lsquic::Engine::make(self->io_context_ptr_,
                                                 self->connection_id_counter_,
