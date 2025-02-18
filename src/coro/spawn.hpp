@@ -13,7 +13,13 @@
 #include "coro/coro.hpp"
 
 namespace jam {
-  void coroSpawn(auto &&executor, Coro<void> &&coro) {
+  template <typename T>
+  concept CoroSpawnExecutor =
+      boost::asio::is_executor<T>::value
+      || boost::asio::execution::is_executor<T>::value
+      || std::is_convertible_v<T, boost::asio::execution_context &>;
+
+  void coroSpawn(CoroSpawnExecutor auto &&executor, Coro<void> &&coro) {
     boost::asio::co_spawn(std::forward<decltype(executor)>(executor),
                           std::move(coro),
                           [](std::exception_ptr e) {
@@ -24,7 +30,7 @@ namespace jam {
   }
 
   template <typename T>
-  void coroSpawn(auto &&executor, Coro<T> &&coro) {
+  void coroSpawn(CoroSpawnExecutor auto &&executor, Coro<T> &&coro) {
     coroSpawn(std::forward<decltype(executor)>(executor),
               [coro{std::move(coro)}]() mutable -> Coro<void> {
                 std::ignore = co_await std::move(coro);
@@ -41,7 +47,7 @@ namespace jam {
    * `co_spawn([](args){ ... }(capture))`
    * works because arguments are stored in coroutine state.
    */
-  void coroSpawn(auto &&executor, auto &&f) {
+  void coroSpawn(CoroSpawnExecutor auto &&executor, auto &&f) {
     coroSpawn(std::forward<decltype(executor)>(executor),
               [](std::remove_cvref_t<decltype(f)> f) -> Coro<void> {
                 if constexpr (std::is_void_v<decltype(f().await_resume())>) {
