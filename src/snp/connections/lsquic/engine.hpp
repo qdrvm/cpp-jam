@@ -9,7 +9,6 @@
 #include <deque>
 #include <lsquic.h>
 
-#include <TODO_qtils/optional.hpp>
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/steady_timer.hpp>
 
@@ -54,11 +53,11 @@ namespace jam::snp::lsquic {
     using Ls = lsquic_conn_ctx_t;
 
     std::weak_ptr<Engine> engine;
-    qtils::Optional<lsquic_conn_t *> ls_conn;
-    qtils::Optional<std::weak_ptr<Connection>> connection;
-    qtils::Optional<Connecting> connecting;
-    qtils::Optional<ConnectionInfo> info;
-    qtils::Optional<StreamPtr> open_stream;
+    std::optional<lsquic_conn_t *> ls_conn;
+    std::optional<std::weak_ptr<Connection>> connection;
+    std::optional<Connecting> connecting;
+    std::optional<ConnectionInfo> info;
+    std::optional<StreamPtr> open_stream;
 
     bool canDelete() const {
       return not ls_conn.has_value() and not connection.has_value();
@@ -72,10 +71,10 @@ namespace jam::snp::lsquic {
     using Ls = lsquic_stream_ctx_t;
 
     std::weak_ptr<Engine> engine;
-    qtils::Optional<lsquic_stream_t *> ls_stream;
-    qtils::Optional<std::weak_ptr<Stream>> stream;
-    qtils::Optional<CoroHandler<void>> reading;
-    qtils::Optional<CoroHandler<void>> writing;
+    std::optional<lsquic_stream_t *> ls_stream;
+    std::optional<std::weak_ptr<Stream>> stream;
+    std::optional<CoroHandler<void>> reading;
+    std::optional<CoroHandler<void>> writing;
     bool want_flush = false;
 
     bool canDelete() const {
@@ -96,7 +95,7 @@ namespace jam::snp::lsquic {
         IoContextPtr io_context_ptr,
         ConnectionIdCounter connection_id_counter,
         TlsCertificate certificate,
-        qtils::Optional<Port> listen_port,
+        std::optional<Port> listen_port,
         std::weak_ptr<EngineController> controller);
     Engine(Private,
            IoContextPtr io_context_ptr,
@@ -191,7 +190,7 @@ namespace jam::snp::lsquic {
     boost::asio::steady_timer timer_;
     lsquic_engine_t *engine_ = nullptr;
     Reading reading_;
-    qtils::Optional<Connecting> connecting_;
+    std::optional<Connecting> connecting_;
     std::deque<std::weak_ptr<Stream>> want_flush_;
     bool want_process_ = false;
   };

@@ -10,7 +10,6 @@
 #include <optional>
 #include <stdexcept>
 
-#include <TODO_qtils/optional.hpp>
 #include <qtils/bytes.hpp>
 
 namespace qtils {
@@ -23,7 +22,7 @@ namespace qtils {
   }
 
   template <typename T>
-  Optional<T> fromSpan(BytesIn span) {
+  std::optional<T> fromSpan(BytesIn span) {
     T out;
     if (not fromSpan(out, span)) {
       return std::nullopt;

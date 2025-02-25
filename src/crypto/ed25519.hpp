@@ -47,12 +47,14 @@ namespace jam::crypto::ed25519 {
   }
 
   inline Public get_public(const KeyPair &keypair) {
-    return *qtils::fromSpan<Public>(
-        std::span{keypair}.subspan(ED25519_SECRET_KEY_LENGTH));
+    return qtils::fromSpan<Public>(
+               std::span{keypair}.subspan(ED25519_SECRET_KEY_LENGTH))
+        .value();
   }
 
   inline Public get_secret(const KeyPair &keypair) {
-    return *qtils::fromSpan<Secret>(
-        std::span{keypair}.first(ED25519_SECRET_KEY_LENGTH));
+    return qtils::fromSpan<Secret>(
+               std::span{keypair}.first(ED25519_SECRET_KEY_LENGTH))
+        .value();
   }
 }  // namespace jam::crypto::ed25519

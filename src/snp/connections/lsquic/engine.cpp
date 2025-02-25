@@ -53,7 +53,7 @@ namespace jam::snp::lsquic {
       IoContextPtr io_context_ptr,
       ConnectionIdCounter connection_id_counter,
       TlsCertificate certificate,
-      qtils::Optional<Port> listen_port,
+      std::optional<Port> listen_port,
       std::weak_ptr<EngineController> controller) {
     OUTCOME_TRY(init());
 
@@ -91,7 +91,7 @@ namespace jam::snp::lsquic {
     }
     if (listen_port.has_value()) {
       auto ip = boost::asio::ip::address_v6::any();
-      socket.bind({ip, *listen_port}, ec);
+      socket.bind({ip, listen_port.value()}, ec);
       if (ec) {
         return ec;
       }
@@ -161,10 +161,10 @@ namespace jam::snp::lsquic {
     }
     co_return co_await coroHandler<ConnectionPtrOutcome>(
         [&](CoroHandler<ConnectionPtrOutcome> &&handler) {
-          self->connecting_ = Connecting{
+          self->connecting_.emplace(Connecting{
               .address = address,
               .handler = std::move(handler),
-          };
+          });
           // will call `Engine::ea_get_ssl_ctx`, `Engine::on_new_conn`.
           lsquic_engine_connect(self->engine_,
                                 N_LSQVER,
@@ -178,8 +178,7 @@ namespace jam::snp::lsquic {
                                 0,
                                 nullptr,
                                 0);
-          if (auto connecting = self->connecting_.take();
-              connecting.has_value()) {
+          if (auto connecting = qtils::optionTake(self->connecting_)) {
             connecting->handler(LsQuicError::lsquic_engine_connect);
           }
           self->wantProcess();
@@ -194,7 +193,7 @@ namespace jam::snp::lsquic {
     if (not stream_ctx->stream.has_value()) {
       return;
     }
-    want_flush_.emplace_back(*stream_ctx->stream);
+    want_flush_.emplace_back(stream_ctx->stream.value());
     wantProcess();
   }
 
@@ -224,7 +223,7 @@ namespace jam::snp::lsquic {
         continue;
       }
       stream->stream_ctx_->want_flush = false;
-      lsquic_stream_flush(*stream->stream_ctx_->ls_stream);
+      lsquic_stream_flush(stream->stream_ctx_->ls_stream.value());
     }
     // will call `Engine::on_new_conn`, `Engine::on_conn_closed`,
     // `Engine::on_new_stream`, `Engine::on_close`, `Engine::on_read`,
@@ -289,9 +288,9 @@ namespace jam::snp::lsquic {
   }
 
   void Engine::destroyConnection(ConnCtx *conn_ctx) {
-    conn_ctx->connection.take();
+    conn_ctx->connection.reset();
     if (conn_ctx->ls_conn.has_value()) {
-      lsquic_conn_close(*conn_ctx->ls_conn);
+      lsquic_conn_close(conn_ctx->ls_conn.value());
     } else {
       tryDelete(conn_ctx);
     }
@@ -299,19 +298,19 @@ namespace jam::snp::lsquic {
 
   StreamPtrCoroOutcome Engine::openStream(ConnCtx *conn_ctx,
                                           ProtocolId protocol_id) {
-    if (not conn_ctx->ls_conn.has_value()) {
+    if (not conn_ctx->ls_conn) {
       co_return ConnectionsError::CONNECTION_OPEN_CLOSED;
     }
-    if (conn_ctx->open_stream.has_value()) {
+    if (conn_ctx->open_stream) {
       co_return ConnectionsError::ENGINE_OPEN_STREAM_ALREADY;
     }
-    if (lsquic_conn_n_avail_streams(*conn_ctx->ls_conn) == 0) {
+    if (lsquic_conn_n_avail_streams(conn_ctx->ls_conn.value()) == 0) {
       co_return ConnectionsError::ENGINE_OPEN_STREAM_TOO_MANY;
     }
     conn_ctx->open_stream = nullptr;
     // will call `Engine::on_new_stream`.
-    lsquic_conn_make_stream(*conn_ctx->ls_conn);
-    auto stream = *conn_ctx->open_stream.take();
+    lsquic_conn_make_stream(conn_ctx->ls_conn.value());
+    auto stream = qtils::optionTake(conn_ctx->open_stream).value();
     if (stream == nullptr) {
       co_return LsQuicError::lsquic_conn_make_stream;
     }
@@ -321,9 +320,9 @@ namespace jam::snp::lsquic {
   }
 
   void Engine::destroyStream(StreamCtx *stream_ctx) {
-    stream_ctx->stream.take();
+    stream_ctx->stream.reset();
     if (stream_ctx->ls_stream.has_value()) {
-      lsquic_stream_close(*stream_ctx->ls_stream);
+      lsquic_stream_close(stream_ctx->ls_stream.value());
     } else {
       tryDelete(stream_ctx);
     }
@@ -347,13 +346,13 @@ namespace jam::snp::lsquic {
 
   void Engine::streamReadFin(StreamCtx *stream_ctx) {
     if (stream_ctx->ls_stream.has_value()) {
-      lsquic_stream_shutdown(*stream_ctx->ls_stream, SHUT_RD);
+      lsquic_stream_shutdown(stream_ctx->ls_stream.value(), SHUT_RD);
     }
   }
 
   void Engine::streamWriteFin(StreamCtx *stream_ctx) {
     if (stream_ctx->ls_stream.has_value()) {
-      lsquic_stream_shutdown(*stream_ctx->ls_stream, SHUT_WR);
+      lsquic_stream_shutdown(stream_ctx->ls_stream.value(), SHUT_WR);
     }
   }
 
@@ -368,7 +367,7 @@ namespace jam::snp::lsquic {
         co_return ConnectionsError::STREAM_READ_CLOSED;
       }
       auto n = lsquic_stream_read(
-          *stream_ctx->ls_stream, remaining.data(), remaining.size());
+          stream_ctx->ls_stream.value(), remaining.data(), remaining.size());
       if (n == 0) {
         if (remaining.size() == message.size()) {
           co_return false;
@@ -381,8 +380,8 @@ namespace jam::snp::lsquic {
           co_return ConnectionsError::STREAM_READ_CLOSED;
         }
         co_await coroHandler<void>([&](CoroHandler<void> &&handler) {
-          stream_ctx->reading = std::move(handler);
-          lsquic_stream_wantread(*stream_ctx->ls_stream, 1);
+          stream_ctx->reading.emplace(std::move(handler));
+          lsquic_stream_wantread(stream_ctx->ls_stream.value(), 1);
         });
         continue;
       }
@@ -402,7 +401,7 @@ namespace jam::snp::lsquic {
         co_return ConnectionsError::STREAM_WRITE_CLOSED;
       }
       auto n = lsquic_stream_write(
-          *stream_ctx->ls_stream, remaining.data(), remaining.size());
+          stream_ctx->ls_stream.value(), remaining.data(), remaining.size());
       if (n < 0) {
         co_return ConnectionsError::STREAM_WRITE_CLOSED;
       }
@@ -418,8 +417,8 @@ namespace jam::snp::lsquic {
         break;
       }
       co_await coroHandler<void>([&](CoroHandler<void> &&handler) {
-        stream_ctx->writing = std::move(handler);
-        lsquic_stream_wantwrite(*stream_ctx->ls_stream, 1);
+        stream_ctx->writing.emplace(std::move(handler));
+        lsquic_stream_wantwrite(stream_ctx->ls_stream.value(), 1);
       });
     }
     co_return outcome::success();
@@ -428,7 +427,7 @@ namespace jam::snp::lsquic {
   lsquic_conn_ctx_t *Engine::on_new_conn(void *void_self,
                                          lsquic_conn_t *ls_conn) {
     Engine *self = static_cast<Engine *>(void_self);
-    auto connecting = self->connecting_.take();
+    auto connecting = qtils::optionTake(self->connecting_);
     auto is_connecting = connecting.has_value();
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     auto *conn_ctx = new ConnCtx{
@@ -447,13 +446,13 @@ namespace jam::snp::lsquic {
 
   void Engine::on_conn_closed(lsquic_conn_t *ls_conn) {
     auto *conn_ctx = from_ls<ConnCtx>(lsquic_conn_get_ctx(ls_conn));
-    conn_ctx->ls_conn.take();
+    conn_ctx->ls_conn.reset();
     lsquic_conn_set_ctx(ls_conn, nullptr);
-    if (auto connecting = conn_ctx->connecting.take(); connecting.has_value()) {
+    if (auto connecting = qtils::optionTake(conn_ctx->connecting)) {
       connecting->handler(ConnectionsError::ENGINE_CONNECT_CLOSED);
     } else if (auto self = conn_ctx->engine.lock()) {
       if (auto controller = self->controller_.lock()) {
-        controller->onConnectionClose(*conn_ctx->info);
+        controller->onConnectionClose(conn_ctx->info.value());
       }
     }
     tryDelete(conn_ctx);
@@ -466,7 +465,7 @@ namespace jam::snp::lsquic {
       return;
     }
     auto ok = status == LSQ_HSK_OK or status == LSQ_HSK_RESUMED_OK;
-    auto connecting = conn_ctx->connecting.take();
+    auto connecting = qtils::optionTake(conn_ctx->connecting);
     auto connection_result = [&]() -> ConnectionPtrOutcome {
       if (not ok) {
         return ConnectionsError::HANDSHAKE_FAILED;
@@ -480,7 +479,7 @@ namespace jam::snp::lsquic {
           .key = key,
       };
       auto connection = std::make_shared<Connection>(
-          self->io_context_ptr_, conn_ctx, *conn_ctx->info);
+          self->io_context_ptr_, conn_ctx, conn_ctx->info.value());
       conn_ctx->connection = connection;
       return connection;
     }();
@@ -516,7 +515,7 @@ namespace jam::snp::lsquic {
           self->io_context_ptr_, connection, stream_ctx);
       stream_ctx->stream = stream;
       if (conn_ctx->open_stream.has_value()) {
-        conn_ctx->open_stream = stream;
+        conn_ctx->open_stream.value() = stream;
       } else {
         self->streamAccept(std::move(stream));
       }
@@ -529,12 +528,12 @@ namespace jam::snp::lsquic {
   void Engine::on_close(lsquic_stream_t *ls_stream,
                         lsquic_stream_ctx_t *ls_stream_ctx) {
     auto *stream_ctx = from_ls<StreamCtx>(ls_stream_ctx);
-    stream_ctx->ls_stream.take();
-    if (auto reading = stream_ctx->reading.take(); reading.has_value()) {
-      (*reading)();
+    stream_ctx->ls_stream.reset();
+    if (auto reading = qtils::optionTake(stream_ctx->reading)) {
+      reading.value()();
     }
-    if (auto writing = stream_ctx->writing.take(); writing.has_value()) {
-      (*writing)();
+    if (auto writing = qtils::optionTake(stream_ctx->writing)) {
+      writing.value()();
     }
     tryDelete(stream_ctx);
   }
@@ -543,8 +542,8 @@ namespace jam::snp::lsquic {
                        lsquic_stream_ctx_t *ls_stream_ctx) {
     lsquic_stream_wantread(ls_stream, 0);
     auto *stream_ctx = from_ls<StreamCtx>(ls_stream_ctx);
-    if (auto reading = stream_ctx->reading.take(); reading.has_value()) {
-      (*reading)();
+    if (auto reading = qtils::optionTake(stream_ctx->reading)) {
+      reading.value()();
     }
   }
 
@@ -552,8 +551,8 @@ namespace jam::snp::lsquic {
                         lsquic_stream_ctx_t *ls_stream_ctx) {
     lsquic_stream_wantwrite(ls_stream, 0);
     auto *stream_ctx = from_ls<StreamCtx>(ls_stream_ctx);
-    if (auto writing = stream_ctx->writing.take(); writing.has_value()) {
-      (*writing)();
+    if (auto writing = qtils::optionTake(stream_ctx->writing)) {
+      writing.value()();
     }
   }
 
