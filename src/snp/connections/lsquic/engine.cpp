@@ -120,11 +120,9 @@ namespace jam::snp::lsquic {
     }
 
     io_context_ptr->post([weak_self{std::weak_ptr{self}}] {
-      auto self = weak_self.lock();
-      if (not self) {
-        return;
+      if (auto self = weak_self.lock()) {
+        self->readLoop();
       }
-      self->readLoop();
     });
 
     return self;
@@ -203,11 +201,9 @@ namespace jam::snp::lsquic {
     }
     want_process_ = true;
     boost::asio::post(*io_context_ptr_, [weak_self{weak_from_this()}] {
-      auto self = weak_self.lock();
-      if (not self) {
-        return;
+      if (auto self = weak_self.lock()) {
+        self->process();
       }
-      self->process();
     });
   }
 
