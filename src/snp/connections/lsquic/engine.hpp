@@ -11,7 +11,6 @@
 
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/steady_timer.hpp>
-#include <qtils/create_smart_pointer_macros.hpp>
 
 #include "coro/coro.hpp"
 #include "coro/handler.hpp"
@@ -87,7 +86,7 @@ namespace jam::snp::lsquic {
     friend Connection;
     friend Stream;
 
-    CREATE_SHARED_METHOD(Engine);
+    struct Private {};
 
    public:
     using SelfSPtr = std::shared_ptr<Engine>;
@@ -98,7 +97,8 @@ namespace jam::snp::lsquic {
         TlsCertificate certificate,
         std::optional<Port> listen_port,
         std::weak_ptr<EngineController> controller);
-    Engine(IoContextPtr io_context_ptr,
+    Engine(Private,
+           IoContextPtr io_context_ptr,
            ConnectionIdCounter connection_id_counter,
            TlsCertificate &&certificate,
            Socket &&socket,
