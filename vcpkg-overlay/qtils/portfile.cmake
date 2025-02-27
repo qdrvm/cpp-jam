@@ -2,8 +2,8 @@ vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
 vcpkg_from_github(
   OUT_SOURCE_PATH SOURCE_PATH
   REPO qdrvm/qtils
-  REF ad6c66c18c9e6d50491c42ac74e879f5a5176f51
-  SHA512 407619b1aedce2290de0ae90c2363b15fc407ca975ef5df032f449a0d8f9d3c2ac12aef4d2c472237c974164cda4a4ddff874dbe6ef6871114d727d499c399ec
+  REF 6d02006f7c0fe44958acbfe53016fa81f1ac0bf5
+  SHA512 3e46c767bb30a5e6d1df38e7a4c6fb5ec61c320bbbf6bbe622043402119216a8f7ddc1e6841a26c8848c20f38e1dfbd37f2b505698802e3a95ace464bb8c2cb9
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
 vcpkg_cmake_install()
