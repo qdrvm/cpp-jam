@@ -8,6 +8,7 @@ add_executable(example_snp_chat
   main.cpp
 )
 target_link_libraries(example_snp_chat
+  logger
   snp
 )
 

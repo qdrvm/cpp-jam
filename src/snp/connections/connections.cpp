@@ -27,8 +27,10 @@ namespace jam::snp {
   }
 
   Connections::Connections(IoContextPtr io_context_ptr,
+                           std::shared_ptr<log::LoggingSystem> logsys,
                            ConnectionsConfig config)
       : io_context_ptr_{std::move(io_context_ptr)},
+        logsys_{std::move(logsys)},
         init_{io_context_ptr_},
         config_{std::move(config)},
         key_{crypto::ed25519::get_public(config_.keypair)} {}
@@ -41,6 +43,7 @@ namespace jam::snp {
     BOOST_OUTCOME_CO_TRY(auto certificate, TlsCertificate::make(self->config_));
     BOOST_OUTCOME_CO_TRY(self->client_,
                          lsquic::Engine::make(self->io_context_ptr_,
+                                              self->logsys_,
                                               self->connection_id_counter_,
                                               certificate,
                                               std::nullopt,
@@ -48,6 +51,7 @@ namespace jam::snp {
     if (self->config_.listen_port.has_value()) {
       BOOST_OUTCOME_CO_TRY(self->server_,
                            lsquic::Engine::make(self->io_context_ptr_,
+                                                self->logsys_,
                                                 self->connection_id_counter_,
                                                 certificate,
                                                 self->config_.listen_port,

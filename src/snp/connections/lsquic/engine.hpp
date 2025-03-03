@@ -25,6 +25,14 @@
 
 struct sockaddr;
 
+namespace soralog {
+  class Logger;
+}  // namespace soralog
+
+namespace jam::log {
+  class LoggingSystem;
+}  // namespace jam::log
+
 namespace jam::snp {
   class ConnectionsConfig;
 }  // namespace jam::snp
@@ -93,12 +101,14 @@ namespace jam::snp::lsquic {
 
     static outcome::result<std::shared_ptr<Engine>> make(
         IoContextPtr io_context_ptr,
+        std::shared_ptr<log::LoggingSystem> logsys,
         ConnectionIdCounter connection_id_counter,
         TlsCertificate certificate,
         std::optional<uint16_t> listen_port,
         std::weak_ptr<EngineController> controller);
     Engine(Private,
            IoContextPtr io_context_ptr,
+           std::shared_ptr<log::LoggingSystem> logsys,
            ConnectionIdCounter connection_id_counter,
            TlsCertificate &&certificate,
            Socket &&socket,
@@ -182,6 +192,7 @@ namespace jam::snp::lsquic {
                               unsigned n_packets_out);
 
     IoContextPtr io_context_ptr_;
+    std::shared_ptr<soralog::Logger> log_;
     ConnectionIdCounter connection_id_counter_;
     TlsCertificate certificate_;
     Socket socket_;

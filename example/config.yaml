@@ -22,8 +22,9 @@ logging:
       children:
         - name: jam
           children:
-            - name: injector
             - name: application
-            - name: rpc
+            - name: injector
             - name: metrics
+            - name: rpc
+            - name: snp
             - name: threads

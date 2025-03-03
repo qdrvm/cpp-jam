@@ -20,6 +20,10 @@
 #include "snp/connections/key.hpp"
 #include "snp/connections/lsquic/controller.hpp"
 
+namespace jam::log {
+  class LoggingSystem;
+}  // namespace jam::log
+
 namespace jam::snp {
   class Address;
   class ConnectionsController;
@@ -39,7 +43,9 @@ namespace jam::snp {
    public:
     using SelfSPtr = std::shared_ptr<Connections>;
 
-    Connections(IoContextPtr io_context_ptr, ConnectionsConfig config);
+    Connections(IoContextPtr io_context_ptr,
+                std::shared_ptr<log::LoggingSystem> logsys,
+                ConnectionsConfig config);
 
     /**
      * Set controller.
@@ -76,6 +82,7 @@ namespace jam::snp {
     using Connected = ConnectionPtr;
 
     IoContextPtr io_context_ptr_;
+    std::shared_ptr<log::LoggingSystem> logsys_;
     CoroInit init_;
     ConnectionsConfig config_;
     Key key_;

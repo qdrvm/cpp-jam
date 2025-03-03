@@ -11,6 +11,7 @@
 
 #include "coro/set_thread.hpp"
 #include "coro/spawn.hpp"
+#include "log/logger.hpp"
 #include "snp/connections/config.hpp"
 #include "snp/connections/connection.hpp"
 #include "snp/connections/error.hpp"
@@ -51,6 +52,7 @@ namespace jam::snp::lsquic {
 
   outcome::result<std::shared_ptr<Engine>> Engine::make(
       IoContextPtr io_context_ptr,
+      std::shared_ptr<log::LoggingSystem> logsys,
       ConnectionIdCounter connection_id_counter,
       TlsCertificate certificate,
       std::optional<uint16_t> listen_port,
@@ -102,6 +104,7 @@ namespace jam::snp::lsquic {
     }
     auto self = std::make_shared<Engine>(Private{},
                                          io_context_ptr,
+                                         std::move(logsys),
                                          std::move(connection_id_counter),
                                          std::move(certificate),
                                          std::move(socket),
@@ -130,6 +133,7 @@ namespace jam::snp::lsquic {
 
   Engine::Engine(Private,
                  IoContextPtr io_context_ptr,
+                 std::shared_ptr<log::LoggingSystem> logsys,
                  ConnectionIdCounter connection_id_counter,
                  TlsCertificate &&certificate,
                  Socket &&socket,
@@ -138,6 +142,7 @@ namespace jam::snp::lsquic {
       : io_context_ptr_{std::move(io_context_ptr)},
         connection_id_counter_{std::move(connection_id_counter)},
         certificate_{std::move(certificate)},
+        log_{logsys->getLogger("Engine", "snp")},
         socket_{std::move(socket)},
         socket_local_endpoint_{std::move(socket_local_endpoint)},
         controller_{std::move(controller)},
@@ -262,6 +267,7 @@ namespace jam::snp::lsquic {
                   return;
                 }
                 if (ec) {
+                  SL_ERROR(self->log_, "udp socket read failed");
                   return;
                 }
                 self->readLoop();
@@ -582,6 +588,7 @@ namespace jam::snp::lsquic {
               return;
             }
             if (ec) {
+              SL_ERROR(self->log_, "udp socket write failed");
               return;
             }
             // will call `Engine::ea_packets_out`.

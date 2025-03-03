@@ -10,6 +10,7 @@
 #include <qtils/unhex.hpp>
 
 #include "coro/spawn.hpp"
+#include "log/simple.hpp"
 #include "snp/connections/address.hpp"
 #include "snp/connections/connection.hpp"
 #include "snp/connections/connections.hpp"
@@ -32,6 +33,8 @@ using jam::snp::ConnectionsController;
 using jam::snp::Key;
 using jam::snp::ProtocolId;
 using jam::snp::StreamPtr;
+
+auto logsys = jam::log::simpleLoggingSystem();
 
 inline auto operator""_ed25519(const char *c, size_t s) {
   auto seed = qtils::unhex<jam::crypto::ed25519::Seed>({c, s}).value();
@@ -181,7 +184,8 @@ CoroOutcome<void> co_main(IoContextPtr io_context_ptr, size_t arg_i) {
   if (is_server) {
     config.listen_port = server_address.port;
   }
-  auto connections = std::make_shared<Connections>(io_context_ptr, config);
+  auto connections =
+      std::make_shared<Connections>(io_context_ptr, logsys, config);
   auto chat = std::make_shared<ChatController>();
   BOOST_OUTCOME_CO_TRY(co_await connections->init(connections, chat));
   co_await coroSpawn([io_context_ptr, arg_i, chat]() -> Coro<void> {
