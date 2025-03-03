@@ -95,7 +95,7 @@ namespace jam::snp::lsquic {
         IoContextPtr io_context_ptr,
         ConnectionIdCounter connection_id_counter,
         TlsCertificate certificate,
-        std::optional<Port> listen_port,
+        std::optional<uint16_t> listen_port,
         std::weak_ptr<EngineController> controller);
     Engine(Private,
            IoContextPtr io_context_ptr,

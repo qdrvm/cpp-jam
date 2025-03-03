@@ -7,7 +7,6 @@
 #pragma once
 
 #include "snp/connections/key.hpp"
-#include "snp/connections/port.hpp"
 
 namespace jam::snp {
   struct Address {
@@ -15,7 +14,7 @@ namespace jam::snp {
     static constexpr Ip kLocal{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 
     Ip ip;
-    Port port;
+    uint16_t port;
     Key key;
   };
 }  // namespace jam::snp
