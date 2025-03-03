@@ -61,9 +61,10 @@ namespace qtils {
         **this = std::move(value);
       }
     }
-    M::mapped_type remove() {
+    /// Remove from map and return value.
+    M::mapped_type extract() {
       if (not has()) {
-        throw std::logic_error{"MapEntry::remove"};
+        throw std::logic_error{"MapEntry::extract"};
       }
       auto node = map.extract(std::get<I>(it_or_key));
       it_or_key = std::move(node.key());

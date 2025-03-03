@@ -87,7 +87,7 @@ namespace jam::snp {
             controller->onOpen(address.key);
           }
         } else {
-          state.remove();
+          state.extract();
         }
         CORO_WEAK_AWAIT_V(
             self, connecting->set(connecting, std::move(connection_result)));
@@ -124,7 +124,7 @@ namespace jam::snp {
         or std::get<Connected>(*state)->info() != connection_info) {
       todoPreferConnection();
     }
-    state.remove();
+    state.extract();
     if (auto controller = controller_.lock()) {
       controller->onClose(connection_info.key);
     }
