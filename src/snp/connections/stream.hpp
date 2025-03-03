@@ -47,7 +47,7 @@ namespace jam::snp {
     /**
      * Close reading side of stream.
      */
-    static Coro<void> readFin(SelfSPtr self);
+    static Coro<void> shutdownRead(SelfSPtr self);
 
     // https://github.com/zdave-parity/jam-np/blob/5d374b53578cdd93646e3ee19e2b19ea132317b8/simple.md?plain=1#L109-L111
     /**
@@ -59,7 +59,7 @@ namespace jam::snp {
      * Write fin.
      * Closes writing side of stream.
      */
-    static Coro<void> writeFin(SelfSPtr self);
+    static Coro<void> shutdownWrite(SelfSPtr self);
 
    private:
     /**

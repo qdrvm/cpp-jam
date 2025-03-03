@@ -124,8 +124,8 @@ namespace jam::snp::lsquic {
                                            ProtocolId protocol_id);
     static void destroyStream(StreamCtx *stream_ctx);
     void streamAccept(StreamPtr &&stream);
-    static void streamReadFin(StreamCtx *stream_ctx);
-    static void streamWriteFin(StreamCtx *stream_ctx);
+    static void streamShutdownRead(StreamCtx *stream_ctx);
+    static void streamShutdownWrite(StreamCtx *stream_ctx);
     static CoroOutcome<bool> streamReadRaw(StreamCtx *stream_ctx,
                                            qtils::BytesOut message);
     static CoroOutcome<void> streamWriteRaw(StreamCtx *stream_ctx,

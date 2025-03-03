@@ -63,9 +63,9 @@ namespace jam::snp {
     co_return true;
   }
 
-  Coro<void> Stream::readFin(SelfSPtr self) {
+  Coro<void> Stream::shutdownRead(SelfSPtr self) {
     co_await setCoroThread(self->io_context_ptr_);
-    Engine::streamReadFin(self->stream_ctx_);
+    Engine::streamShutdownRead(self->stream_ctx_);
     co_return;
   }
 
@@ -88,9 +88,9 @@ namespace jam::snp {
     co_return outcome::success();
   }
 
-  Coro<void> Stream::writeFin(SelfSPtr self) {
+  Coro<void> Stream::shutdownWrite(SelfSPtr self) {
     co_await setCoroThread(self->io_context_ptr_);
-    Engine::streamWriteFin(self->stream_ctx_);
+    Engine::streamShutdownWrite(self->stream_ctx_);
     co_return;
   }
 

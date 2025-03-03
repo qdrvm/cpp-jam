@@ -340,13 +340,13 @@ namespace jam::snp::lsquic {
               });
   }
 
-  void Engine::streamReadFin(StreamCtx *stream_ctx) {
+  void Engine::streamShutdownRead(StreamCtx *stream_ctx) {
     if (stream_ctx->ls_stream.has_value()) {
       lsquic_stream_shutdown(stream_ctx->ls_stream.value(), SHUT_RD);
     }
   }
 
-  void Engine::streamWriteFin(StreamCtx *stream_ctx) {
+  void Engine::streamShutdownWrite(StreamCtx *stream_ctx) {
     if (stream_ctx->ls_stream.has_value()) {
       lsquic_stream_shutdown(stream_ctx->ls_stream.value(), SHUT_WR);
     }

@@ -143,7 +143,7 @@ struct ChatController : ConnectionsController {
       co_await onRead(
           i_read, i_msg, std::string{qtils::byte2str(buffer).substr(1)});
     }
-    co_await stream->readFin(stream);
+    co_await stream->shutdownRead(stream);
     co_return outcome::success();
   }
 };
