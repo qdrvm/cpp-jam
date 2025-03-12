@@ -29,7 +29,7 @@ namespace jam {
     using std::vector<T>::emplace;
 
    public:
-    friend void encode(const ConfigVec &v, scale::ScaleEncoder auto &encoder) {
+    friend void encode(const ConfigVec &v, scale::Encoder &encoder) {
       const auto &config = encoder.template getConfig<test_vectors::Config>();
       auto n = v.configSize(config);
       if (n == std::numeric_limits<decltype(n)>::max()) {
@@ -41,7 +41,7 @@ namespace jam {
       }
     }
 
-    friend void decode(ConfigVec &v, scale::ScaleDecoder auto &decoder) {
+    friend void decode(ConfigVec &v, scale::Decoder &decoder) {
       const auto &config = decoder.template getConfig<test_vectors::Config>();
       auto n = v.configSize(config);
       if (n == std::numeric_limits<decltype(n)>::max()) {
