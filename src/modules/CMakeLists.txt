@@ -11,3 +11,8 @@ add_library(modules
 target_link_libraries(modules
     qtils::qtils
     )
+
+# -------------- Modules --------------
+
+# Example module
+add_subdirectory(example)
