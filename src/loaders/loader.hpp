@@ -19,8 +19,8 @@ namespace jam::loaders {
     virtual ~Loader() = default;
     virtual void start() = 0;
 
-    std::optional<std::string> get_module_name_and_version() {
-        auto result = module_.getFunctionFromLibrary<const char*()>("get_module_name_and_version");
+    std::optional<std::string> module_info() {
+        auto result = module_.getFunctionFromLibrary<const char*()>("module_info");
         if (result) {
             return std::string((*result)());
         }
