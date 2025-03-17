@@ -6,34 +6,15 @@
 
 #include "modules/example/example.hpp"
 
-MODULE_C_API const uint64_t JAM_MAGIC = jam::modules::JAM_MAGIC;
+namespace jam::modules {
+  std::shared_ptr<ExampleModule> ExampleModule::instance;
 
-std::shared_ptr<jam::modules::ExampleModule> module_instance;
+  ExampleModule::ExampleModule(
+      qtils::StrictSharedPtr<ExampleModuleLoader> loader,
+      qtils::StrictSharedPtr<log::LoggingSystem> logging_system)
+      : loader_(loader),
+        logger_(logging_system->getLogger("ExampleModule", "example_module"))
 
-MODULE_C_API const char *loader_id() {
-  return "ExampleLoader";
-}
+  {}
 
-MODULE_C_API const char *get_module_name_and_version() {
-  return "ExampleModule v1.0";
-}
-
-std::string path_;
-std::unique_ptr<void, decltype(&dlclose)> handle_{};
-std::string loader_id_;
-
-MODULE_API std::weak_ptr<jam::modules::ExampleModule> query_module_instance() {
-  static bool _ = ({
-    module_instance = jam::modules::ExampleModule::create_shared(
-        path_,               // path
-        std::move(handle_),  // handler
-        loader_id_           // loader
-    );
-    true;
-  });
-  return module_instance;
-}
-
-MODULE_API void release_module_instance() {
-  module_instance = nullptr;
-};
+}  // namespace jam::modules
