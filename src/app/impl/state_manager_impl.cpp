@@ -92,7 +92,7 @@ namespace jam::app {
   }
 
   StateManagerImpl::StateManagerImpl(
-      std::shared_ptr<log::LoggingSystem> logging_system)
+      qtils::StrictSharedPtr<log::LoggingSystem> logging_system)
       : logger_(logging_system->getLogger("StateManager", "application")),
         logging_system_(std::move(logging_system)) {
     shuttingDownSignalsEnable();

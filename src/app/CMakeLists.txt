@@ -28,7 +28,9 @@ add_library(build_version
 
 add_library(app_configuration SHARED configuration.cpp)
 target_link_libraries(app_configuration
-    Boost::boost)
+    Boost::boost
+    fmt::fmt
+)
 
 add_library(app_configurator SHARED configurator.cpp)
 target_link_libraries(app_configurator
