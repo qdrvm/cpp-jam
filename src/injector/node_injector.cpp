@@ -29,7 +29,7 @@ namespace {
 
   template <typename C>
   auto useConfig(C c) {
-    return boost::di::bind<std::decay_t<C> >().to(
+    return boost::di::bind<std::decay_t<C>>().to(
         std::move(c))[boost::di::override];
   }
 
@@ -96,6 +96,6 @@ namespace jam::injector {
 
   std::shared_ptr<app::Application> NodeInjector::injectApplication() {
     return pimpl_->injector_
-        .template create<std::shared_ptr<app::Application> >();
+        .template create<std::shared_ptr<app::Application>>();
   }
 }  // namespace jam::injector
