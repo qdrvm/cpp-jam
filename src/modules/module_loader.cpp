@@ -71,7 +71,7 @@ namespace jam::modules {
       return Error::UnexpectedLoaderId;
     }
 
-    auto module = Module::create(module_path, std::move(handle), loader_id);
+    auto module = Module::create_shared(module_path, std::move(handle), loader_id);
     modules.push_back(module);
     return outcome::success();
   }
