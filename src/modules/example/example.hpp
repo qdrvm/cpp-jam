@@ -6,37 +6,29 @@
 
 #pragma once
 
-#include <modules/module.hpp>
-
-/// @brief Magic word to check if module is JAM module actually
-MODULE_C_API const uint64_t JAM_MAGIC;
-
-/// @brief Identifier of suitable module loader
-MODULE_C_API const char *loader_id();
-
-/// @brief Returns module name and version
-/// @return A string containing module name and version
-MODULE_C_API const char *get_module_name_and_version();
+#include <metrics/impl/session_impl.hpp>
+#include <modules/module_loader.hpp>
+#include <qtils/strict_sptr.hpp>
 
 namespace jam::modules {
   class ExampleModule;
+  class ExampleModuleLoader;
 }
 
-MODULE_API std::weak_ptr<jam::modules::ExampleModule> query_module_instance();
-
-MODULE_API void release_module_instance();
-
 class BlockTree;
-class ExampleModuleLoader;
 
 namespace jam::modules {
 
-  class ExampleModule : public Module, Singleton<ExampleModule> {  // implement by module
-    using Module::Module;
-    virtual ~ExampleModule() = default;
+  class ExampleModule : public Singleton<ExampleModule> {
+   public:
+    static std::shared_ptr<ExampleModule> instance;
     CREATE_SHARED_METHOD(ExampleModule);
-    // virtual void initialize(std::shared_ptr<BlockTree> tree,
-    //                         std::weak_ptr<ExampleModuleLoader> loader) = 0;
+
+    ExampleModule(qtils::StrictSharedPtr<ExampleModuleLoader> loader,
+                  qtils::StrictSharedPtr<log::LoggingSystem> logging_system);
+
+    qtils::StrictSharedPtr<ExampleModuleLoader> loader_;
+    log::Logger logger_;
   };
 
 }  // namespace jam::modules
