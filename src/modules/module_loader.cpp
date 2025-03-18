@@ -52,7 +52,7 @@ namespace jam::modules {
   Result<void> ModuleLoader::load_module(
       const std::string &module_path,
       std::deque<std::shared_ptr<Module>> &modules) {
-    std::unique_ptr<void, decltype(&dlclose)> handle(
+    std::unique_ptr<void, int(*)(void*)> handle(
         dlopen(module_path.c_str(), RTLD_LAZY), dlclose);
     if (!handle) {
       return Error::OpenLibraryFailed;
