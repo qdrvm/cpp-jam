@@ -18,6 +18,7 @@
 #include "injector/node_injector.hpp"
 #include "log/logger.hpp"
 #include "se/subscription.hpp"
+#include "modules/module_loader.hpp"
 
 using std::string_view_literals::operator""sv;
 
@@ -134,6 +135,19 @@ int main(int argc, const char **argv, const char **env) {
 
     std::make_shared<jam::log::LoggingSystem>(std::move(logging_system));
   });
+
+  // Load modules
+  jam::modules::ModuleLoader module_loader("/home/iceseer/Work/cpp-jam/build/modules/");
+  auto modules = module_loader.get_modules();
+  if (modules.has_error()) {
+    return EXIT_FAILURE;
+  }
+
+  for (const auto &module : modules.value()) {
+    if ("ExampleModule" == module->get_loader_id()) {
+            
+    }
+  }
 
   // Parse CLI args for help, version and config
   if (auto res = app_configurator->step2(); res.has_value()) {

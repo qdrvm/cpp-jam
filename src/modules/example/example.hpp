@@ -12,23 +12,29 @@
 
 namespace jam::modules {
   class ExampleModule;
-  class ExampleModuleLoader;
+  struct ExampleModuleLoader {
+    virtual ~ExampleModuleLoader() = default;
+  };
+
+  struct ExampleModule {
+    virtual ~ExampleModule() = default;
+  };
 }
 
-class BlockTree;
+// class BlockTree;
 
 namespace jam::modules {
 
-  class ExampleModule : public Singleton<ExampleModule> {
-   public:
-    static std::shared_ptr<ExampleModule> instance;
-    CREATE_SHARED_METHOD(ExampleModule);
+  // class ExampleModule : public Singleton<ExampleModule> {
+  //  public:
+  //   static std::shared_ptr<ExampleModule> instance;
+  //   CREATE_SHARED_METHOD(ExampleModule);
 
-    ExampleModule(qtils::StrictSharedPtr<ExampleModuleLoader> loader,
-                  qtils::StrictSharedPtr<log::LoggingSystem> logging_system);
+  //   ExampleModule(qtils::StrictSharedPtr<ExampleModuleLoader> loader,
+  //                 qtils::StrictSharedPtr<log::LoggingSystem> logging_system);
 
-    qtils::StrictSharedPtr<ExampleModuleLoader> loader_;
-    log::Logger logger_;
-  };
+  //   qtils::StrictSharedPtr<ExampleModuleLoader> loader_;
+  //   log::Logger logger_;
+  // };
 
 }  // namespace jam::modules
