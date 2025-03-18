@@ -13,10 +13,14 @@
 #include <optional>
 #include <string>
 
+#include <qtils/create_smart_pointer_macros.hpp>
+
 namespace jam::modules {
 
-  class Module final : public std::enable_shared_from_this<Module> {
+  class Module final {
    public:
+    CREATE_SHARED_METHOD(Module)
+
     // Static method for Module object creation
     static std::shared_ptr<Module> create(
         const std::string &path,
@@ -33,7 +37,6 @@ namespace jam::modules {
 
     // Getter for loader Id
     const std::string &get_loader_id() const {
-      std::function<void(int)> p;
       return loader_id_;
     }
 
