@@ -19,19 +19,21 @@ namespace jam::loaders {
     virtual ~Loader() = default;
     virtual void start() = 0;
 
-    std::optional<const char*> module_info() {
-        auto result = module_.getFunctionFromLibrary<const char*()>("module_info");
-        if (result) {
-            return (*result)();
-        }
-        return std::nullopt;
-    }    
+    std::optional<const char *> module_info() {
+      auto result =
+          module_->getFunctionFromLibrary<const char *>("module_info");
+      if (result) {
+        return (*result)();
+      }
+      return std::nullopt;
+    }
 
-    Loader(injector::NodeInjector injector, modules::Module module)
-    : injector_(std::move(injector)), module_(std::move(module)) {}
+    Loader(injector::NodeInjector &injector,
+           std::shared_ptr<modules::Module> module)
+        : injector_(injector), module_(std::move(module)) {}
 
    protected:
-    injector::NodeInjector injector_;
-    modules::Module module_;
+    injector::NodeInjector &injector_;
+    std::shared_ptr<modules::Module> module_;
   };
 }  // namespace jam::loaders

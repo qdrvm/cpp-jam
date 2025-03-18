@@ -17,31 +17,33 @@ MODULE_C_API const char *module_info() {
   return "ExampleModule v1.0";
 }
 
-class ExampleModuleImpl : public jam::modules::ExampleModule {
+class ExampleModuleImpl final : public jam::modules::ExampleModule {
   std::shared_ptr<jam::modules::ExampleModuleLoader> loader_;
   std::shared_ptr<jam::log::LoggingSystem> logger_;
 
-  public:
-  ExampleModuleImpl(
-    std::shared_ptr<jam::modules::ExampleModuleLoader> loader,
-    std::shared_ptr<jam::log::LoggingSystem> logger
-  ) : loader_(std::move(loader)), logger_(std::move(logger)) {}
+ public:
+  ExampleModuleImpl(std::shared_ptr<jam::modules::ExampleModuleLoader> loader,
+                    std::shared_ptr<jam::log::LoggingSystem> logger)
+      : loader_(std::move(loader)), logger_(std::move(logger)) {}
+
+  void on_loaded_success() override {
+    auto l = logger_->getLogger("ExampleModule", "jam");
+    SL_INFO(l, "Loaded success");
+  }
 };
 static std::shared_ptr<ExampleModuleImpl> exmpl_mod;
 
 
-
-MODULE_API std::weak_ptr<jam::modules::ExampleModule> query_module_instance(
+MODULE_C_API std::weak_ptr<jam::modules::ExampleModule> query_module_instance(
     std::shared_ptr<jam::modules::ExampleModuleLoader> loader,
     std::shared_ptr<jam::log::LoggingSystem> logger) {
   if (!exmpl_mod) {
-    exmpl_mod = std::make_shared<ExampleModuleImpl>(std::move(loader), std::move(logger));
+    exmpl_mod = std::make_shared<ExampleModuleImpl>(std::move(loader),
+                                                    std::move(logger));
   }
   return exmpl_mod;
 }
 
-
-
-MODULE_API void release_module_instance() {
+MODULE_C_API void release_module_instance() {
   exmpl_mod.reset();
 }
