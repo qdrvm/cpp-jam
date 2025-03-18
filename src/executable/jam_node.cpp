@@ -4,21 +4,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <iostream>
 #include <chrono>
-
-#include <soralog/impl/configurator_from_yaml.hpp>
-#include <soralog/logging_system.hpp>
+#include <iostream>
 
 #include <qtils/final_action.hpp>
+#include <soralog/impl/configurator_from_yaml.hpp>
+#include <soralog/logging_system.hpp>
 
 #include "app/application.hpp"
 #include "app/configuration.hpp"
 #include "app/configurator.hpp"
 #include "injector/node_injector.hpp"
+#include "loaders/impl/example_loader.hpp"
 #include "log/logger.hpp"
-#include "se/subscription.hpp"
 #include "modules/module_loader.hpp"
+#include "se/subscription.hpp"
 
 using std::string_view_literals::operator""sv;
 
@@ -39,10 +39,34 @@ namespace {
                std::shared_ptr<Configuration> appcfg) {
     auto injector = std::make_unique<NodeInjector>(logsys, appcfg);
 
+    // Load modules
+    {
+      auto logger = logsys->getLogger("Modules", "jam");
+      const std::string path("/home/iceseer/Work/cpp-jam/build/modules/");
+
+      jam::modules::ModuleLoader module_loader(path);
+      auto modules = module_loader.get_modules();
+      if (modules.has_error()) {
+        SL_CRITICAL(logger, "Failed to load modules from path: {}", path);
+        return EXIT_FAILURE;
+      }
+
+      std::deque<std::shared_ptr<jam::loaders::Loader>> loaders;
+      for (const auto &module : modules.value()) {
+        if ("ExampleLoader" == module->get_loader_id()) {
+          auto loader = std::make_shared<jam::loaders::ExampleLoader>(
+              *injector, logsys, module);
+          if (auto info = loader->module_info()) {
+            SL_INFO(logger, "> Module: {} [{}]", *info, module->get_path());
+            loaders.emplace_back(loader);
+            loader->start();
+          }
+        }
+      }
+    }
+
     auto logger = logsys->getLogger("Main", jam::log::defaultGroupName);
-
     auto app = injector->injectApplication();
-
     SL_INFO(logger, "Node started. Version: {} ", appcfg->nodeVersion());
 
     app->run();
@@ -56,28 +80,8 @@ namespace {
 }  // namespace
 
 int main(int argc, const char **argv, const char **env) {
-  qtils::FinalAction dispose_se_on_exit([se_manager{jam::se::getSubscription()}] {
-    se_manager->dispose();
-  });
-
-  // auto mst_state_update_ =
-  //     jam::se::SubscriberCreator<bool, std::string, int, std::string>::
-  //         template create<jam::EventTypes::kOnTestOperationComplete>(
-  //             jam::SubscriptionEngineHandlers::kTest,
-  //             [](auto &, std::string data, int data2, std::string data3) {
-  //               std::cout << data << std::endl;
-  //               std::cout << data2 << std::endl;
-  //               std::cout << data3 << std::endl;
-  //             });
-
-  // jam::se::getSubscription()->notifyDelayed(
-  //     std::chrono::seconds(1),
-  //     jam::EventTypes::kOnTestOperationComplete,
-  //     std::string("111111"),
-  //     15,
-  //     std::string("test"));  
-  
-  // std::this_thread::sleep_for(std::chrono::seconds(2));
+  qtils::FinalAction dispose_se_on_exit(
+      [se_manager{jam::se::getSubscription()}] { se_manager->dispose(); });
 
   soralog::util::setThreadName("jam-node");
 
@@ -135,19 +139,6 @@ int main(int argc, const char **argv, const char **env) {
 
     std::make_shared<jam::log::LoggingSystem>(std::move(logging_system));
   });
-
-  // Load modules
-  jam::modules::ModuleLoader module_loader("/home/iceseer/Work/cpp-jam/build/modules/");
-  auto modules = module_loader.get_modules();
-  if (modules.has_error()) {
-    return EXIT_FAILURE;
-  }
-
-  for (const auto &module : modules.value()) {
-    if ("ExampleModule" == module->get_loader_id()) {
-            
-    }
-  }
 
   // Parse CLI args for help, version and config
   if (auto res = app_configurator->step2(); res.has_value()) {

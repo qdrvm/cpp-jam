@@ -18,8 +18,9 @@ namespace jam::modules {
 
   struct ExampleModule {
     virtual ~ExampleModule() = default;
+    virtual void on_loaded_success() = 0;
   };
-}
+}  // namespace jam::modules
 
 // class BlockTree;
 
