@@ -22,7 +22,7 @@ namespace jam::modules {
     // Static method for Module object creation
     static std::shared_ptr<Module> create(
         const std::string &path,
-        std::unique_ptr<void, decltype(&dlclose)> handle,
+        std::unique_ptr<void, int(*)(void*)> handle,
         const std::string &loader_id) {
       return std::shared_ptr<Module>(
           new Module(path, std::move(handle), loader_id));
@@ -51,12 +51,12 @@ namespace jam::modules {
 
    private:
     Module(const std::string &path,
-           std::unique_ptr<void, decltype(&dlclose)> handle,
+           std::unique_ptr<void, int(*)(void*)> handle,
            const std::string &loader_id)
         : path_(path), handle_(std::move(handle)), loader_id_(loader_id) {}
 
     std::string path_;                                  // Library path
-    std::unique_ptr<void, decltype(&dlclose)> handle_;  // Library handle
+    std::unique_ptr<void, int(*)(void*)> handle_;  // Library handle
     std::string loader_id_;                             // Loader ID
 
     Module(const Module &) = delete;
