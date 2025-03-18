@@ -27,6 +27,9 @@ namespace jam::loaders {
         return std::nullopt;
     }    
 
+    Loader(injector::NodeInjector injector, modules::Module module)
+    : injector_(std::move(injector)), module_(std::move(module)) {}
+
    protected:
     injector::NodeInjector injector_;
     modules::Module module_;
