@@ -6,8 +6,10 @@
 #pragma once
 
 #include <boost/program_options.hpp>
+#include <log/logger.hpp>
 #include <qtils/enum_error_code.hpp>
 #include <qtils/outcome.hpp>
+#include <qtils/strict_sptr.hpp>
 #include <yaml-cpp/yaml.h>
 
 #include "injector/dont_inject.hpp"
@@ -27,6 +29,7 @@ namespace jam::app {
     enum class Error : uint8_t {
       CliArgsParseFailed,
       ConfigFileParseFailed,
+      InvalidValue,
     };
 
     DONT_INJECT(Configurator);
@@ -49,7 +52,7 @@ namespace jam::app {
     outcome::result<YAML::Node> getLoggingConfig();
 
     outcome::result<std::shared_ptr<Configuration>> calculateConfig(
-        std::shared_ptr<soralog::Logger> logger);
+        qtils::StrictSharedPtr<soralog::Logger> logger);
 
    private:
     outcome::result<void> initGeneralConfig();
@@ -60,6 +63,7 @@ namespace jam::app {
     const char **env_;
 
     std::shared_ptr<Configuration> config_;
+    std::shared_ptr<soralog::Logger> logger_;
 
     std::optional<YAML::Node> config_file_;
     bool file_has_warn_ = false;

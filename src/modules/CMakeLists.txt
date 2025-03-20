@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+if(NOT TARGET all_modules)
+  add_custom_target(all_modules)
+endif()
+
 function(add_jam_module NAME)
   set(MODULE_NAME ${NAME})
 
@@ -68,6 +72,8 @@ function(add_jam_module NAME)
   target_compile_features(${MODULE} PRIVATE
       cxx_std_20
   )
+
+  add_dependencies(all_modules ${MODULE})
 
 endfunction()
 

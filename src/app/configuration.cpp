@@ -18,6 +18,14 @@ namespace jam::app {
     return name_;
   }
 
+  std::filesystem::path Configuration::basePath() const {
+    return base_path_;
+  }
+
+  std::filesystem::path Configuration::modulesDir() const {
+    return modules_dir_;
+  }
+
   std::optional<Configuration::Endpoint> Configuration::metricsEndpoint()
       const {
     return metrics_endpoint_;
