@@ -42,7 +42,7 @@ namespace {
     // Load modules
     {
       auto logger = logsys->getLogger("Modules", "jam");
-      const std::string path("/home/iceseer/Work/cpp-jam/build/modules/");
+      const std::string path(appcfg->modulesDir());
 
       jam::modules::ModuleLoader module_loader(path);
       auto modules = module_loader.get_modules();

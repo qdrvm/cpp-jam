@@ -75,7 +75,6 @@ function(generate_from_asn1 name)
       ${TARGET_DIR}/${name}-diff.hpp
   )
 
-  message(STATUS "${GENERATED_FILES}")
   add_custom_command(
       OUTPUT ${GENERATED_FILES}
       COMMAND ${Python3_EXECUTABLE} ${ASN1_PY} ${TARGET_DIR} ${name}
