@@ -41,11 +41,12 @@ namespace {
   int run_node(std::shared_ptr<LoggingSystem> logsys,
                std::shared_ptr<Configuration> appcfg) {
     auto injector = std::make_unique<NodeInjector>(logsys, appcfg);
+
     // Load modules
     std::deque<std::unique_ptr<jam::loaders::Loader>> loaders;
     {
       auto logger = logsys->getLogger("Modules", "jam");
-      const std::string path("modules");
+      const std::string path(appcfg->modulesDir());
 
       jam::modules::ModuleLoader module_loader(path);
       auto modules = module_loader.get_modules();
@@ -133,15 +134,6 @@ int main(int argc, const char **argv, const char **env) {
 
     std::make_shared<jam::log::LoggingSystem>(std::move(logging_system));
   });
-
-  // Parse CLI args for help, version and config
-  if (auto res = app_configurator->step2(); res.has_value()) {
-    if (res.value()) {
-      return EXIT_SUCCESS;
-    }
-  } else {
-    return EXIT_FAILURE;
-  }
 
   // Setup config
   auto configuration = ({
