@@ -2,8 +2,8 @@ vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
 vcpkg_from_github(
   OUT_SOURCE_PATH SOURCE_PATH
   REPO qdrvm/scale-codec-cpp
-  REF 6d80d0f4aa52c86cf2875c77a94583a0a4069626
-  SHA512 0472caa6804f5ee693c6de577e78fc07a77d12aabe061e4ac9dce4957b18e54a8814cf3555adbaa4bf54f9c0c9023c28be7fdac54ac511006a2b98bedac30f30
+  REF refs/tags/v2.0.1
+  SHA512 cc5158cdfecea7f516e2f110adcc00f3024649507908b366ef34a76398efcb735011d8fcacd2f41016eb769dfa74e93ee3af20049560fafd1576b280fb92acc7
 )
 vcpkg_cmake_configure(
   SOURCE_PATH "${SOURCE_PATH}"
