@@ -102,14 +102,14 @@ namespace jam::snp::lsquic {
     if (ec) {
       return ec;
     }
-    auto self = std::make_shared<Engine>(Private{},
-                                         io_context_ptr,
-                                         std::move(logsys),
-                                         std::move(connection_id_counter),
-                                         std::move(certificate),
-                                         std::move(socket),
-                                         socket_local_endpoint,
-                                         std::move(controller));
+    auto self =
+        qtils::MakeSharedPrivate::make<Engine>(io_context_ptr,
+                                               std::move(logsys),
+                                               std::move(connection_id_counter),
+                                               std::move(certificate),
+                                               std::move(socket),
+                                               socket_local_endpoint,
+                                               std::move(controller));
 
     api.ea_stream_if = &stream_if;
     api.ea_stream_if_ctx = self.get();
@@ -131,7 +131,7 @@ namespace jam::snp::lsquic {
     return self;
   }
 
-  Engine::Engine(Private,
+  Engine::Engine(qtils::MakeSharedPrivate,
                  IoContextPtr io_context_ptr,
                  std::shared_ptr<log::LoggingSystem> logsys,
                  ConnectionIdCounter connection_id_counter,

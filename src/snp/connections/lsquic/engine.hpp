@@ -9,6 +9,7 @@
 #include <deque>
 #include <lsquic.h>
 
+#include <TODO_qtils/make_shared_private.hpp>
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/steady_timer.hpp>
 
@@ -94,8 +95,6 @@ namespace jam::snp::lsquic {
     friend Connection;
     friend Stream;
 
-    struct Private {};
-
    public:
     using SelfSPtr = std::shared_ptr<Engine>;
 
@@ -106,7 +105,7 @@ namespace jam::snp::lsquic {
         TlsCertificate certificate,
         std::optional<uint16_t> listen_port,
         std::weak_ptr<EngineController> controller);
-    Engine(Private,
+    Engine(qtils::MakeSharedPrivate,
            IoContextPtr io_context_ptr,
            std::shared_ptr<log::LoggingSystem> logsys,
            ConnectionIdCounter connection_id_counter,
