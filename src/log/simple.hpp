@@ -25,8 +25,7 @@ namespace jam::log {
         is_fallback: true
     )";
     auto logsys = std::make_shared<soralog::LoggingSystem>(
-        std::make_shared<soralog::ConfiguratorFromYAML>(
-            std::shared_ptr<soralog::Configurator>(nullptr), yaml));
+        std::make_shared<soralog::ConfiguratorFromYAML>(yaml));
     if (auto r = logsys->configure().message; not r.empty()) {
       fmt::println(stderr, "soralog error: {}", r);
     }
