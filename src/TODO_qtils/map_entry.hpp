@@ -62,13 +62,21 @@ namespace qtils {
       }
     }
     /// Remove from map and return value.
-    M::mapped_type extract() {
+    [[nodiscard]] M::mapped_type extract() {
       if (not has()) {
         throw std::logic_error{"MapEntry::extract"};
       }
       auto node = map.extract(std::get<I>(it_or_key));
       it_or_key = std::move(node.key());
       return std::move(node.mapped());
+    }
+
+    void eraseIfExists() {
+      if (has()) {
+        auto it = std::get<I>(it_or_key);
+        it_or_key = it->first;
+        map.erase(it);
+      }
     }
 
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
