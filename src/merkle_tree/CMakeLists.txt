@@ -3,7 +3,7 @@ target_include_directories(merkle_tree
     PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
 )
-target_link_libraries(merkle_tree PUBLIC blake2b Tracy::TracyClient)
+target_link_libraries(merkle_tree PUBLIC blake2b)
 add_library(morum::merkle_tree ALIAS merkle_tree)
 if (MORUM_TRACE)
     add_compile_definitions(merkle_tree PUBLIC MORUM_ENABLE_TRACE)

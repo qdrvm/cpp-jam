@@ -24,35 +24,47 @@ project(morum
     VERSION 0.1.0
     LANGUAGES C CXX
 )
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_compile_options(-Wall -Wextra)
 
+if ((CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo") AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    add_compile_options(-flto=thin)
+endif()
+
+option(MORUM_ASAN "Enable address sanitizer" OFF)
+option(MORUM_TSAN "Enable address sanitizer" OFF)
+option(MORUM_UBSAN "Enable address sanitizer" OFF)
 option(MORUM_TRACE "Enable tracing" OFF)
 
 find_package(Python3 REQUIRED)
-find_package(Boost CONFIG REQUIRED)
+find_package(Boost CONFIG REQUIRED COMPONENTS algorithm program_options outcome)
 find_package(fmt CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 find_package(jam_crust CONFIG REQUIRED)
 find_package(scale CONFIG REQUIRED)
 find_package(soralog CONFIG REQUIRED)
-find_package(schnorrkel_crust CONFIG REQUIRED)
 find_package(Boost.DI CONFIG REQUIRED)
 find_package(qtils CONFIG REQUIRED)
 find_package(prometheus-cpp CONFIG REQUIRED)
+find_package(RocksDB CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(qdrvm-crates CONFIG REQUIRED)
+
+find_library(BLAKE2_LIB blake2b)
+add_library(blake2b STATIC IMPORTED)
+set_property(TARGET blake2b PROPERTY IMPORTED_LOCATION ${BLAKE2_LIB})
 
 add_library(headers INTERFACE)
 target_include_directories(headers INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src_>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
-
 
 if (MORUM_ASAN)
     add_compile_options(-fsanitize=address)
@@ -63,6 +75,7 @@ if (MORUM_UBSAN)
     add_compile_options(-fsanitize=undefined -fno-sanitize-recovery=undefined)
     add_link_options(-fsanitize=undefined)
 endif()
+
 if (MORUM_TSAN)
     add_compile_options(-fsanitize=thread)
     add_link_options(-fsanitize=thread)
@@ -73,7 +86,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDeb
 else()
     option(QTILS_ASSERT "Enable asserts" ON)
 endif()
-
 
 add_subdirectory(src)
 

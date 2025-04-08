@@ -19,7 +19,6 @@
         "MORUM_BUILD_TRACY": "ON",
         "MORUM_ASAN": "OFF",
         "MORUM_UBSAN": "OFF",
-        "MORUM_MSAN": "OFF",
         "MORUM_TSAN": "OFF"
       }
     },
@@ -33,7 +32,6 @@
         "MORUM_BUILD_TESTS": "ON",
         "MORUM_ASAN": "OFF",
         "MORUM_UBSAN": "OFF",
-        "MORUM_MSAN": "OFF",
         "MORUM_TSAN": "OFF"
       }
     }

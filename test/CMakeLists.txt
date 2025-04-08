@@ -10,7 +10,7 @@ target_include_directories(compatibility_test
 target_link_libraries(compatibility_test merkle_tree nlohmann_json::nlohmann_json qtils::qtils)
 
 morum_add_test(tree_test merkle_tree/tree_test.cpp)
-target_link_libraries(tree_test merkle_tree RocksDB::rocksdb Tracy::TracyClient)
+target_link_libraries(tree_test merkle_tree RocksDB::rocksdb)
 
 morum_add_test(primitives_test merkle_tree/primitives_test.cpp)
 target_link_libraries(primitives_test merkle_tree)

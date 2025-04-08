@@ -35,8 +35,8 @@
     "scale",
     "fmt",
     "soralog",
-    "kagome-crates",
-    "libb2",
+    "qdrvm-crates",
+    "blake2",
     "boost-di",
     "boost-program-options",
     "boost-asio",
@@ -54,7 +54,6 @@
     {
       "name": "nlohmann-json",
       "version>=": "3.11.3"
-    },
-    "blake2"
+    }
   ]
 }

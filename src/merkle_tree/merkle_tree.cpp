@@ -129,7 +129,7 @@ namespace morum {
       QTILS_ASSERT(id == 0);
       return {};
     }
-    QTILS_UNWRAP(auto &parent_opt, find_parent_branch(key));
+    QTILS_UNWRAP(const auto &parent_opt, find_parent_branch(key));
     if (!parent_opt) {
       // parent must be a leaf root
       QTILS_ASSERT(get_root()->is_leaf());
@@ -180,20 +180,20 @@ namespace morum {
 
   std::expected<std::optional<qtils::ByteSpan>, StorageError> MerkleTree::get(
       const Hash32 &key) const {
-    QTILS_UNWRAP(auto &leaf_id_opt, find_leaf(key));
+    QTILS_UNWRAP(const auto &leaf_id_opt, find_leaf(key));
     if (!leaf_id_opt) {
       return std::nullopt;
     }
     auto leaf_id = *leaf_id_opt;
     auto &leaf = nodes_->get(leaf_id)->as_leaf();
-    QTILS_UNWRAP(auto &value, get_value(leaf.hash_or_value()));
+    QTILS_UNWRAP(const auto &value, get_value(leaf.hash_or_value()));
 
     return value;
   }
 
   std::expected<bool, StorageError> MerkleTree::exists(
       const Hash32 &key) const {
-    QTILS_UNWRAP(auto &leaf_opt, find_leaf(key));
+    QTILS_UNWRAP(const auto &leaf_opt, find_leaf(key));
     return leaf_opt.has_value();
   }
 
@@ -228,7 +228,7 @@ namespace morum {
     if (auto it = value_cache_.find(hash); it != value_cache_.end()) {
       return it->second;
     }
-    QTILS_UNWRAP(auto &value_opt, value_storage_->read(hash));
+    QTILS_UNWRAP(const auto & value_opt, value_storage_->read(hash));
     if (!value_opt) {
       return std::unexpected(StorageError{"Value missing"});
     }
@@ -253,7 +253,7 @@ namespace morum {
     while (current->is_branch()) {
       auto bit = get_bit(key, path.size_bits());
       path.end_bit++;
-      QTILS_UNWRAP(auto &child_opt,
+      QTILS_UNWRAP(const auto & child_opt,
           get_child_idx(const_cast<Branch &>(current->as_branch()), bit, path));
       if (!child_opt || nodes_->get(*child_opt)->is_leaf()) {
         MORUM_TRACE("parent is {}, path {}", current_idx, path);
@@ -284,7 +284,7 @@ namespace morum {
     NodeId current_id = 0;
     size_t path_len = 0;
     while (current->is_branch()) {
-      QTILS_UNWRAP(auto &child_opt,
+      QTILS_UNWRAP(const auto & child_opt,
           get_child_idx(const_cast<Branch &>(current->as_branch()),
               get_bit(key, path_len),
               qtils::BitSpan<>{key, 0, path_len}));

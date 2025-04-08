@@ -91,7 +91,7 @@ namespace morum {
 }  // namespace morum
 
 template <>
-struct fmt::formatter<morum::StorageError, char> {
+struct std::formatter<morum::StorageError, char> {
   template <class ParseContext>
   constexpr ParseContext::iterator parse(ParseContext &ctx) {
     auto it = ctx.begin();
@@ -102,7 +102,7 @@ struct fmt::formatter<morum::StorageError, char> {
   FmtContext::iterator format(const morum::StorageError &e,
                               FmtContext &ctx) const {
     auto out = ctx.out();
-    fmt::format_to(out,
+    std::format_to(out,
                    "From {}:{} - {}\n",
                    e.origin.file_name(),
                    e.origin.line(),
