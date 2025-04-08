@@ -30,7 +30,7 @@
 # IDE auxiliaries
 .idea
 
-/build
+/build*
 /cmake-build-*
 /.build
 /.venv
