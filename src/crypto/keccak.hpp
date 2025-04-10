@@ -10,7 +10,7 @@
  * Keccak hash
  */
 
-namespace jam::crypto {
+namespace morum::crypto {
   struct Keccak {
     using Hash32 = qtils::BytesN<32>;
     uint64_t state[5][5] = {};
@@ -110,4 +110,4 @@ namespace jam::crypto {
       return Keccak{}.update(input).hash();
     }
   };
-}  // namespace jam
+}  // namespace morum

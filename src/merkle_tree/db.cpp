@@ -5,6 +5,7 @@
  */
 
 #include <morum/db.hpp>
+
 #include <qtils/assert.hpp>
 #include <qtils/bytestr.hpp>
 #include <qtils/macro/unwrap.hpp>

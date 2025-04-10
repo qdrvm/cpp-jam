@@ -9,8 +9,8 @@
 #include <list>
 #include <set>
 
-namespace jam::authorizations {
-  namespace types = jam::test_vectors;
+namespace morum::authorizations {
+  namespace types = morum::test_vectors;
 
   auto asSet(auto &&r) {
     return std::set(r.begin(), r.end());
@@ -106,4 +106,4 @@ namespace jam::authorizations {
 
     return {new_state, qtils::Empty{}};
   }
-}  // namespace jam::authorizations
+}  // namespace morum::authorizations

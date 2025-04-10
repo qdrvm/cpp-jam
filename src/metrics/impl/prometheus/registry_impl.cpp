@@ -9,7 +9,7 @@
 #include "metrics/handler.hpp"
 #include "metrics/registry.hpp"
 
-namespace jam::metrics {
+namespace morum::metrics {
 
   std::unique_ptr<Registry> createRegistry() {
     return std::make_unique<PrometheusRegistry>();
@@ -79,4 +79,4 @@ namespace jam::metrics {
     return registerMetric<Summary>(name, labels, q, max_age, age_buckets);
   }
 
-}  // namespace jam::metrics
+}  // namespace morum::metrics

@@ -13,7 +13,7 @@
 
 #include "handler.hpp"
 
-namespace jam::metrics {
+namespace morum::metrics {
 
   /**
    * @brief an http server interface to expose metrics on request with custom
@@ -59,4 +59,4 @@ namespace jam::metrics {
     std::shared_ptr<Handler> handler_;
   };
 
-}  // namespace jam::metrics
+}  // namespace morum::metrics

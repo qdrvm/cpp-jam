@@ -18,11 +18,11 @@
 namespace soralog {
   class Logger;
 }  // namespace soralog
-namespace jam::log {
+namespace morum::log {
   class LoggingSystem;
-}  // namespace jam::log
+}  // namespace morum::log
 
-namespace jam::app {
+namespace morum::app {
 
   class StateManagerImpl final
       : Singleton<StateManager>,
@@ -81,4 +81,4 @@ namespace jam::app {
     std::queue<OnShutdown> shutdown_;
   };
 
-}  // namespace jam::app
+}  // namespace morum::app

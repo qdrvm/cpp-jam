@@ -8,7 +8,7 @@
 
 #include "clock/clock.hpp"
 
-namespace jam::clock {
+namespace morum::clock {
 
   template <typename ClockType>
   class ClockImpl : virtual public Clock<ClockType> {
@@ -23,4 +23,4 @@ namespace jam::clock {
   class SteadyClockImpl : public SteadyClock,
                           public ClockImpl<std::chrono::steady_clock> {};
 
-}  // namespace jam::clock
+}  // namespace morum::clock

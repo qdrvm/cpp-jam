@@ -187,19 +187,11 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
                 if type(size) is int:
                     return "qtils::BytesN<%u>" % size
                 else:
-<<<<<<< HEAD
-                    return "::jam::ConfigVec<uint8_t, Config::Field::%s>" % c_dash(size)
-            return "qtils::Bytes"
-        if fixed:
-            if isinstance(size, str):
-                return "::jam::ConfigVec<%s, Config::Field::%s>" % (T, c_dash(size))
-=======
                     return "::morum::ConfigVec<uint8_t, Config::Field::%s>" % c_dash(size)
             return "qtils::Bytes"
         if fixed:
             if isinstance(size, str):
                 return "::morum::ConfigVec<%s, Config::Field::%s>" % (T, c_dash(size))
->>>>>>> d6257fb (rename jam to morum)
             return "std::array<%s, %s>" % (T, c_dash(size))
         return "std::vector<%s>" % T
 
@@ -505,11 +497,7 @@ class GenSpecialTypes:
 
 def constants():
     g = GenConstants(
-<<<<<<< HEAD
-        "jam::test_vectors",
-=======
         "morum::test_vectors",
->>>>>>> d6257fb (rename jam to morum)
         "jam-types-asn",
     )
     g.write()
@@ -517,11 +505,7 @@ def constants():
 
 def types():
     g = GenCommonTypes(
-<<<<<<< HEAD
-        "jam::test_vectors",
-=======
         "morum::test_vectors",
->>>>>>> d6257fb (rename jam to morum)
         "jam-types-asn",
     )
     g.write()
@@ -529,11 +513,7 @@ def types():
 
 def history():
     g = GenSpecialTypes(
-<<<<<<< HEAD
-        "jam::test_vectors",
-=======
         "morum::test_vectors",
->>>>>>> d6257fb (rename jam to morum)
         "history",
         "history/history",
         "HistoryModule",
@@ -543,11 +523,7 @@ def history():
 
 def safrole():
     g = GenSpecialTypes(
-<<<<<<< HEAD
-        "jam::test_vectors",
-=======
         "morum::test_vectors",
->>>>>>> d6257fb (rename jam to morum)
         "safrole",
         "safrole/safrole",
         "SafroleModule",
@@ -557,11 +533,7 @@ def safrole():
 
 def disputes():
     g = GenSpecialTypes(
-<<<<<<< HEAD
-        "jam::test_vectors",
-=======
         "morum::test_vectors",
->>>>>>> d6257fb (rename jam to morum)
         "disputes",
         "disputes/disputes",
         "DisputesModule",
@@ -571,11 +543,7 @@ def disputes():
 
 def authorizations():
     g = GenSpecialTypes(
-<<<<<<< HEAD
-        "jam::test_vectors",
-=======
         "morum::test_vectors",
->>>>>>> d6257fb (rename jam to morum)
         "authorizations",
         "authorizations/authorizations",
         "AuthorizationsModule",

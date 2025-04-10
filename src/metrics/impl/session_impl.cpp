@@ -8,7 +8,7 @@
 
 #include "log/logger.hpp"
 
-namespace jam::metrics {
+namespace morum::metrics {
 
   SessionImpl::SessionImpl(std::shared_ptr<log::LoggingSystem> logsys,
                            Context &context,
@@ -97,4 +97,4 @@ namespace jam::metrics {
     logger_->error("error occurred: {}, message: {}", ec, message);
   }
 
-}  // namespace jam::metrics
+}  // namespace morum::metrics

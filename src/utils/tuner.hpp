@@ -14,7 +14,7 @@ namespace soralog {
   class Logger;
 }  // namespace soralog
 
-namespace jam::api {
+namespace morum::api {
 
   constexpr uint16_t kDefaultPortTolerance = 10;
 
@@ -27,4 +27,4 @@ namespace jam::api {
       uint16_t port_tolerance,
       const std::shared_ptr<soralog::Logger> &logger);
 
-}  // namespace jam::api
+}  // namespace morum::api

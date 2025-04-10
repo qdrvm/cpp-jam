@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <stdexcept>
 
-namespace jam {
+namespace morum {
 
   class NonCopyable {
    public:
@@ -60,4 +60,4 @@ namespace jam {
     inline static std::atomic_flag exists{false};
   };
 
-}  // namespace jam
+}  // namespace morum

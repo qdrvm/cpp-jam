@@ -14,11 +14,11 @@
 #include "metrics/metrics.hpp"
 #include "qtils/outcome.hpp"
 
-namespace jam::metrics {
+namespace morum::metrics {
   class Registry;
 }
 
-namespace jam::metrics {
+namespace morum::metrics {
 
   class MetricsWatcher final {
    public:
@@ -43,4 +43,4 @@ namespace jam::metrics {
     metrics::Gauge *metric_storage_size_;
   };
 
-}  // namespace jam::metrics
+}  // namespace morum::metrics

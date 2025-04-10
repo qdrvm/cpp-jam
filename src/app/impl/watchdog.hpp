@@ -27,9 +27,9 @@ namespace soralog {
   class Logger;
 }  // namespace soralog
 
-namespace jam::log {
+namespace morum::log {
   class LoggingSystem;
-}  // namespace jam::log
+}  // namespace morum::log
 
 #ifdef __APPLE__
 
@@ -64,7 +64,7 @@ inline uint64_t getPlatformThreadId() {
 
 #endif
 
-namespace jam {
+namespace morum {
 
   constexpr auto kWatchdogDefaultTimeout = std::chrono::minutes{15};
 
@@ -183,4 +183,4 @@ namespace jam {
     std::unordered_map<std::thread::id, Thread> threads_;
     std::atomic_bool stopped_ = false;
   };
-}  // namespace jam
+}  // namespace morum

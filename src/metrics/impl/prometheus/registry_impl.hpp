@@ -21,7 +21,7 @@
 
 #include "metrics/impl/prometheus/metrics_impl.hpp"
 
-namespace jam::metrics {
+namespace morum::metrics {
   class Handler;
 
   namespace {
@@ -164,4 +164,4 @@ namespace jam::metrics {
     }
   };
 
-}  // namespace jam::metrics
+}  // namespace morum::metrics

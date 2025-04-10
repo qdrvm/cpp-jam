@@ -14,7 +14,6 @@
 #include <vector>
 
 #include <fmt/format.h>
-
 #include <qtils/bytes.hpp>
 
 #ifdef MORUM_ENABLE_TRACE
@@ -91,7 +90,7 @@ namespace morum {
 }  // namespace morum
 
 template <>
-struct fmt::formatter<morum::StorageError, char> {
+struct std::formatter<morum::StorageError, char> {
   template <class ParseContext>
   constexpr ParseContext::iterator parse(ParseContext &ctx) {
     auto it = ctx.begin();
