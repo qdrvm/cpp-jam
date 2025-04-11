@@ -71,7 +71,7 @@ namespace qtils {
       return std::move(node.mapped());
     }
 
-    void eraseIfExists() {
+    void erase() {
       if (has()) {
         auto it = std::get<I>(it_or_key);
         it_or_key = it->first;
