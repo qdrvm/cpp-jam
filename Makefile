@@ -36,7 +36,7 @@ init_vcpkg:
 
 configure:
 	@echo "=== Configuring..."
-	VCPKG_ROOT=$(VCPKG) cmake --preset=default -DPython3_EXECUTABLE="$(VENV)/bin/python3" -B $(BUILD) $(PROJECT)
+	VCPKG_ROOT=$(VCPKG) cmake --preset=debug -DPython3_EXECUTABLE="$(VENV)/bin/python3" -B $(BUILD) $(PROJECT)
 
 build:
 	@echo "=== Building..."
