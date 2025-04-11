@@ -19,11 +19,15 @@ logging:
   groups:
     - name: main
       sink: console
-      level: info
+      level: trace
       is_fallback: true
       children:
         - name: jam
           children:
+            - name: modules
+              children:
+                - name: synchronizer_module
+                - name: networking_module
             - name: injector
             - name: application
             - name: rpc

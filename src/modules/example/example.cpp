@@ -7,6 +7,7 @@
 #include "modules/example/example.hpp"
 
 namespace jam::modules {
+
   // ExampleModule::ExampleModule(
   //     qtils::StrictSharedPtr<ExampleModuleLoader> loader,
   //     qtils::StrictSharedPtr<log::LoggingSystem> logging_system)

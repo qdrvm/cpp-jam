@@ -10,6 +10,8 @@ add_library(se_async
     )
 
 target_link_libraries(se_async
+    logger
+    fmt::fmt
     )
 
 add_library(se_sync
@@ -18,4 +20,6 @@ add_library(se_sync
     )
 
 target_link_libraries(se_sync
+    logger
+    fmt::fmt
     )

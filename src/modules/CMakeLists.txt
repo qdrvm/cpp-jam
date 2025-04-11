@@ -4,9 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-if(NOT TARGET all_modules)
+if (NOT TARGET all_modules)
   add_custom_target(all_modules)
-endif()
+endif ()
 
 function(add_jam_module NAME)
   set(MODULE_NAME ${NAME})
@@ -91,3 +91,9 @@ target_link_libraries(modules
 
 # Example module
 add_subdirectory(example)
+
+# Networking module
+add_subdirectory(networking)
+
+# Blockchain synchronizer module
+add_subdirectory(synchronizer)

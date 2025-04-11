@@ -15,9 +15,46 @@ namespace jam {
     kTotalCount
   };
 
-  enum EventTypes {
-    // TEST
-    kOnTestOperationComplete
+  enum class EventTypes {
+    // -- Modules
+
+    /// All available modules are loaded
+    LoadingIsFinished,
+
+    // -- Example
+
+    /// Example module is loaded
+    ExampleModuleIsLoaded,
+    /// Example module is unloaded
+    ExampleModuleIsUnloaded,
+    /// Example notification
+    ExampleNotification,
+    /// Example request
+    ExampleRequest,
+    /// Example response
+    ExampleResponse,
+
+    // -- Networking
+
+    /// Networking module is loaded
+    NetworkingIsLoaded,
+    /// Networking module is unloaded
+    NetworkingIsUnloaded,
+    /// Data of block is requested
+    BlockRequest,
+    /// Data of block is respond
+    BlockResponse,
+
+    // -- Synchronizer
+
+    /// Synchronizer module is loaded
+    SynchronizerIsLoaded,
+    /// Synchronizer module is unloaded
+    SynchronizerIsUnloaded,
+    /// Block announce received
+    BlockAnnounceReceived,
+    /// New block index discovered
+    BlockIndexDiscovered,
   };
 
   static constexpr uint32_t kThreadPoolSize = 3u;
