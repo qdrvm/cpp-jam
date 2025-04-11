@@ -2,8 +2,8 @@ vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
 vcpkg_from_github(
   OUT_SOURCE_PATH SOURCE_PATH
   REPO qdrvm/kagome-crates
-  REF d49af753f5dbdd6733298fa696eb9b120ba2f8ef
-  SHA512 6cb2075f96438d8f64a9622295e288f42ba2a3099aff44af949fab3bb25410b519d3511242d0a6bab2aaa3b6c154448e056a3ac7f908d0241417434cb856a327
+  REF fa437487127bfdc78f15266bb1fddaf0c913d8cf
+  SHA512 c186c8f274aa0ec49fc33ebb4aff3b0cc1dc287d48c1ca5408fc0de38302e5e0d405c83849a580739b10456e2f4f5da7f6441cf24777a4e004276de74d0f4a0b
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}" OPTIONS "-DQDRVM_BIND_CRATES=bandersnatch_vrfs;schnorrkel;ark_vrf")
 vcpkg_cmake_install()
