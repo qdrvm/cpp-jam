@@ -8,7 +8,7 @@
 
 #include <scale/scale.hpp>
 
-namespace jam {
+namespace morum {
   using scale::decode;
   using scale::encode;
 
@@ -38,4 +38,4 @@ namespace jam {
     return std::move(value);
   }
 
-}  // namespace jam
+}  // namespace morum

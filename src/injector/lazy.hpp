@@ -8,7 +8,7 @@
 
 #include <boost/di/extension/injections/lazy.hpp>
 
-namespace jam {
+namespace morum {
 
   template <typename T>
   using Lazy = boost::di::extension::lazy<T>;
@@ -25,4 +25,4 @@ namespace jam {
   template <typename T>
   using LazyUPtr = boost::di::extension::lazy<std::unique_ptr<T>>;
 
-}  // namespace jam
+}  // namespace morum

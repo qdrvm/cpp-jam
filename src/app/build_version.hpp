@@ -8,7 +8,7 @@
 
 #include <string>
 
-namespace jam {
+namespace morum {
   /**
    * @returns String indicating current build version. Might to contain: tag,
    * number of commits from tag to fork, commit branch and number of commits
@@ -16,4 +16,4 @@ namespace jam {
    * @note Definition is generating by cmake
    */
   const std::string &buildVersion();
-}  // namespace jam
+}  // namespace morum

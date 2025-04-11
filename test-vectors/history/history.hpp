@@ -12,8 +12,8 @@
 #include <jam_types/common-types.hpp>
 #include <jam_types/history-types.hpp>
 
-namespace jam::history {
-  namespace types = jam::test_vectors;
+namespace morum::history {
+  namespace types = morum::test_vectors;
 
   /**
    * The size of recent history, in blocks
@@ -69,4 +69,4 @@ namespace jam::history {
     });
     return std::make_pair(types::history::State{.beta = beta_tick}, types::history::Output{});
   }
-}  // namespace jam::history
+}  // namespace morum::history

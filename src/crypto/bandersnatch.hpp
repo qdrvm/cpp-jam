@@ -9,10 +9,10 @@
 #include <memory>
 #include <optional>
 
-#include <jam_crust.h>
+#include <ark_vrf/ark_vrf.h>
 #include <qtils/bytes.hpp>
 
-namespace jam::crypto::bandersnatch {
+namespace morum::crypto::bandersnatch {
   using Output = qtils::BytesN<JAM_BANDERSNATCH_OUTPUT>;
   using Public = qtils::BytesN<JAM_BANDERSNATCH_PUBLIC>;
   using RingCommitment = qtils::BytesN<JAM_BANDERSNATCH_RING_COMMITMENT>;
@@ -91,4 +91,4 @@ namespace jam::crypto::bandersnatch {
   RingVerifier Ring::verifier(const RingCommitment &commitment) const {
     return RingVerifier{*this, commitment};
   }
-}  // namespace jam::bandersnatch
+}  // namespace morum::bandersnatch

@@ -9,7 +9,7 @@
 #include <blake2.h>
 #include <qtils/bytes.hpp>
 
-namespace jam::crypto {
+namespace morum::crypto {
   struct Blake {
     using Hash = qtils::BytesN<32>;
     blake2b_state state;
@@ -30,4 +30,4 @@ namespace jam::crypto {
       return Blake{}.update(input).hash();
     }
   };
-}  // namespace jam
+}  // namespace morum

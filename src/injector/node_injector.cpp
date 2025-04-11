@@ -25,7 +25,7 @@
 namespace {
   namespace di = boost::di;
   namespace fs = std::filesystem;
-  using namespace jam;  // NOLINT
+  using namespace morum;  // NOLINT
 
   template <typename C>
   auto useConfig(C c) {
@@ -76,7 +76,7 @@ namespace {
   }
 }  // namespace
 
-namespace jam::injector {
+namespace morum::injector {
   class NodeInjectorImpl {
    public:
     using Injector =
@@ -98,4 +98,4 @@ namespace jam::injector {
     return pimpl_->injector_
         .template create<std::shared_ptr<app::Application> >();
   }
-}  // namespace jam::injector
+}  // namespace morum::injector

@@ -8,7 +8,7 @@
 
 #include "metrics/registry.hpp"
 
-namespace jam::metrics {
+namespace morum::metrics {
   // the function recommended to use to create a registry of the chosen
   // implementation
   std::unique_ptr<Registry> createRegistry();
@@ -109,4 +109,4 @@ namespace jam::metrics {
      */
     virtual void observe(const double value) = 0;
   };
-}  // namespace jam::metrics
+}  // namespace morum::metrics

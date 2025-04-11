@@ -11,7 +11,7 @@
 
 #include "log/logger.hpp"
 
-namespace jam::app {
+namespace morum::app {
   std::weak_ptr<StateManagerImpl> StateManagerImpl::wp_to_myself;
 
   std::atomic_bool StateManagerImpl::shutting_down_signals_enabled{false};
@@ -281,4 +281,4 @@ namespace jam::app {
     state_.store(State::ShuttingDown);
     cv_.notify_one();
   }
-}  // namespace jam::app
+}  // namespace morum::app

@@ -35,7 +35,7 @@ std::vector<MetricFamily> CollectMetrics(
   return collected_metrics;
 }
 
-namespace jam::metrics {
+namespace morum::metrics {
 
   PrometheusHandler::PrometheusHandler(
       std::shared_ptr<log::LoggingSystem> logsys)
@@ -101,4 +101,4 @@ namespace jam::metrics {
     });
   }
 
-}  // namespace jam::metrics
+}  // namespace morum::metrics

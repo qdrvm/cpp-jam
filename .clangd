@@ -1,0 +1,2 @@
+CompileFlags:
+  Add: [-D__cpp_concepts=202002L]

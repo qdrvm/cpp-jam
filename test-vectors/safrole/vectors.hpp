@@ -11,7 +11,7 @@
 #include <jam_types/safrole-types.hpp>
 #include <test-vectors/vectors.hpp>
 
-namespace jam::test_vectors::safrole {
+namespace morum::test_vectors::safrole {
   struct Vectors : test_vectors::VectorsT<TestCase, Config> {
     std::string_view type;
 
@@ -28,4 +28,4 @@ namespace jam::test_vectors::safrole {
       };
     }
   };
-}  // namespace jam::test_vectors::safrole
+}  // namespace morum::test_vectors::safrole

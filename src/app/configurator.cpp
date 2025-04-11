@@ -20,8 +20,8 @@
 
 using Endpoint = boost::asio::ip::tcp::endpoint;
 
-OUTCOME_CPP_DEFINE_CATEGORY(jam::app, Configurator::Error, e) {
-  using E = jam::app::Configurator::Error;
+OUTCOME_CPP_DEFINE_CATEGORY(morum::app, Configurator::Error, e) {
+  using E = morum::app::Configurator::Error;
   switch (e) {
     case E::CliArgsParseFailed:
       return "CLI Arguments parse failed";
@@ -67,7 +67,7 @@ namespace {
   }
 }  // namespace
 
-namespace jam::app {
+namespace morum::app {
 
   Configurator::Configurator(int argc, const char **argv, const char **env)
       : argc_(argc), argv_(argv), env_(env) {
@@ -136,13 +136,13 @@ namespace jam::app {
     }
 
     if (vm.contains("help")) {
-      std::cout << "JAM-node version " << buildVersion() << '\n';
+      std::cout << "Morum version " << buildVersion() << '\n';
       std::cout << cli_options_ << '\n';
       return true;
     }
 
     if (vm.contains("version")) {
-      std::cout << "JAM-node version " << buildVersion() << '\n';
+      std::cout << "Morum version " << buildVersion() << '\n';
       return true;
     }
 
@@ -365,4 +365,4 @@ namespace jam::app {
     return outcome::success();
   }
 
-}  // namespace jam::app
+}  // namespace morum::app

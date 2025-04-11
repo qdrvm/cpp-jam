@@ -16,8 +16,8 @@
 #include <test-vectors/common.hpp>
 #include <jam_types/config-full.hpp>
 
-namespace jam::safrole {
-  namespace types = jam::test_vectors;
+namespace morum::safrole {
+  namespace types = morum::test_vectors;
 
   using BandersnatchSignature = decltype(types::TicketEnvelope::signature);
 
@@ -380,4 +380,4 @@ namespace jam::safrole {
         }},
     };
   }
-}  // namespace jam::safrole
+}  // namespace morum::safrole

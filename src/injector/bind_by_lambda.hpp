@@ -8,7 +8,7 @@
 
 #include <boost/di/extension/scopes/shared.hpp>
 
-namespace jam::injector {
+namespace morum::injector {
   /**
    * Creates single instance per injector.
    *
@@ -66,4 +66,4 @@ namespace jam::injector {
   auto bind_by_lambda(const F &f) {
     return boost::di::core::dependency<BindByLambda, T, F>{f};
   }
-}  // namespace jam::injector
+}  // namespace morum::injector

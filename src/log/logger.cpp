@@ -13,8 +13,8 @@
 
 #include "log/logger.hpp"
 
-OUTCOME_CPP_DEFINE_CATEGORY(jam::log, Error, e) {
-  using E = jam::log::Error;
+OUTCOME_CPP_DEFINE_CATEGORY(morum::log, Error, e) {
+  using E = morum::log::Error;
   switch (e) {
     case E::WRONG_LEVEL:
       return "Unknown level";
@@ -26,7 +26,7 @@ OUTCOME_CPP_DEFINE_CATEGORY(jam::log, Error, e) {
   return "Unknown log::Error";
 }
 
-namespace jam::log {
+namespace morum::log {
 
   outcome::result<Level> str2lvl(std::string_view str) {
     if (str == "trace") {
@@ -68,7 +68,7 @@ namespace jam::log {
     for (auto &chunk : cfg) {
       if (auto res = str2lvl(chunk); res.has_value()) {
         auto level = res.value();
-        logging_system_->setLevelOfGroup(jam::log::defaultGroupName, level);
+        logging_system_->setLevelOfGroup(morum::log::defaultGroupName, level);
         continue;
       }
 
@@ -102,4 +102,4 @@ namespace jam::log {
     }
   }
 
-}  // namespace jam::log
+}  // namespace morum::log

@@ -10,7 +10,7 @@
 #include "metrics/registry.hpp"
 #include "qtils/final_action.hpp"
 
-namespace jam::metrics {
+namespace morum::metrics {
   inline std::vector<double> exponentialBuckets(double start,
                                                 double factor,
                                                 size_t count) {
@@ -73,4 +73,4 @@ namespace jam::metrics {
       return std::make_optional(qtils::MovableFinalAction(manual()));
     }
   };
-}  // namespace jam::metrics
+}  // namespace morum::metrics

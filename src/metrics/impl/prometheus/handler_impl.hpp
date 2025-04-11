@@ -14,7 +14,7 @@
 #include "log/logger.hpp"
 #include "metrics/handler.hpp"
 
-namespace jam::metrics {
+namespace morum::metrics {
 
   class PrometheusHandler : public Handler {
    public:
@@ -42,4 +42,4 @@ namespace jam::metrics {
     std::vector<std::weak_ptr<prometheus::Collectable>> collectables_;
   };
 
-}  // namespace jam::metrics
+}  // namespace morum::metrics

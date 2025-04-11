@@ -12,7 +12,7 @@
 #include <jam_types/config.hpp>
 #include <scale/jam_scale.hpp>
 
-namespace jam {
+namespace morum {
   template <typename T, typename ConfigField>
   class ConfigVec : public std::vector<T> {
    public:
@@ -53,4 +53,4 @@ namespace jam {
       }
     }
   };
-}  // namespace jam
+}  // namespace morum

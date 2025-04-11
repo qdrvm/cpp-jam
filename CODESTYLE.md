@@ -15,7 +15,7 @@
 #include <boost/...>
 #include <fmt/...>
 #include <gtest/...>
-#include <jam_crust.h>
+#include <ark_vrf/...>
 #include <qtils/...>
 #include <scale/...>
 

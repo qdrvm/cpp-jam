@@ -5,7 +5,7 @@
 
 #include "app/configuration.hpp"
 
-namespace jam::app {
+namespace morum::app {
 
   Configuration::Configuration()
       : version_("undefined"), name_("unnamed"), metrics_endpoint_() {}
@@ -23,4 +23,4 @@ namespace jam::app {
     return metrics_endpoint_;
   }
 
-}  // namespace jam::app
+}  // namespace morum::app

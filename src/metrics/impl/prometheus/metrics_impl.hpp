@@ -15,7 +15,7 @@ namespace prometheus {
   class Histogram;
 }  // namespace prometheus
 
-namespace jam::metrics {
+namespace morum::metrics {
 
   class PrometheusCounter : public Counter {
     friend class PrometheusRegistry;
@@ -66,4 +66,4 @@ namespace jam::metrics {
     void observe(const double value) override;
   };
 
-}  // namespace jam::metrics
+}  // namespace morum::metrics

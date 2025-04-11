@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <vector>
 
-namespace jam {
+namespace morum {
 
   template <typename T>
   void retain_if(std::vector<T> &v, auto &&predicate) {
@@ -30,4 +30,4 @@ namespace jam {
     }
   }
 
-}  // namespace jam
+}  // namespace morum

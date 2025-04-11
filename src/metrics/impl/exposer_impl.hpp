@@ -10,20 +10,20 @@
 
 #include <thread>
 
-namespace jam::app {
+namespace morum::app {
   class StateManager;
   class Configuration;
-}  // namespace jam::app
+}  // namespace morum::app
 
 namespace soralog {
   class Logger;
 }  // namespace soralog
 
-namespace jam::log {
+namespace morum::log {
   class LoggingSystem;
-}  // namespace jam::log
+}  // namespace morum::log
 
-namespace jam::metrics {
+namespace morum::metrics {
 
   class ExposerImpl : public Exposer,
                       public std::enable_shared_from_this<ExposerImpl> {
@@ -56,4 +56,4 @@ namespace jam::metrics {
     std::unique_ptr<std::thread> thread_;
   };
 
-}  // namespace jam::metrics
+}  // namespace morum::metrics

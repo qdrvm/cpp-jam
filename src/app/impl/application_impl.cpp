@@ -17,7 +17,7 @@
 #include "metrics/histogram_timer.hpp"
 #include "metrics/metrics.hpp"
 
-namespace jam::app {
+namespace morum::app {
 
   ApplicationImpl::ApplicationImpl(
       std::shared_ptr<log::LoggingSystem> logsys,
@@ -34,7 +34,7 @@ namespace jam::app {
         system_clock_(std::move(system_clock)),
         metrics_registry_(metrics::createRegistry()) {
     // Metric for exposing name and version of node
-    constexpr auto buildInfoMetricName = "jam_build_info";
+    constexpr auto buildInfoMetricName = "morum_build_info";
     metrics_registry_->registerGaugeFamily(
         buildInfoMetricName,
         "A metric with a constant '1' value labeled by name, version");
@@ -59,7 +59,7 @@ namespace jam::app {
     state_manager_->atShutdown([this] { watchdog_->stop(); });
 
     // Metric storing start time
-    metrics::GaugeHelper("jam_process_start_time_seconds",
+    metrics::GaugeHelper("morum_process_start_time_seconds",
                          "UNIX timestamp of the moment the process started")
         ->set(system_clock_->nowSec());
 
@@ -70,4 +70,4 @@ namespace jam::app {
     watchdog_thread.join();
   }
 
-}  // namespace jam::app
+}  // namespace morum::app

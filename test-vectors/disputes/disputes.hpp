@@ -20,8 +20,8 @@
 #include <test-vectors/common.hpp>
 #include <jam_types/disputes-types.hpp>
 
-namespace jam::disputes {
-  namespace types = jam::test_vectors;
+namespace morum::disputes {
+  namespace types = morum::test_vectors;
 
   auto asSet(auto &&r) {
     return std::set(r.begin(), r.end());
@@ -70,14 +70,14 @@ namespace jam::disputes {
   template <typename M>
   MultimapGroups(const M &) -> MultimapGroups<M>;
 
-  inline bool ed25519_verify(const jam::crypto::ed25519::Signature &sig,
-                             const jam::crypto::ed25519::Public &pub,
+  inline bool ed25519_verify(const morum::crypto::ed25519::Signature &sig,
+                             const morum::crypto::ed25519::Public &pub,
                              qtils::BytesIn X,
                              const types::WorkReportHash &work_report) {
     qtils::Bytes payload;
     qtils::append(payload, X);
     qtils::append(payload, work_report);
-    return jam::crypto::ed25519::verify(sig, payload, pub);
+    return morum::crypto::ed25519::verify(sig, payload, pub);
   }
 
   // [GP 0.4.5 I.4.5]
@@ -516,4 +516,4 @@ namespace jam::disputes {
             .offenders_mark = {offenders_mark.begin(), offenders_mark.end()},
         }}};
   }
-}  // namespace jam::disputes
+}  // namespace morum::disputes
