@@ -16,6 +16,8 @@
 #include "app/configurator.hpp"
 #include "injector/node_injector.hpp"
 #include "loaders/impl/example_loader.hpp"
+#include "loaders/impl/networking_loader.hpp"
+#include "loaders/impl/synchronizer_loader.hpp"
 #include "log/logger.hpp"
 #include "modules/module_loader.hpp"
 #include "se/subscription.hpp"
@@ -45,24 +47,56 @@ namespace {
       const std::string path(appcfg->modulesDir());
 
       jam::modules::ModuleLoader module_loader(path);
-      auto modules = module_loader.get_modules();
-      if (modules.has_error()) {
+      auto modules_res = module_loader.get_modules();
+      if (modules_res.has_error()) {
         SL_CRITICAL(logger, "Failed to load modules from path: {}", path);
         return EXIT_FAILURE;
       }
+      auto &modules = modules_res.value();
 
       std::deque<std::shared_ptr<jam::loaders::Loader>> loaders;
-      for (const auto &module : modules.value()) {
+      for (const auto &module : modules) {
+        std::shared_ptr<jam::loaders::Loader> loader;
+
+        SL_INFO(logger,
+                "Found module '{}', path: {}",
+                module->get_module_info(),
+                module->get_path());
+
+        // Select loader
         if ("ExampleLoader" == module->get_loader_id()) {
-          auto loader = std::make_shared<jam::loaders::ExampleLoader>(
+          loader = std::make_shared<jam::loaders::ExampleLoader>(
               *injector, logsys, module);
-          if (auto info = loader->module_info()) {
-            SL_INFO(logger, "> Module: {} [{}]", *info, module->get_path());
-            loaders.emplace_back(loader);
-            loader->start();
-          }
         }
+        if ("NetworkingLoader" == module->get_loader_id()) {
+          loader = std::make_shared<jam::loaders::NetworkingLoader>(
+              *injector, logsys, module);
+        }
+        if ("SynchronizerLoader" == module->get_loader_id()) {
+          loader = std::make_shared<jam::loaders::SynchronizerLoader>(
+              *injector, logsys, module);
+        }
+
+        // Skip unsupported
+        if (not loader) {
+          SL_WARN(logger,
+                  "Module '{}' has unsupported loader '{}'; Skipped",
+                  module->get_module_info(),
+                  module->get_loader_id());
+          continue;
+        }
+
+        // Init module
+        SL_INFO(logger,
+                "Module '{}' loaded by '{}'",
+                module->get_module_info(),
+                module->get_loader_id());
+        loaders.emplace_back(loader);
+        loader->start();
       }
+
+      // Notify about all modules are loaded
+      jam::se::getSubscription()->notify(jam::EventTypes::LoadingIsFinished);
     }
 
     auto logger = logsys->getLogger("Main", jam::log::defaultGroupName);
