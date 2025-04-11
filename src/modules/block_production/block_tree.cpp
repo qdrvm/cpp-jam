@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "modules/example/example.hpp"
+
+#include "modules/block_production/block_tree.hpp"
+
 
 namespace jam::modules {
 
@@ -12,8 +14,7 @@ namespace jam::modules {
   //     qtils::StrictSharedPtr<ExampleModuleLoader> loader,
   //     qtils::StrictSharedPtr<log::LoggingSystem> logging_system)
   //     : loader_(loader),
-  //       logger_(logging_system->getLogger("ExampleModule", "example_module"))
-
+  //       logger_(logging_system->getLogger("ExampleModule", "block_tree_module"))
   // {}
 
 }  // namespace jam::modules
