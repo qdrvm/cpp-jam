@@ -6,6 +6,8 @@
 
 
 #include "modules/synchronizer/synchronizer.hpp"
+#include "modules/shared/synchronizer_types.tmp.hpp"
+#include "modules/shared/networking_types.tmp.hpp"
 
 
 namespace jam::modules {
@@ -26,9 +28,18 @@ namespace jam::modules {
     SL_INFO(logger_, "Block discovered");
   };
 
-  void SynchronizerImpl::on_block_block_announce(
+  void SynchronizerImpl::on_block_announce(
       std::shared_ptr<const messages::BlockAnnounceMessage> msg) {
     SL_INFO(logger_, "Block announced");
+
+    // tmp
+    auto x = std::make_shared<const messages::BlockRequestMessage>();
+    loader_->dispatch_block_request(std::move(x));
   };
+
+  void SynchronizerImpl::on_block_response(
+      std::shared_ptr<const messages::BlockResponseMessage> msg) {
+    SL_INFO(logger_, "Block response is received");
+  }
 
 }  // namespace jam::modules

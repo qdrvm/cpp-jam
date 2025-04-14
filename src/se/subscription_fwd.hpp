@@ -40,6 +40,10 @@ namespace jam {
     NetworkingIsLoaded,
     /// Networking module is unloaded
     NetworkingIsUnloaded,
+    /// Peer connected
+    PeerConnected,
+    /// Peer disconnected
+    PeerDisconnected,
     /// Data of block is requested
     BlockRequest,
     /// Data of block is respond
