@@ -19,6 +19,12 @@ namespace jam::modules {
   struct NetworkingLoader {
     virtual ~NetworkingLoader() = default;
 
+    virtual void dispatch_peer_connected(
+        std::shared_ptr<const messages::PeerConnectedMessage> msg) = 0;
+
+    virtual void dispatch_peer_disconnected(
+        std::shared_ptr<const messages::PeerDisconnectedMessage> msg) = 0;
+
     virtual void dispatch_block_announce(
         std::shared_ptr<const messages::BlockAnnounceMessage> msg) = 0;
 
