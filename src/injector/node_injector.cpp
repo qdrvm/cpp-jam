@@ -21,7 +21,6 @@
 #include "log/logger.hpp"
 #include "metrics/impl/exposer_impl.hpp"
 #include "metrics/impl/prometheus/handler_impl.hpp"
-#include "se/subscription.hpp"
 
 namespace {
   namespace di = boost::di;

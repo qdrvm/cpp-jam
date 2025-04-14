@@ -44,17 +44,20 @@ namespace jam::loaders {
           std::shared_ptr<modules::ExampleModuleLoader>,
           std::shared_ptr<log::LoggingSystem>>("query_module_instance");
 
+      auto se_manager = injector_.getSE();
+
       if (function) {
         auto module_internal = (*function)(shared_from_this(), logsys_);
         on_init_complete_ = se::SubscriberCreator<__T>::template create<
             EventTypes::kOnTestOperationComplete>(
+              *se_manager,
             SubscriptionEngineHandlers::kTest, [module_internal](auto &) {
               if (auto m = module_internal.lock()) {
                 m->on_loaded_success();
               }
             });
 
-        se::getSubscription()->notify(
+            se_manager->notify(
             jam::EventTypes::kOnTestOperationComplete);
       }
     }

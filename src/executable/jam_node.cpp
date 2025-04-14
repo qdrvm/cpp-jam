@@ -38,6 +38,8 @@ namespace {
   int run_node(std::shared_ptr<LoggingSystem> logsys,
                std::shared_ptr<Configuration> appcfg) {
     auto injector = std::make_unique<NodeInjector>(logsys, appcfg);
+    qtils::FinalAction dispose_se_on_exit(
+      [se_manager{injector->getSE()}] { se_manager->dispose(); });
 
     // Load modules
     {
@@ -55,6 +57,14 @@ namespace {
       for (const auto &module : modules.value()) {
         if ("ExampleLoader" == module->get_loader_id()) {
           auto loader = std::make_shared<jam::loaders::ExampleLoader>(
+              *injector, logsys, module);
+          if (auto info = loader->module_info()) {
+            SL_INFO(logger, "> Module: {} [{}]", *info, module->get_path());
+            loaders.emplace_back(loader);
+            loader->start();
+          }
+        }         if ("PVM_Module_Rust" == module->get_loader_id()) {
+          auto loader = std::make_shared<jam::loaders::PVMBindingsLoaderV1>(
               *injector, logsys, module);
           if (auto info = loader->module_info()) {
             SL_INFO(logger, "> Module: {} [{}]", *info, module->get_path());
@@ -80,9 +90,6 @@ namespace {
 }  // namespace
 
 int main(int argc, const char **argv, const char **env) {
-  qtils::FinalAction dispose_se_on_exit(
-      [se_manager{jam::se::getSubscription()}] { se_manager->dispose(); });
-
   soralog::util::setThreadName("jam-node");
 
   qtils::FinalAction flush_std_streams_at_exit([] {
