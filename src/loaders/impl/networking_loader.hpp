@@ -31,7 +31,8 @@ namespace jam::loaders {
     std::shared_ptr<BaseSubscriber<qtils::Empty>> on_loading_finished_;
 
     std::shared_ptr<
-        BaseSubscriber<std::shared_ptr<const messages::BlockRequestMessage>>>
+        BaseSubscriber<qtils::Empty,
+                       std::shared_ptr<const messages::BlockRequestMessage>>>
         on_block_request_;
 
    public:
@@ -75,9 +76,11 @@ namespace jam::loaders {
               });
 
       on_block_request_ = se::SubscriberCreator<
+          qtils::Empty,
           std::shared_ptr<const messages::BlockRequestMessage>>::
           template create<EventTypes::BlockRequest>(
-              SubscriptionEngineHandlers::kTest, [module_internal](auto &msg) {
+              SubscriptionEngineHandlers::kTest,
+              [module_internal](auto &, const auto &msg) {
                 if (auto m = module_internal.lock()) {
                   m->on_block_request(msg);
                 }
@@ -87,8 +90,20 @@ namespace jam::loaders {
       se::getSubscription()->notify(jam::EventTypes::NetworkingIsLoaded);
     }
 
+    void dispatch_peer_connected(
+        std::shared_ptr<const messages::PeerConnectedMessage> msg) override {
+      se::getSubscription()->notify(jam::EventTypes::PeerConnected, msg);
+    }
+
+    void dispatch_peer_disconnected(
+        std::shared_ptr<const messages::PeerDisconnectedMessage> msg) override {
+      se::getSubscription()->notify(jam::EventTypes::PeerDisconnected, msg);
+    }
+
     void dispatch_block_announce(
         std::shared_ptr<const messages::BlockAnnounceMessage> msg) override {
+      // SL_INFO(logsys_, "")
+
       se::getSubscription()->notify(jam::EventTypes::BlockAnnounceReceived,
                                     msg);
     }

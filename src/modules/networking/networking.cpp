@@ -25,13 +25,19 @@ namespace jam::modules {
     SL_INFO(logger_, "Loading is finished");
 
     // tmp entry point for experiments
-    auto x = std::make_shared<messages::BlockAnnounceMessage>();
+    auto x = std::make_shared<const messages::BlockAnnounceMessage>();
     loader_->dispatch_block_announce(std::move(x));
   }
 
   void NetworkingImpl::on_block_request(
       std::shared_ptr<const messages::BlockRequestMessage> msg) {
     SL_INFO(logger_, "Block requested");
+
+    // tmp entry point for experiments
+    auto x = std::make_shared<const messages::BlockResponseMessage>(messages::BlockResponseMessage {
+        .result = Block{}
+    });
+    loader_->dispatch_block_response(std::move(x));
   };
 
 }  // namespace jam::modules

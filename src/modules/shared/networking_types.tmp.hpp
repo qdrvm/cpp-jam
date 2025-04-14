@@ -10,11 +10,24 @@
 
 namespace jam::messages {
 
+  struct PeerConnectedMessage {
+    PeerId peer;
+    // address?
+    // initial view?
+  };
+
+  struct PeerDisconnectedMessage {
+    PeerId peer;
+    // reason?
+  };
+
   struct BlockAnnounce {
+    BlockHeader header;
+    PeerId peer;
   };
 
   struct BlockRequestMessage {
-    BlockAnnounce header;
+    BlocksRequest request;
     PeerId peer;
   };
 

@@ -32,6 +32,11 @@ namespace jam::loaders {
                        std::shared_ptr<const messages::BlockAnnounceMessage>>>
         on_block_announce_;
 
+    std::shared_ptr<
+        BaseSubscriber<qtils::Empty,
+                       std::shared_ptr<const messages::BlockResponseMessage>>>
+        on_block_response_;
+
    public:
     SynchronizerLoader(injector::NodeInjector &injector,
                        std::shared_ptr<log::LoggingSystem> logsys,
@@ -68,14 +73,30 @@ namespace jam::loaders {
           std::shared_ptr<const messages::BlockAnnounceMessage>>::
           template create<EventTypes::BlockAnnounceReceived>(
               SubscriptionEngineHandlers::kTest,
-              [module_internal](auto &msg) {
+              [module_internal](auto &, const auto &msg) {
                 if (auto m = module_internal.lock()) {
-                  m->on_block_block_announce(msg);
+                  m->on_block_announce(msg);
+                }
+              });
+
+      on_block_response_ = se::SubscriberCreator<
+          qtils::Empty,
+          std::shared_ptr<const messages::BlockResponseMessage>>::
+          template create<EventTypes::BlockResponse>(
+              SubscriptionEngineHandlers::kTest,
+              [module_internal](auto &, const auto &msg) {
+                if (auto m = module_internal.lock()) {
+                  m->on_block_response(msg);
                 }
               });
 
 
       se::getSubscription()->notify(jam::EventTypes::SynchronizerIsLoaded);
+    }
+
+    void dispatch_block_request(
+        std::shared_ptr<const messages::BlockRequestMessage> msg) override {
+      se::getSubscription()->notify(jam::EventTypes::BlockRequest, msg);
     }
   };
 }  // namespace jam::loaders
