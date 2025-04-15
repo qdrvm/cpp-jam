@@ -4,4 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-message(STATUS "There are no tests yet")
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/src
+    )
+
+# add_subdirectory(utils)
