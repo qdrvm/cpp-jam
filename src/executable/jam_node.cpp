@@ -26,84 +26,75 @@ using std::string_view_literals::operator""sv;
 
 template <typename T>
 struct Channel {
-  struct _Receiver;
-  struct _Sender;
+    struct _Receiver;
+    struct _Sender;
 
-  struct _Receiver {
-    using Other = _Sender;
-  };
-  struct _Sender {
-    using Other = _Receiver;
-  };
-
-  // template<typename V>
-  // concept IsReceiver = std::is_same_v<V, Receiver>;
-
-  // template<typename V>
-  // concept IsReceiver = std::is_same_v<V, Receiver>;
-
-  template <typename Opp>
-  struct Endpoint {
-    static_assert(std::is_same_v<Opp, _Receiver>
-                      || std::is_same_v<Opp, _Sender>,
-                  "Incorrect type");
-    static constexpr bool IsReceiver = std::is_same_v<Opp, _Receiver>;
-    static constexpr bool IsSender = std::is_same_v<Opp, _Sender>;
-
-    void register_opp(Endpoint<typename Opp::Other> &opp) {
-      opp_ = &opp;
-    }
-
-    void unregister_opp(Endpoint<typename Opp::Other> &opp) {
-      assert(opp_ == &opp);
-      opp_ = nullptr;
-    }
-
-    ~Endpoint() {
-      if (opp_) {
-        opp_->unregister_opp(*this);
-        opp_ = nullptr;
-      }
-    }
-
-    void set(T &&t)
-      requires(IsSender)
-    {
-      opp_->context_.data_ = std::move(t);
-      opp_->context_.event_.set();
-    }
-
-    void set(T &t)
-      requires(IsSender)
-    {
-      opp_->context_.data_ = t;
-      opp_->context_.event_.set();
-    }
-
-    T wait()
-      requires(IsReceiver)
-    {
-      context_.event_.wait();
-      return std::move(context_.data_.value());
-    }
-
-   private:
-    friend struct Endpoint<typename Opp::Other>;
-
-    struct ExecutionContext {
-      jam::se::utils::WaitForSingleObject event_;
-      std::optional<T> data_;
+    struct _Receiver {
+        using Other = _Sender;
+    };
+    struct _Sender {
+        using Other = _Receiver;
     };
 
-    Endpoint<typename Opp::Other> *opp_ = nullptr;
-    std::conditional_t<std::is_same_v<Opp, _Receiver>,
-                       ExecutionContext,
-                       std::monostate>
-        context_;
-  };
+    template <typename Opp>
+    struct Endpoint {
+        static_assert(std::is_same_v<Opp, _Receiver> || std::is_same_v<Opp, _Sender>,
+                      "Incorrect type");
+        static constexpr bool IsReceiver = std::is_same_v<Opp, _Receiver>;
+        static constexpr bool IsSender = std::is_same_v<Opp, _Sender>;
 
-  using Receiver = Endpoint<_Receiver>;
-  using Sender = Endpoint<_Sender>;
+        void register_opp(Endpoint<typename Opp::Other>& opp) {
+            opp_ = &opp;
+        }
+
+        void unregister_opp(Endpoint<typename Opp::Other>& opp) {
+            assert(opp_ == &opp);
+            opp_ = nullptr;
+        }
+
+        ~Endpoint() {
+            if (opp_) {
+                if constexpr (IsSender) {
+                    // Уведомляем получателя о разрушении отправителя
+                    opp_->context_.event_.set();
+                }
+                opp_->unregister_opp(*this);
+                opp_ = nullptr;
+            }
+        }
+
+        void set(T&& t) requires(IsSender) {
+            opp_->context_.data_ = std::move(t);
+            opp_->context_.event_.set();
+        }
+
+        void set(T& t) requires(IsSender) {
+            opp_->context_.data_ = t;
+            opp_->context_.event_.set();
+        }
+
+        std::optional<T> wait() requires(IsReceiver) {
+            context_.event_.wait();
+            return std::move(context_.data_);
+        }
+
+    private:
+        friend struct Endpoint<typename Opp::Other>;
+
+        struct ExecutionContext {
+            jam::se::utils::WaitForSingleObject event_;
+            std::optional<T> data_;
+        };
+
+        Endpoint<typename Opp::Other>* opp_ = nullptr;
+        std::conditional_t<std::is_same_v<Opp, _Receiver>,
+                           ExecutionContext,
+                           std::monostate>
+            context_;
+    };
+
+    using Receiver = Endpoint<_Receiver>;
+    using Sender = Endpoint<_Sender>;
 };
 
 void tttt() {
