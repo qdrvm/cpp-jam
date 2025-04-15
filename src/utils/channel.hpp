@@ -67,16 +67,16 @@ namespace jam {
         });
       }
 
+
       ~Endpoint()
         requires(IsReceiver)
       {
         while (context_.exclusiveAccess([&](auto &context) {
           if (context.opp_) {
-            if (context.opp_->unregister_opp(*this)) {
-              context.opp_ = nullptr;
-              return false;
+            if (!context.opp_->unregister_opp(*this)) {
+              return true;
             }
-            return true;
+            context.opp_ = nullptr;
           }
           return false;
         }));
@@ -133,6 +133,17 @@ namespace jam {
 
     using Receiver = Endpoint<_Receiver>;
     using Sender = Endpoint<_Sender>;
+
+    template <typename T>
+    inline std::pair<Receiver, Sender> create_channel() {
+      using C = Channel<T>;
+      C::Receiver r;
+      C::Sender s;
+
+      r.register_opp(s);
+      s.register_opp(r);
+      return std::make_pair(std::move(r), std::move(s));
+    }
   };
 
 }  // namespace jam
