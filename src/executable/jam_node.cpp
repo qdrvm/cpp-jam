@@ -52,12 +52,16 @@ struct Channel {
             opp_ = nullptr;
         }
 
-        ~Endpoint() {
+        ~Endpoint() requires(IsSender) {
             if (opp_) {
-                if constexpr (IsSender) {
-                    // Уведомляем получателя о разрушении отправителя
-                    opp_->context_.event_.set();
-                }
+                opp_->context_.event_.set();
+                opp_->unregister_opp(*this);
+                opp_ = nullptr;
+            }
+        }
+
+        ~Endpoint() requires(IsReceiver) {
+            if (opp_) {
                 opp_->unregister_opp(*this);
                 opp_ = nullptr;
             }

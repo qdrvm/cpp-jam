@@ -50,17 +50,18 @@ namespace jam::se::utils {
     }
 
     template <typename F>
+    inline auto try_exclusiveAccess(F &&f) {
+      std::unique_lock lock(cs_, std::try_to_lock);
+      if (lock.owns_lock()) {
+        return std::make_optional(std::forward<F>(f)(t_));
+      }
+      return std::nullopt;
+    }
+
+    template <typename F>
     inline auto sharedAccess(F &&f) const {
       std::shared_lock lock(cs_);
       return std::forward<F>(f)(t_);
-    }
-
-    T &unsafeGet() {
-      return t_;
-    }
-
-    const T &unsafeGet() const {
-      return t_;
     }
 
    private:
