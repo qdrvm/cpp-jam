@@ -23,25 +23,54 @@ namespace jam {
     };
 
     template <typename Opp>
-    struct Endpoint {
+    struct Endpoint : se::utils::NoCopy {
       static_assert(std::is_same_v<Opp, _Receiver>
                         || std::is_same_v<Opp, _Sender>,
                     "Incorrect type");
       static constexpr bool IsReceiver = std::is_same_v<Opp, _Receiver>;
       static constexpr bool IsSender = std::is_same_v<Opp, _Sender>;
 
-      void register_opp(Endpoint<typename Opp::Other> &opp) {
-        context_.exclusiveAccess([&](auto &context) { context.opp_ = &opp; });
+      Endpoint(Endpoint &&other) requires(IsReceiver) {
+        context_.exclusiveAccess([&](auto &my_context) {
+            Endpoint<typename Opp::Other> *opp = nullptr;
+            while (other.context_.exclusiveAccess([&](auto &other_context) {
+                if (other_context.opp_) {
+                    if (!other_context.opp_->register_opp(*this)) {
+                        return true;
+                    }
+                    opp = other_context.opp_;
+                    other_context.opp_ = nullptr;
+                }
+                return false;
+            }));
+            my_context.opp_ = opp;
+        });
+      }
+
+      bool register_opp(Endpoint<typename Opp::Other> &opp) requires(IsReceiver) {
+        return context_.exclusiveAccess([&](auto &context) { 
+            context.opp_ = &opp; 
+            return true;
+            });
+        
+      }
+
+      bool register_opp(Endpoint<typename Opp::Other> &opp) requires(IsSender) {
+        return context_
+            .try_exclusiveAccess([&](auto &context) {
+                context.opp_ = &opp; 
+            })
+            .has_value();
       }
 
       bool unregister_opp(Endpoint<typename Opp::Other> &opp)
         requires(IsReceiver)
       {
-        context_.exclusiveAccess([&](auto &context) {
+        return context_.exclusiveAccess([&](auto &context) {
           assert(context.opp_ == &opp);
           context.opp_ = nullptr;
+            return true;
         });
-        return true;
       }
 
       bool unregister_opp(Endpoint<typename Opp::Other> &opp)
@@ -134,7 +163,6 @@ namespace jam {
     using Receiver = Endpoint<_Receiver>;
     using Sender = Endpoint<_Sender>;
 
-    template <typename T>
     inline std::pair<Receiver, Sender> create_channel() {
       using C = Channel<T>;
       C::Receiver r;

@@ -9,7 +9,7 @@
 using namespace std::chrono_literals;
 
 TEST(ChannelTest, SendAndReceiveValue) {
-  auto [recv, send] = Channel<int>::create_channel<int>();
+  auto [recv, send] = Channel<int>::create_channel();
 
   send.set(42);
   auto value = recv.wait();
@@ -19,7 +19,7 @@ TEST(ChannelTest, SendAndReceiveValue) {
 }
 
 TEST(ChannelTest, SendLValue) {
-  auto [recv, send] = Channel<int>::create_channel<int>();
+  auto [recv, send] = Channel<int>::create_channel();
 
   int x = 123;
   send.set(x);
@@ -33,7 +33,7 @@ TEST(ChannelTest, SenderDestructionNotifiesReceiver) {
   std::optional<Channel<int>::Receiver> recv;
   std::optional<Channel<int>::Sender> send;
 
-  std::tie(recv, send) = Channel<int>::create_channel<int>();
+  std::tie(recv, send) = Channel<int>::create_channel();
 
   std::optional<int> result;
 
@@ -48,7 +48,7 @@ TEST(ChannelTest, SenderDestructionNotifiesReceiver) {
 }
 
 TEST(ChannelTest, MultipleSendKeepsOneValue) {
-  auto [recv, send] = Channel<int>::create_channel<int>();
+  auto [recv, send] = Channel<int>::create_channel();
 
   send.set(1);
   send.set(2);
@@ -62,7 +62,7 @@ TEST(ChannelTest, ReceiverDestructionUnregistersSender) {
   std::optional<Channel<int>::Receiver> recv;
   std::optional<Channel<int>::Sender> send;
 
-  std::tie(recv, send) = Channel<int>::create_channel<int>();
+  std::tie(recv, send) = Channel<int>::create_channel();
 
   recv.reset();
 
