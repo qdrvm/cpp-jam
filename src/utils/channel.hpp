@@ -61,6 +61,43 @@ namespace jam {
         });
       }
 
+      Endpoint &operator=(Endpoint &&other) requires(IsReceiver) {
+        if (this != &other) {
+          context_.exclusiveAccess([&](auto &my_context) {
+              Endpoint<typename Opp::Other> *opp = nullptr;
+              while (other.context_.exclusiveAccess([&](auto &other_context) {
+                  if (other_context.opp_) {
+                      if (!other_context.opp_->register_opp(*this)) {
+                          return true;
+                      }
+                      opp = other_context.opp_;
+                      other_context.opp_ = nullptr;
+                  }
+                  return false;
+              }));
+              my_context.opp_ = opp;
+          });
+        }
+        return *this;
+      }
+
+      Endpoint &operator=(Endpoint &&other) requires(IsSender) {
+        if (this != &other) {
+          context_.exclusiveAccess([&](auto &my_context) {
+              my_context.opp_ = other.context_.exclusiveAccess([&](auto &other_context) {
+                  Endpoint<typename Opp::Other> *opp = nullptr;
+                  if (other_context.opp_) {
+                      other_context.opp_->register_opp(*this);
+                      opp = other_context.opp_;
+                      other_context.opp_ = nullptr;
+                  }
+                  return opp;
+              });
+          });
+        }
+        return *this;
+      }
+
       bool register_opp(Endpoint<typename Opp::Other> &opp) requires(IsReceiver) {
         return context_.exclusiveAccess([&](auto &context) { 
             context.opp_ = &opp; 

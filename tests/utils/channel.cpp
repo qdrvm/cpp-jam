@@ -7,6 +7,7 @@
 #include <thread>
 
 using namespace std::chrono_literals;
+using namespace jam;
 
 TEST(ChannelTest, SendAndReceiveValue) {
   auto [recv, send] = Channel<int>::create_channel();
