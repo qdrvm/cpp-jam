@@ -24,6 +24,7 @@ namespace jam::loaders {
         public modules::NetworkingLoader {
     struct __T {};
     std::shared_ptr<log::LoggingSystem> logsys_;
+    log::Logger logger_;
 
     using InitCompleteSubscriber = BaseSubscriber<__T>;
     std::shared_ptr<InitCompleteSubscriber> on_init_complete_;
@@ -39,7 +40,9 @@ namespace jam::loaders {
     NetworkingLoader(injector::NodeInjector &injector,
                      std::shared_ptr<log::LoggingSystem> logsys,
                      std::shared_ptr<modules::Module> module)
-        : Loader(injector, std::move(module)), logsys_(std::move(logsys)) {}
+        : Loader(injector, std::move(module)),
+          logsys_(std::move(logsys)),
+          logger_(logsys_->getLogger("Networking", "networking_module")) {}
 
     NetworkingLoader(const NetworkingLoader &) = delete;
     NetworkingLoader &operator=(const NetworkingLoader &) = delete;
@@ -60,8 +63,9 @@ namespace jam::loaders {
 
       on_init_complete_ = se::SubscriberCreator<__T>::template create<
           EventTypes::NetworkingIsLoaded>(
-          SubscriptionEngineHandlers::kTest, [module_internal](auto &) {
+          SubscriptionEngineHandlers::kTest, [module_internal, this](auto &) {
             if (auto m = module_internal.lock()) {
+              SL_TRACE(logger_, "Handle NetworkingIsLoaded");
               m->on_loaded_success();
             }
           });
@@ -69,8 +73,10 @@ namespace jam::loaders {
       on_loading_finished_ =
           se::SubscriberCreator<qtils::Empty>::template create<
               EventTypes::LoadingIsFinished>(
-              SubscriptionEngineHandlers::kTest, [module_internal](auto &) {
+              SubscriptionEngineHandlers::kTest,
+              [module_internal, this](auto &) {
                 if (auto m = module_internal.lock()) {
+                  SL_TRACE(logger_, "Handle LoadingIsFinished");
                   m->on_loading_is_finished();
                 }
               });
@@ -80,8 +86,10 @@ namespace jam::loaders {
           std::shared_ptr<const messages::BlockRequestMessage>>::
           template create<EventTypes::BlockRequest>(
               SubscriptionEngineHandlers::kTest,
-              [module_internal](auto &, const auto &msg) {
+              [module_internal, this](auto &, const auto &msg) {
                 if (auto m = module_internal.lock()) {
+                  SL_TRACE(
+                      logger_, "Handle BlockRequest; rid={}", msg->ctx.rid);
                   m->on_block_request(msg);
                 }
               });
@@ -92,24 +100,26 @@ namespace jam::loaders {
 
     void dispatch_peer_connected(
         std::shared_ptr<const messages::PeerConnectedMessage> msg) override {
+      SL_TRACE(logger_, "Dispatch PeerConnected; peer={}", msg->peer);
       se::getSubscription()->notify(jam::EventTypes::PeerConnected, msg);
     }
 
     void dispatch_peer_disconnected(
         std::shared_ptr<const messages::PeerDisconnectedMessage> msg) override {
+      SL_TRACE(logger_, "Dispatch PeerDisconnected; peer={}", msg->peer);
       se::getSubscription()->notify(jam::EventTypes::PeerDisconnected, msg);
     }
 
     void dispatch_block_announce(
         std::shared_ptr<const messages::BlockAnnounceMessage> msg) override {
-      // SL_INFO(logsys_, "")
-
+      SL_TRACE(logger_, "Dispatch BlockAnnounceReceived");
       se::getSubscription()->notify(jam::EventTypes::BlockAnnounceReceived,
                                     msg);
     }
 
     void dispatch_block_response(
         std::shared_ptr<const messages::BlockResponseMessage> msg) override {
+      SL_TRACE(logger_, "Dispatch BlockResponse; rid={}", msg->ctx.rid);
       se::getSubscription()->notify(jam::EventTypes::BlockResponse,
                                     std::move(msg));
     }

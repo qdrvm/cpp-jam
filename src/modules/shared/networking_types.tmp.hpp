@@ -7,6 +7,7 @@
 #pragma once
 
 #include "jam_types/types.tmp.hpp"
+#include "utils/request_id.hpp"
 
 namespace jam::messages {
 
@@ -27,11 +28,13 @@ namespace jam::messages {
   };
 
   struct BlockRequestMessage {
+    RequestCxt ctx;
     BlocksRequest request;
     PeerId peer;
   };
 
   struct BlockResponseMessage {
+    RequestCxt ctx;
     outcome::result<Block> result;
     PeerId peer;
   };

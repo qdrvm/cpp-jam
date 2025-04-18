@@ -87,3 +87,24 @@ SCALE_DEFINE_ENUM_VALUE_RANGE(jam,
                               Direction,
                               jam::Direction::ASCENDING,
                               jam::Direction::DESCENDING);
+
+template <>
+struct fmt::formatter<jam::Stub> {
+  constexpr auto parse(format_parse_context &ctx) -> decltype(ctx.begin()) {
+    auto it = ctx.begin(), end = ctx.end();
+    if (it != end && *it != '}') {
+      throw format_error("invalid format");
+    }
+    return it;
+  }
+
+  template <typename FormatContext>
+  auto format(const jam::Stub &, FormatContext &ctx) const
+      -> decltype(ctx.out()) {
+    return fmt::format_to(ctx.out(), "stub");
+  }
+};
+
+template <typename T, typename U>
+struct fmt::formatter<qtils::Tagged<T, U>> : formatter<T> {};
+

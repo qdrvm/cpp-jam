@@ -14,8 +14,7 @@ namespace jam::modules {
       qtils::StrictSharedPtr<NetworkingLoader> loader,
       qtils::StrictSharedPtr<log::LoggingSystem> logging_system)
       : loader_(loader),
-        logger_(
-            logging_system->getLogger("Networking", "networking_module")) {}
+        logger_(logging_system->getLogger("Networking", "networking_module")) {}
 
   void NetworkingImpl::on_loaded_success() {
     SL_INFO(logger_, "Loaded success");
@@ -34,9 +33,8 @@ namespace jam::modules {
     SL_INFO(logger_, "Block requested");
 
     // tmp entry point for experiments
-    auto x = std::make_shared<const messages::BlockResponseMessage>(messages::BlockResponseMessage {
-        .result = Block{}
-    });
+    auto x = std::make_shared<const messages::BlockResponseMessage>(
+        messages::BlockResponseMessage{.ctx = msg->ctx, .result = Block{}});
     loader_->dispatch_block_response(std::move(x));
   };
 
