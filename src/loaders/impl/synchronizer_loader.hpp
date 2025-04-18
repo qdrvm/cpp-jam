@@ -21,10 +21,10 @@ namespace jam::loaders {
       : public std::enable_shared_from_this<SynchronizerLoader>,
         public Loader,
         public modules::SynchronizerLoader {
-    struct __T {};
     std::shared_ptr<log::LoggingSystem> logsys_;
+    log::Logger logger_;
 
-    using InitCompleteSubscriber = BaseSubscriber<__T>;
+    using InitCompleteSubscriber = BaseSubscriber<qtils::Empty>;
     std::shared_ptr<InitCompleteSubscriber> on_init_complete_;
 
     std::shared_ptr<
@@ -41,7 +41,9 @@ namespace jam::loaders {
     SynchronizerLoader(injector::NodeInjector &injector,
                        std::shared_ptr<log::LoggingSystem> logsys,
                        std::shared_ptr<modules::Module> module)
-        : Loader(injector, std::move(module)), logsys_(std::move(logsys)) {}
+        : Loader(injector, std::move(module)),
+          logsys_(std::move(logsys)),
+          logger_(logsys_->getLogger("Synchronizer", "synchronizer_module")) {}
 
     SynchronizerLoader(const SynchronizerLoader &) = delete;
     SynchronizerLoader &operator=(const SynchronizerLoader &) = delete;
@@ -60,10 +62,11 @@ namespace jam::loaders {
 
       auto module_internal = (*module_accessor)(shared_from_this(), logsys_);
 
-      on_init_complete_ = se::SubscriberCreator<__T>::template create<
+      on_init_complete_ = se::SubscriberCreator<qtils::Empty>::template create<
           EventTypes::SynchronizerIsLoaded>(
-          SubscriptionEngineHandlers::kTest, [module_internal](auto &) {
+          SubscriptionEngineHandlers::kTest, [module_internal, this](auto &) {
             if (auto m = module_internal.lock()) {
+              SL_TRACE(logger_, "Handle SynchronizerIsLoaded");
               m->on_loaded_success();
             }
           });
@@ -73,8 +76,9 @@ namespace jam::loaders {
           std::shared_ptr<const messages::BlockAnnounceMessage>>::
           template create<EventTypes::BlockAnnounceReceived>(
               SubscriptionEngineHandlers::kTest,
-              [module_internal](auto &, const auto &msg) {
+              [module_internal, this](auto &, const auto &msg) {
                 if (auto m = module_internal.lock()) {
+                  SL_TRACE(logger_, "Handle BlockAnnounceReceived");
                   m->on_block_announce(msg);
                 }
               });
@@ -84,19 +88,22 @@ namespace jam::loaders {
           std::shared_ptr<const messages::BlockResponseMessage>>::
           template create<EventTypes::BlockResponse>(
               SubscriptionEngineHandlers::kTest,
-              [module_internal](auto &, const auto &msg) {
+              [module_internal, this](auto &, const auto &msg) {
                 if (auto m = module_internal.lock()) {
+                  SL_TRACE(
+                      logger_, "Handle BlockResponse; rid={}", msg->ctx.rid);
                   m->on_block_response(msg);
                 }
               });
-
 
       se::getSubscription()->notify(jam::EventTypes::SynchronizerIsLoaded);
     }
 
     void dispatch_block_request(
         std::shared_ptr<const messages::BlockRequestMessage> msg) override {
+      SL_TRACE(logger_, "Dispatch BlockRequest; rid={}", msg->ctx.rid);
       se::getSubscription()->notify(jam::EventTypes::BlockRequest, msg);
     }
   };
+
 }  // namespace jam::loaders
