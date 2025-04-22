@@ -15,21 +15,30 @@ namespace jam {
 
     RequestId(const RequestId &) = default;
 
-    bool operator==(const RequestId &) const;
+    bool operator==(const RequestId &) const = default;
 
    private:
     friend struct fmt::formatter<RequestId>;
+    friend struct std::hash<RequestId>;
     size_t id;
   };
 
   class RequestCxt {
-    public:
-      RequestCxt(RequestId rid): rid(rid) {};
+   public:
+    RequestCxt(const RequestId &rid) : rid(rid) {};
 
-      RequestId rid;
+    RequestId rid;
   };
 
 }  // namespace jam
+
+template <>
+struct std::hash<jam::RequestId> {
+  size_t operator()(const jam::RequestId &id) const noexcept {
+    return id.id;
+  }
+};
+
 
 template <>
 struct fmt::formatter<jam::RequestId> {
@@ -48,4 +57,3 @@ struct fmt::formatter<jam::RequestId> {
     return fmt::format_to(ctx.out(), "{:02x}{:02x}{:02x}", b[0], b[1], b[2]);
   }
 };
-

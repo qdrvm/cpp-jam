@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <jam_types/types.tmp.hpp>
 #include <metrics/impl/session_impl.hpp>
 #include <modules/module_loader.hpp>
@@ -68,6 +70,12 @@ namespace jam::modules {
    private:
     qtils::StrictSharedPtr<SynchronizerLoader> loader_;
     log::Logger logger_;
+
+    std::unordered_map<
+        RequestId,
+        std::function<void(
+            std::shared_ptr<const messages::BlockResponseMessage> msg)>>
+        block_response_callbacks_;
   };
 
 }  // namespace jam::modules

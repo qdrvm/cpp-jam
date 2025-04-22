@@ -39,12 +39,23 @@ namespace jam::modules {
     auto x = std::make_shared<const messages::BlockRequestMessage>(
         messages::BlockRequestMessage{.ctx = {{s, ++n}}});
 
+    // block_response_callbacks_.emplace(x->ctx.rid, [&](auto& msg) {
+    //   SL_INFO(logger_, "Block response has been handled; rid={}",
+    //   msg->ctx.rid);
+    // });
     loader_->dispatch_block_request(std::move(x));
   };
 
   void SynchronizerImpl::on_block_response(
       std::shared_ptr<const messages::BlockResponseMessage> msg) {
-    SL_INFO(logger_, "Block response is received");
+    auto it = block_response_callbacks_.find(msg->ctx.rid);
+    if (it == block_response_callbacks_.end()) {
+      SL_TRACE(logger_, "Received a response to someone else's request");
+      return;
+    }
+
+    SL_INFO(logger_, "Block response is received; rid={}", msg->ctx.rid);
+    // it->second(msg);
   }
 
 }  // namespace jam::modules
