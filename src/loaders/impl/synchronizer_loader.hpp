@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <iostream>
-
 #include <soralog/logging_system.hpp>
 
 #include "loaders/loader.hpp"
