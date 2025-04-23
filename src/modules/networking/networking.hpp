@@ -6,44 +6,11 @@
 
 #pragma once
 
-#include <jam_types/types.tmp.hpp>
-#include <metrics/impl/session_impl.hpp>
-#include <modules/module_loader.hpp>
-#include <modules/shared/networking_types.tmp.hpp>
-#include <modules/shared/synchronizer_types.tmp.hpp>
+#include <log/logger.hpp>
+#include <modules/networking/interfaces.hpp>
 #include <qtils/create_smart_pointer_macros.hpp>
 #include <qtils/strict_sptr.hpp>
-
-namespace jam::modules {
-
-  struct NetworkingLoader {
-    virtual ~NetworkingLoader() = default;
-
-    virtual void dispatch_peer_connected(
-        std::shared_ptr<const messages::PeerConnectedMessage> msg) = 0;
-
-    virtual void dispatch_peer_disconnected(
-        std::shared_ptr<const messages::PeerDisconnectedMessage> msg) = 0;
-
-    virtual void dispatch_block_announce(
-        std::shared_ptr<const messages::BlockAnnounceMessage> msg) = 0;
-
-    virtual void dispatch_block_response(
-        std::shared_ptr<const messages::BlockResponseMessage> msg) = 0;
-  };
-
-  struct Networking {
-    virtual ~Networking() = default;
-
-    virtual void on_loaded_success() = 0;
-
-    virtual void on_loading_is_finished() = 0;
-
-    virtual void on_block_request(
-        std::shared_ptr<const messages::BlockRequestMessage> msg) = 0;
-  };
-
-}  // namespace jam::modules
+#include <utils/ctor_limiters.hpp>
 
 namespace jam::modules {
 
