@@ -10,6 +10,7 @@
 #include <qtils/unhex.hpp>
 
 #include "coro/spawn.hpp"
+#include "crypto/ed25519_literal.hpp"
 #include "log/simple.hpp"
 #include "snp/connections/address.hpp"
 #include "snp/connections/connection.hpp"
@@ -35,11 +36,6 @@ using jam::snp::ProtocolId;
 using jam::snp::StreamPtr;
 
 auto logsys = jam::log::simpleLoggingSystem();
-
-inline auto operator""_ed25519(const char *c, size_t s) {
-  auto seed = qtils::unhex<jam::crypto::ed25519::Seed>({c, s}).value();
-  return jam::crypto::ed25519::from_seed(seed);
-}
 
 std::vector<KeyPair> keys{
     "f8dfdb0f1103d9fb2905204ac32529d5f148761c4321b2865b0a40e15be75f57"_ed25519,
