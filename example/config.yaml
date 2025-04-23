@@ -1,5 +1,7 @@
 general:
   name: NameFromConfig
+  base_path: /tmp/jam_node
+  modules_dir: modules
 
 metrics:
   enabled: true

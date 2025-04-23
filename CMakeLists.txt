@@ -15,6 +15,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API ON)
 
 project(cpp-jam
     VERSION 0.0.1
@@ -39,6 +40,12 @@ find_package(schnorrkel_crust CONFIG REQUIRED)
 find_package(Boost.DI CONFIG REQUIRED)
 find_package(qtils CONFIG REQUIRED)
 find_package(prometheus-cpp CONFIG REQUIRED)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_compile_options(-fmodules-ts)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang")
+  add_compile_options(-fmodules)
+endif()
 
 add_library(headers INTERFACE)
 target_include_directories(headers INTERFACE

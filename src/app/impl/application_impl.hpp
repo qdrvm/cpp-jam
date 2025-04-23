@@ -10,6 +10,8 @@
 
 #include <memory>
 
+#include <qtils/strict_sptr.hpp>
+
 #include <metrics/registry.hpp>
 
 namespace jam {
@@ -43,22 +45,22 @@ namespace jam::app {
 
   class ApplicationImpl final : public Application {
    public:
-    ApplicationImpl(std::shared_ptr<log::LoggingSystem> logsys,
-                    std::shared_ptr<Configuration> config,
-                    std::shared_ptr<StateManager> state_manager,
-                    std::shared_ptr<Watchdog> watchdog,
-                    std::shared_ptr<metrics::Exposer> metrics_exposer,
-                    std::shared_ptr<clock::SystemClock> system_clock);
+    ApplicationImpl(qtils::StrictSharedPtr<log::LoggingSystem> logsys,
+                    qtils::StrictSharedPtr<Configuration> config,
+                    qtils::StrictSharedPtr<StateManager> state_manager,
+                    qtils::StrictSharedPtr<Watchdog> watchdog,
+                    qtils::StrictSharedPtr<metrics::Exposer> metrics_exposer,
+                    qtils::StrictSharedPtr<clock::SystemClock> system_clock);
 
     void run() override;
 
    private:
-    std::shared_ptr<soralog::Logger> logger_;
-    std::shared_ptr<Configuration> app_config_;
-    std::shared_ptr<StateManager> state_manager_;
-    std::shared_ptr<Watchdog> watchdog_;
-    std::shared_ptr<metrics::Exposer> metrics_exposer_;
-    std::shared_ptr<clock::SystemClock> system_clock_;
+    qtils::StrictSharedPtr<soralog::Logger> logger_;
+    qtils::StrictSharedPtr<Configuration> app_config_;
+    qtils::StrictSharedPtr<StateManager> state_manager_;
+    qtils::StrictSharedPtr<Watchdog> watchdog_;
+    qtils::StrictSharedPtr<metrics::Exposer> metrics_exposer_;
+    qtils::StrictSharedPtr<clock::SystemClock> system_clock_;
 
     // Metrics
     std::unique_ptr<metrics::Registry> metrics_registry_;

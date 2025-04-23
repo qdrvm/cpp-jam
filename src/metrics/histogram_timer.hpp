@@ -27,6 +27,12 @@ namespace jam::metrics {
       registry_->registerGaugeFamily(name, help);
       metric_ = registry_->registerGaugeMetric(name);
     }
+    GaugeHelper(const std::string &name,
+                const std::string &help,
+                const std::map<std::string, std::string> &labels) {
+      registry_->registerGaugeFamily(name, help);
+      metric_ = registry_->registerGaugeMetric(name, labels);
+    }
 
     auto *operator->() const {
       return metric_;

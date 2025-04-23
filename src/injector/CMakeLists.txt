@@ -15,4 +15,6 @@ target_link_libraries(node_injector
     application
     metrics
     clock
+    se_async
+    modules
 )

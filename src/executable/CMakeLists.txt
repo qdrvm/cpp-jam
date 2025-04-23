@@ -35,6 +35,7 @@ else ()
   add_executable(jam_node jam_node.cpp)
   target_link_libraries(jam_node ${LIBRARIES})
 endif ()
+add_dependencies(jam_node all_modules)
 
 #if (BACKWARD)
 #  add_backward(jam_node)

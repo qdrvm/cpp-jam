@@ -7,6 +7,7 @@
 #pragma once
 
 #include <memory>
+#include "se/subscription.hpp"
 
 namespace jam::log {
   class LoggingSystem;
@@ -29,6 +30,7 @@ namespace jam::injector {
                           std::shared_ptr<app::Configuration> configuration);
 
     std::shared_ptr<app::Application> injectApplication();
+    std::shared_ptr<Subscription> getSE();
 
    protected:
     std::shared_ptr<class NodeInjectorImpl> pimpl_;
