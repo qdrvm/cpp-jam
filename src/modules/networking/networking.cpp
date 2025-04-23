@@ -4,9 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-
 #include "modules/networking/networking.hpp"
-
 
 namespace jam::modules {
 
