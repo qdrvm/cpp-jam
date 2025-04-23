@@ -9,9 +9,9 @@
 #include <deque>
 #include <lsquic.h>
 
-#include <TODO_qtils/make_shared_private.hpp>
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/steady_timer.hpp>
+#include <qtils/create_smart_pointer_macros.hpp>
 
 #include "coro/coro.hpp"
 #include "coro/handler.hpp"
@@ -90,9 +90,11 @@ namespace jam::snp::lsquic {
     }
   };
 
-  class Engine : public std::enable_shared_from_this<Engine> {
+  class Engine {
     friend Connection;
     friend Stream;
+
+    CREATE_SHARED_METHOD(Engine);
 
    public:
     using SelfSPtr = std::shared_ptr<Engine>;
@@ -103,8 +105,7 @@ namespace jam::snp::lsquic {
         TlsCertificate certificate,
         std::optional<uint16_t> listen_port,
         std::weak_ptr<EngineController> controller);
-    Engine(qtils::MakeSharedPrivate,
-           IoContextPtr io_context_ptr,
+    Engine(IoContextPtr io_context_ptr,
            std::shared_ptr<log::LoggingSystem> logsys,
            TlsCertificate &&certificate,
            Socket &&socket,
