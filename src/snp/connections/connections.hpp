@@ -15,7 +15,6 @@
 #include "coro/init.hpp"
 #include "coro/io_context_ptr.hpp"
 #include "snp/connections/config.hpp"
-#include "snp/connections/connection_id_counter.hpp"
 #include "snp/connections/connection_ptr.hpp"
 #include "snp/connections/key.hpp"
 #include "snp/connections/lsquic/controller.hpp"
@@ -94,6 +93,5 @@ namespace jam::snp {
                        qtils::BytesStdHash>
         connections_;
     std::unordered_map<ProtocolId, ServeProtocol> protocols_;
-    ConnectionIdCounter connection_id_counter_;
   };
 }  // namespace jam::snp

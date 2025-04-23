@@ -17,7 +17,6 @@
 #include "coro/handler.hpp"
 #include "coro/io_context_ptr.hpp"
 #include "snp/connections/address.hpp"
-#include "snp/connections/connection_id_counter.hpp"
 #include "snp/connections/connection_info.hpp"
 #include "snp/connections/connection_ptr.hpp"
 #include "snp/connections/protocol_id.hpp"
@@ -101,14 +100,12 @@ namespace jam::snp::lsquic {
     static outcome::result<std::shared_ptr<Engine>> make(
         IoContextPtr io_context_ptr,
         std::shared_ptr<log::LoggingSystem> logsys,
-        ConnectionIdCounter connection_id_counter,
         TlsCertificate certificate,
         std::optional<uint16_t> listen_port,
         std::weak_ptr<EngineController> controller);
     Engine(qtils::MakeSharedPrivate,
            IoContextPtr io_context_ptr,
            std::shared_ptr<log::LoggingSystem> logsys,
-           ConnectionIdCounter connection_id_counter,
            TlsCertificate &&certificate,
            Socket &&socket,
            Socket::endpoint_type socket_local_endpoint,
@@ -192,7 +189,6 @@ namespace jam::snp::lsquic {
 
     IoContextPtr io_context_ptr_;
     std::shared_ptr<soralog::Logger> log_;
-    ConnectionIdCounter connection_id_counter_;
     TlsCertificate certificate_;
     Socket socket_;
     Socket::endpoint_type socket_local_endpoint_;

@@ -44,7 +44,6 @@ namespace jam::snp {
     BOOST_OUTCOME_CO_TRY(self->client_,
                          lsquic::Engine::make(self->io_context_ptr_,
                                               self->logsys_,
-                                              self->connection_id_counter_,
                                               certificate,
                                               std::nullopt,
                                               self));
@@ -52,7 +51,6 @@ namespace jam::snp {
       BOOST_OUTCOME_CO_TRY(self->server_,
                            lsquic::Engine::make(self->io_context_ptr_,
                                                 self->logsys_,
-                                                self->connection_id_counter_,
                                                 certificate,
                                                 self->config_.listen_port,
                                                 self));

@@ -53,7 +53,6 @@ namespace jam::snp::lsquic {
   outcome::result<std::shared_ptr<Engine>> Engine::make(
       IoContextPtr io_context_ptr,
       std::shared_ptr<log::LoggingSystem> logsys,
-      ConnectionIdCounter connection_id_counter,
       TlsCertificate certificate,
       std::optional<uint16_t> listen_port,
       std::weak_ptr<EngineController> controller) {
@@ -102,14 +101,12 @@ namespace jam::snp::lsquic {
     if (ec) {
       return ec;
     }
-    auto self =
-        qtils::MakeSharedPrivate::make<Engine>(io_context_ptr,
-                                               std::move(logsys),
-                                               std::move(connection_id_counter),
-                                               std::move(certificate),
-                                               std::move(socket),
-                                               socket_local_endpoint,
-                                               std::move(controller));
+    auto self = qtils::MakeSharedPrivate::make<Engine>(io_context_ptr,
+                                                       std::move(logsys),
+                                                       std::move(certificate),
+                                                       std::move(socket),
+                                                       socket_local_endpoint,
+                                                       std::move(controller));
 
     api.ea_stream_if = &stream_if;
     api.ea_stream_if_ctx = self.get();
@@ -134,13 +131,11 @@ namespace jam::snp::lsquic {
   Engine::Engine(qtils::MakeSharedPrivate,
                  IoContextPtr io_context_ptr,
                  std::shared_ptr<log::LoggingSystem> logsys,
-                 ConnectionIdCounter connection_id_counter,
                  TlsCertificate &&certificate,
                  Socket &&socket,
                  Socket::endpoint_type socket_local_endpoint,
                  std::weak_ptr<EngineController> controller)
       : io_context_ptr_{std::move(io_context_ptr)},
-        connection_id_counter_{std::move(connection_id_counter)},
         certificate_{std::move(certificate)},
         log_{logsys->getLogger("Engine", "snp")},
         socket_{std::move(socket)},
@@ -476,8 +471,9 @@ namespace jam::snp::lsquic {
       if (connecting.has_value() and key != connecting->address.key) {
         return ConnectionsError::ENGINE_CONNECT_KEY_MISMATCH;
       }
+      static std::atomic<ConnectionId> connection_id_counter = 0;
       conn_ctx->info = ConnectionInfo{
-          .id = self->connection_id_counter_.make(),
+          .id = connection_id_counter.fetch_add(1),
           .key = key,
       };
       auto connection = std::make_shared<Connection>(
