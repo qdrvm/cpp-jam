@@ -10,13 +10,13 @@
 #include <qtils/unhex.hpp>
 
 #include "coro/spawn.hpp"
-#include "crypto/ed25519_literal.hpp"
 #include "log/simple.hpp"
 #include "snp/connections/address.hpp"
 #include "snp/connections/connection.hpp"
 #include "snp/connections/connections.hpp"
 #include "snp/connections/controller.hpp"
 #include "snp/connections/stream.hpp"
+#include "tests/utils/ed25519_literal.hpp"
 
 using jam::Coro;
 using jam::coroHandler;

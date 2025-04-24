@@ -9,13 +9,13 @@
 #include <boost/outcome/try.hpp>
 #include <qtils/test/outcome.hpp>
 
-#include "crypto/ed25519_literal.hpp"
 #include "log/simple.hpp"
 #include "snp/connections/address.hpp"
 #include "snp/connections/connection.hpp"
 #include "snp/connections/connections.hpp"
 #include "snp/connections/controller.hpp"
 #include "snp/connections/stream.hpp"
+#include "tests/utils/ed25519_literal.hpp"
 
 // bug: gtest "ASSERT_*" contains "return"
 #define CO_ASSERT_OUTCOME_SUCCESS(result, expression)   \
