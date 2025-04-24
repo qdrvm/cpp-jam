@@ -4,8 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
 # Executables (should contain `main()` function)
 add_subdirectory(executable)
 
@@ -23,4 +21,7 @@ add_subdirectory(metrics)
 
 # Clocks and time subsystem
 add_subdirectory(clock)
+
+# Simple Network Protocol
+add_subdirectory(snp)
 
