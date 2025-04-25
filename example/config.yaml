@@ -24,12 +24,13 @@ logging:
       children:
         - name: jam
           children:
+            - name: application
+            - name: injector
+            - name: metrics
             - name: modules
               children:
-                - name: synchronizer_module
                 - name: networking_module
-            - name: injector
-            - name: application
+                - name: synchronizer_module
             - name: rpc
-            - name: metrics
+            - name: snp
             - name: threads

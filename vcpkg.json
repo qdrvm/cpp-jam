@@ -2,20 +2,22 @@
   "name": "cpp-jam",
   "version": "0.0.1",
   "dependencies": [
-    "qtils",
-    "scale",
-    "fmt",
-    "soralog",
-    "kagome-crates",
-    "libb2",
-    "boost-di",
-    "boost-program-options",
     "boost-asio",
     "boost-beast",
+    "boost-di",
+    "boost-program-options",
+    "cppcodec",
+    "fmt",
+    "ftxui",
+    "kagome-crates",
+    "libb2",
+    "liblsquic",
     "prometheus-cpp",
-    "ftxui"
+    "qtils",
+    "scale",
+    "soralog"
   ],
   "features": {
-    "test": { "description": "Test", "dependencies": ["gtest"]}
+    "test": { "description": "Test", "dependencies": ["gtest"] }
   }
 }

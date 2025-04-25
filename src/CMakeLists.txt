@@ -6,11 +6,14 @@
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+# Application's things
+add_subdirectory(app)
+
+# Clocks and time subsystem
+add_subdirectory(clock)
+
 # Executables (should contain `main()` function)
 add_subdirectory(executable)
-
-# Application's thinks
-add_subdirectory(app)
 
 # Dependency injection
 add_subdirectory(injector)
@@ -21,11 +24,11 @@ add_subdirectory(log)
 # Metrics subsystem
 add_subdirectory(metrics)
 
-# Clocks and time subsystem
-add_subdirectory(clock)
+# Modules subsystem
+add_subdirectory(modules)
 
 # Subscription Engine subsystem
 add_subdirectory(se)
 
-# Modules subsystem
-add_subdirectory(modules)
+# Simple Network Protocol
+add_subdirectory(snp)

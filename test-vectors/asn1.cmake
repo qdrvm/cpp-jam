@@ -134,7 +134,6 @@ function(add_test_vector name)
   target_link_libraries(${TEST_VECTOR}__transition_test
       fmt::fmt
       ${GTEST_DEPS}
-      headers
       ${TEST_VECTOR}__types
   )
   add_test(${TEST_VECTOR}__transition_test ${TEST_VECTOR}__transition_test)

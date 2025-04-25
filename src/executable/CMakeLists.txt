@@ -11,8 +11,6 @@ set(LIBRARIES
 )
 
 include_directories(
-    ${PROJECT_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_BINARY_DIR}/generated
 )
 
