@@ -13,28 +13,10 @@
 
 namespace jam::se::utils {
 
-  template <typename To, typename From>
-  inline std::shared_ptr<To> reinterpret_pointer_cast(
-      const std::shared_ptr<From> &ptr) noexcept {
-    return std::shared_ptr<To>(ptr, reinterpret_cast<To *>(ptr.get()));
-  }
-
   template <typename T>
   inline std::weak_ptr<T> make_weak(const std::shared_ptr<T> &ptr) noexcept {
     return ptr;
   }
-
-  struct NoCopy {
-    NoCopy(const NoCopy &) = delete;
-    NoCopy &operator=(const NoCopy &) = delete;
-    NoCopy() = default;
-  };
-
-  struct NoMove {
-    NoMove(NoMove &&) = delete;
-    NoMove &operator=(NoMove &&) = delete;
-    NoMove() = default;
-  };
 
   template <typename T, typename M = std::shared_mutex>
   struct SafeObject {
@@ -84,13 +66,17 @@ namespace jam::se::utils {
   template <typename T, typename M = std::shared_mutex>
   using ReadWriteObject = SafeObject<T, M>;
 
-  class WaitForSingleObject final : NoMove, NoCopy {
+  class WaitForSingleObject final {
     std::condition_variable wait_cv_;
     std::mutex wait_m_;
     bool flag_;
 
    public:
     WaitForSingleObject() : flag_{true} {}
+    WaitForSingleObject(WaitForSingleObject &&) = delete;
+    WaitForSingleObject(const WaitForSingleObject &) = delete;
+    WaitForSingleObject &operator=(WaitForSingleObject &&) = delete;
+    WaitForSingleObject &operator=(const WaitForSingleObject &) = delete;
 
     bool wait(std::chrono::microseconds wait_timeout) {
       std::unique_lock<std::mutex> _lock(wait_m_);
