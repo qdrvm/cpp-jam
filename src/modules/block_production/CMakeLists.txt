@@ -7,8 +7,6 @@
 add_jam_module(block_tree
   SOURCE
     block_tree.cpp
-  INCLUDE_DIRS
-    ${CMAKE_SOURCE_DIR}/src
   DEFINITIONS
     SOME_FLAG=1
   LIBRARIES

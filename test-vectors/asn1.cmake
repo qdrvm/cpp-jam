@@ -111,7 +111,6 @@ function(add_test_vector name)
   add_library(${TEST_VECTOR}__types INTERFACE ${HPP_FILES})
   target_link_libraries(${TEST_VECTOR}__types INTERFACE
       scale::scale
-      test_vectors_headers
   )
   add_dependencies(${TEST_VECTOR}__types generate_${name}_types)
 
@@ -119,7 +118,6 @@ function(add_test_vector name)
       types.test.cpp
   )
   target_compile_definitions(${TEST_VECTOR}__reencode_test PRIVATE PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
-  target_include_directories(${TEST_VECTOR}__reencode_test PUBLIC ${PROJECT_SOURCE_DIR})
   target_link_libraries(${TEST_VECTOR}__reencode_test
       fmt::fmt
       ${GTEST_DEPS}

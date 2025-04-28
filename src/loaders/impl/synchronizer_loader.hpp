@@ -25,14 +25,15 @@ namespace jam::loaders {
     using InitCompleteSubscriber = BaseSubscriber<qtils::Empty>;
     std::shared_ptr<InitCompleteSubscriber> on_init_complete_;
 
-    std::shared_ptr<
-        BaseSubscriber<qtils::Empty,
-                       std::shared_ptr<const messages::BlockAnnounceMessage>>>
+    std::shared_ptr<void> on_block_announcement_handshake_;
+    std::shared_ptr<BaseSubscriber<
+        qtils::Empty,
+        std::shared_ptr<const messages::BlockAnnouncementReceived>>>
         on_block_announce_;
 
     std::shared_ptr<
         BaseSubscriber<qtils::Empty,
-                       std::shared_ptr<const messages::BlockResponseMessage>>>
+                       std::shared_ptr<const messages::BlockResponseReceived>>>
         on_block_response_;
 
    public:
@@ -69,9 +70,22 @@ namespace jam::loaders {
             }
           });
 
+      on_block_announcement_handshake_ = se::SubscriberCreator<
+          qtils::Empty,
+          std::shared_ptr<const messages::BlockAnnouncementHandshakeReceived>>::
+          template create<EventTypes::BlockAnnouncementHandshakeReceived>(
+              SubscriptionEngineHandlers::kTest,
+              [module_internal, this](auto &, const auto &msg) {
+                if (auto m = module_internal.lock()) {
+                  SL_TRACE(logger_,
+                           "Handle BlockAnnouncementHandshakeReceived");
+                  m->on_block_announcement_handshake(msg);
+                }
+              });
+
       on_block_announce_ = se::SubscriberCreator<
           qtils::Empty,
-          std::shared_ptr<const messages::BlockAnnounceMessage>>::
+          std::shared_ptr<const messages::BlockAnnouncementReceived>>::
           template create<EventTypes::BlockAnnounceReceived>(
               SubscriptionEngineHandlers::kTest,
               [module_internal, this](auto &, const auto &msg) {
@@ -83,13 +97,14 @@ namespace jam::loaders {
 
       on_block_response_ = se::SubscriberCreator<
           qtils::Empty,
-          std::shared_ptr<const messages::BlockResponseMessage>>::
+          std::shared_ptr<const messages::BlockResponseReceived>>::
           template create<EventTypes::BlockResponse>(
               SubscriptionEngineHandlers::kTest,
               [module_internal, this](auto &, const auto &msg) {
                 if (auto m = module_internal.lock()) {
-                  SL_TRACE(
-                      logger_, "Handle BlockResponse; rid={}", msg->ctx.rid);
+                  SL_TRACE(logger_,
+                           "Handle BlockResponse; rid={}",
+                           msg->for_ctx.rid);
                   m->on_block_response(msg);
                 }
               });
@@ -98,7 +113,7 @@ namespace jam::loaders {
     }
 
     void dispatch_block_request(
-        std::shared_ptr<const messages::BlockRequestMessage> msg) override {
+        std::shared_ptr<const messages::SendBlockRequest> msg) override {
       SL_TRACE(logger_, "Dispatch BlockRequest; rid={}", msg->ctx.rid);
       se::getSubscription()->notify(jam::EventTypes::BlockRequest, msg);
     }

@@ -13,6 +13,7 @@ namespace jam::snp {
   struct ConnectionInfo {
     ConnectionId id;
     Key key;
+    bool outbound;
 
     bool operator==(const ConnectionInfo &) const = default;
   };

@@ -127,18 +127,15 @@ namespace jam::se {
       TimedTask task{};
       do {
         if (extractExpired(task)) {
-          try {
-            if (task.task) {
-              if (!task.predic) {
-                task.task();
-              } else if (task.predic()) {
-                task.task();
-                std::lock_guard lock(tasks_cs_);
-                task.created = now();
-                add(std::move(task));
-              }
+          if (task.task) {
+            if (!task.predic) {
+              task.task();
+            } else if (task.predic()) {
+              task.task();
+              std::lock_guard lock(tasks_cs_);
+              task.created = now();
+              add(std::move(task));
             }
-          } catch (...) {
           }
         } else {
           event_.wait(untilFirst());

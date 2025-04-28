@@ -61,6 +61,11 @@ namespace jam::snp {
      */
     static Coro<void> shutdownWrite(SelfSPtr self);
 
+    /**
+     * Call both `shutdownRead` and `shutdownWrite`.
+     */
+    static Coro<void> shutdown(SelfSPtr self);
+
    private:
     /**
      * Read protocol id (server).

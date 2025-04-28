@@ -94,6 +94,12 @@ namespace jam::snp {
     co_return;
   }
 
+  Coro<void> Stream::shutdown(SelfSPtr self) {
+    co_await shutdownRead(self);
+    co_await shutdownWrite(self);
+    co_return;
+  }
+
   CoroOutcome<ProtocolId> Stream::readProtocolId() {
     ProtocolIdBytes bytes;
     BOOST_OUTCOME_CO_TRY(auto read,

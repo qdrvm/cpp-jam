@@ -87,6 +87,7 @@ namespace jam::snp {
           *state = Connected{connection};
           if (auto controller = self->controller_.lock()) {
             controller->onOpen(address.key);
+            controller->onConnectionChange(connection);
           }
         } else {
           state.erase();
@@ -100,6 +101,16 @@ namespace jam::snp {
     auto connecting = std::get<Connecting>(*state);
     self.reset();
     co_return co_await connecting->get(connecting);
+  }
+
+  ConnectionPtrCoroOutcome Connections::getConnected(SelfSPtr self, Key key) {
+    co_await setCoroThread(self->io_context_ptr_);
+    if (auto state = qtils::entry(self->connections_, key)) {
+      if (auto connected = qtils::variantGet<Connected>(*state)) {
+        co_return *connected;
+      }
+    }
+    co_return ConnectionsError::NOT_CONNECTED;
   }
 
   Coro<void> Connections::serve(SelfSPtr self,
@@ -117,6 +128,7 @@ namespace jam::snp {
     state.insert(Connected{connection});
     if (auto controller = controller_.lock()) {
       controller->onOpen(connection->info().key);
+      controller->onConnectionChange(connection);
     }
   }
 

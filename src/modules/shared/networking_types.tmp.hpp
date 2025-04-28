@@ -10,6 +10,42 @@
 #include "utils/request_id.hpp"
 
 namespace jam::messages {
+  template <typename Notification>
+  struct NotificationReceived {
+    PeerId from_peer;
+    Notification notification;
+  };
+
+  template <typename Notification>
+  struct BroadcastNotification {
+    Notification notification;
+  };
+
+  template <typename Request>
+  struct RequestReceived {
+    RequestCxt ctx;
+    PeerId from_peer;
+    Request request;
+  };
+
+  template <typename Request>
+  struct SendRequest {
+    RequestCxt ctx;
+    PeerId to_peer;
+    Request request;
+  };
+
+  template <typename Response>
+  struct ResponseReceived {
+    RequestCxt for_ctx;
+    outcome::result<Response> response_result;
+  };
+
+  template <typename Response>
+  struct SendResponse {
+    RequestCxt for_ctx;
+    outcome::result<Response> response_result;
+  };
 
   struct PeerConnectedMessage {
     PeerId peer;
@@ -22,21 +58,10 @@ namespace jam::messages {
     // reason?
   };
 
-  struct BlockAnnounce {
-    BlockHeader header;
-    PeerId peer;
-  };
+  using BlockAnnouncementHandshakeReceived =
+      NotificationReceived<BlockAnnouncementHandshake>;
+  using BlockAnnouncementReceived = NotificationReceived<BlockAnnouncement>;
 
-  struct BlockRequestMessage {
-    RequestCxt ctx;
-    BlocksRequest request;
-    PeerId peer;
-  };
-
-  struct BlockResponseMessage {
-    RequestCxt ctx;
-    outcome::result<Block> result;
-    PeerId peer;
-  };
-
-}
+  using SendBlockRequest = SendRequest<BlockRequest>;
+  using BlockResponseReceived = ResponseReceived<BlockResponse>;
+}  // namespace jam::messages

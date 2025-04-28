@@ -10,10 +10,6 @@ set(LIBRARIES
     node_injector
 )
 
-include_directories(
-    ${CMAKE_BINARY_DIR}/generated
-)
-
 # fix for dyld bug on mac
 # we should actually check the target platform here, not the host platform,
 # but not that we explicitly support cross-compilation anyway

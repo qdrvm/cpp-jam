@@ -25,14 +25,17 @@ namespace jam::modules {
 
     void on_loaded_success() override;
 
+    // Synchronizer
+    void on_block_announcement_handshake(
+        std::shared_ptr<const messages::BlockAnnouncementHandshakeReceived> msg)
+        override;
+    void on_block_announce(
+        std::shared_ptr<const messages::BlockAnnouncementReceived> msg)
+        override;
     void on_block_index_discovered(
         std::shared_ptr<const messages::BlockDiscoveredMessage> msg) override;
-
-    void on_block_announce(
-        std::shared_ptr<const messages::BlockAnnounceMessage> msg) override;
-
     void on_block_response(
-        std::shared_ptr<const messages::BlockResponseMessage> msg) override;
+        std::shared_ptr<const messages::BlockResponseReceived> msg) override;
 
    private:
     qtils::StrictSharedPtr<SynchronizerLoader> loader_;
@@ -41,7 +44,7 @@ namespace jam::modules {
     std::unordered_map<
         RequestId,
         std::function<void(
-            std::shared_ptr<const messages::BlockResponseMessage> msg)>>
+            std::shared_ptr<const messages::BlockResponseReceived> msg)>>
         block_response_callbacks_;
   };
 

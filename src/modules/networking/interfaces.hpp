@@ -20,11 +20,15 @@ namespace jam::modules {
     virtual void dispatch_peer_disconnected(
         std::shared_ptr<const messages::PeerDisconnectedMessage> msg) = 0;
 
+    virtual void dispatch_block_announcement_handshake(
+        std::shared_ptr<const messages::BlockAnnouncementHandshakeReceived>
+            msg) = 0;
+
     virtual void dispatch_block_announce(
-        std::shared_ptr<const messages::BlockAnnounceMessage> msg) = 0;
+        std::shared_ptr<const messages::BlockAnnouncementReceived> msg) = 0;
 
     virtual void dispatch_block_response(
-        std::shared_ptr<const messages::BlockResponseMessage> msg) = 0;
+        std::shared_ptr<const messages::BlockResponseReceived> msg) = 0;
   };
 
   struct Networking {
@@ -35,7 +39,7 @@ namespace jam::modules {
     virtual void on_loading_is_finished() = 0;
 
     virtual void on_block_request(
-        std::shared_ptr<const messages::BlockRequestMessage> msg) = 0;
+        std::shared_ptr<const messages::SendBlockRequest> msg) = 0;
   };
 
 }  // namespace jam::modules

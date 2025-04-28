@@ -42,7 +42,7 @@ using jam::snp::StreamPtr;
 
 auto logsys = jam::log::simpleLoggingSystem();
 
-GenesisHash genesis;
+GenesisHash genesis{};
 auto server_key =
     "f8dfdb0f1103d9fb2905204ac32529d5f148761c4321b2865b0a40e15be75f57"_ed25519;
 Address server_address{

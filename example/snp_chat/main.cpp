@@ -174,7 +174,7 @@ CoroOutcome<void> co_main(IoContextPtr io_context_ptr, size_t arg_i) {
   fmt::println("#{} (self)", arg_i);
 
   std::optional<uint16_t> listen_port;
-  GenesisHash genesis;
+  GenesisHash genesis{};
   ConnectionsConfig config{genesis, keys.at(arg_i)};
   auto is_server = arg_i == 0;
   if (is_server) {

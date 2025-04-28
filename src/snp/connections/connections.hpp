@@ -60,6 +60,11 @@ namespace jam::snp {
      */
     static ConnectionPtrCoroOutcome connect(SelfSPtr self, Address address);
 
+    /**
+     * Return existing connection.
+     */
+    static ConnectionPtrCoroOutcome getConnected(SelfSPtr self, Key key);
+
     using ServeProtocol =
         std::function<CoroOutcome<void>(ConnectionInfo, StreamPtr)>;
     /**

@@ -75,7 +75,7 @@ QualifierOrder:
   - type
   - restrict
 ReferenceAlignment: Right
-ReflowComments: true
+ReflowComments: IndentOnly
 ShortNamespaceLines: 2
 SortIncludes: CaseSensitive
 SpaceAfterCStyleCast: false

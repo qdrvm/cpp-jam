@@ -7,6 +7,8 @@
 
 #include "modules/synchronizer/synchronizer.hpp"
 
+#include <qtils/to_shared_ptr.hpp>
+
 #include "modules/shared/networking_types.tmp.hpp"
 #include "modules/shared/synchronizer_types.tmp.hpp"
 
@@ -29,15 +31,23 @@ namespace jam::modules {
     SL_INFO(logger_, "Block discovered");
   };
 
+  void SynchronizerImpl::on_block_announcement_handshake(
+      std::shared_ptr<const messages::BlockAnnouncementHandshakeReceived> msg) {
+    loader_->dispatch_block_request(
+        qtils::toSharedPtr(messages::SendBlockRequest{
+            .ctx = {{0, 0}},
+            .to_peer = msg->from_peer,
+        }));
+  }
+
   void SynchronizerImpl::on_block_announce(
-      std::shared_ptr<const messages::BlockAnnounceMessage> msg) {
+      std::shared_ptr<const messages::BlockAnnouncementReceived> msg) {
     SL_INFO(logger_, "Block announced");
 
     // tmp
     static const size_t s = reinterpret_cast<size_t>(this);
     static size_t n = 0;
-    auto x = std::make_shared<const messages::BlockRequestMessage>(
-        messages::BlockRequestMessage{.ctx = {{s, ++n}}});
+    auto x = qtils::toSharedPtr(messages::SendBlockRequest{.ctx = {{s, ++n}}});
 
     // block_response_callbacks_.emplace(x->ctx.rid, [&](auto& msg) {
     //   SL_INFO(logger_, "Block response has been handled; rid={}",
@@ -47,14 +57,14 @@ namespace jam::modules {
   };
 
   void SynchronizerImpl::on_block_response(
-      std::shared_ptr<const messages::BlockResponseMessage> msg) {
-    auto it = block_response_callbacks_.find(msg->ctx.rid);
+      std::shared_ptr<const messages::BlockResponseReceived> msg) {
+    auto it = block_response_callbacks_.find(msg->for_ctx.rid);
     if (it == block_response_callbacks_.end()) {
       SL_TRACE(logger_, "Received a response to someone else's request");
       return;
     }
 
-    SL_INFO(logger_, "Block response is received; rid={}", msg->ctx.rid);
+    SL_INFO(logger_, "Block response is received; rid={}", msg->for_ctx.rid);
     // it->second(msg);
   }
 

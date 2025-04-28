@@ -26,7 +26,7 @@ MODULE_C_API std::weak_ptr<jam::modules::Networking> query_module_instance(
     std::shared_ptr<jam::modules::NetworkingLoader> loader,
     std::shared_ptr<jam::log::LoggingSystem> logsys) {
   if (!module_instance) {
-    module_instance = std::make_shared<jam::modules::NetworkingImpl>(
+    module_instance = jam::modules::NetworkingImpl::create_shared(
         std::move(loader), std::move(logsys));
   }
   return module_instance;

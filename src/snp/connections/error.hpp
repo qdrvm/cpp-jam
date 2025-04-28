@@ -83,6 +83,7 @@ namespace jam::snp {
     ENGINE_OPEN_STREAM_ALREADY,
     ENGINE_OPEN_STREAM_TOO_MANY,
     HANDSHAKE_FAILED,
+    NOT_CONNECTED,
     PROTOCOL_ID_MAKE_INVALID,
     STREAM_READ_CLOSED,
     STREAM_READ_DESTROYED,
@@ -112,6 +113,8 @@ namespace jam::snp {
         return "Engine::openStream too many streams";
       case E::HANDSHAKE_FAILED:
         return "handshake failed";
+      case E::NOT_CONNECTED:
+        return "not connected";
       case E::PROTOCOL_ID_MAKE_INVALID:
         return "ProtocolId::make invalid";
       case E::STREAM_READ_CLOSED:

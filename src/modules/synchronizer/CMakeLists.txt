@@ -7,10 +7,6 @@
 add_jam_module(synchronizer
   SOURCE
     synchronizer.cpp
-  INCLUDE_DIRS
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_BINARY_DIR}/generated
   DEFINITIONS
     SOME_FLAG=1
   LIBRARIES

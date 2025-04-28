@@ -55,6 +55,8 @@ namespace jam {
     SynchronizerIsLoaded,
     /// Synchronizer module is unloaded
     SynchronizerIsUnloaded,
+    /// Block announcement handshake received
+    BlockAnnouncementHandshakeReceived,
     /// Block announce received
     BlockAnnounceReceived,
     /// New block index discovered

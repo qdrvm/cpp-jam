@@ -20,6 +20,23 @@
  *     ...
  *     cb();
  *   };
+ * Should be used on each level, or use mutable reference
+ *   struct Foo {
+ *     Coro readMany(Self self) {
+ *       CORO_WEAK_AWAIT(self, readOne(self))
+ *     }
+ *     Coro readOne(Self self) {
+ *       CORO_WEAK_AWAIT(self, ...)
+ *     }
+ *   }
+ *   struct Foo {
+ *     Coro readMany(Self self) {
+ *       co_await readOne(self)
+ *     }
+ *     Coro readOne(Self &self) {
+ *       CORO_WEAK_AWAIT(self, ...)
+ *     }
+ *   }
  */
 #define _CORO_WEAK_AWAIT(tmp_weak, tmp_coro, auto_r, r, shared, coro, ...) \
   ({                                                                       \

@@ -10,14 +10,9 @@
 
 namespace jam::messages {
 
-  struct BlockAnnounceMessage {
-    BlockAnnounce header;
-    PeerId peer;
-  };
-
   struct BlockDiscoveredMessage {
     BlockIndex index;
     PeerId peer;
   };
 
-}
+}  // namespace jam::messages

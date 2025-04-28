@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "snp/connections/connection_ptr.hpp"
 #include "snp/connections/key.hpp"
 
 namespace jam::snp {
@@ -22,5 +23,12 @@ namespace jam::snp {
      * There are no more connections with peer.
      */
     virtual void onClose(Key key) {}
+
+    /**
+     * Called when first connection was opened.
+     * Called when first connection was replaced by second connection.
+     * Can be used to open notification streams.
+     */
+    virtual void onConnectionChange(ConnectionPtr connection) {}
   };
 }  // namespace jam::snp

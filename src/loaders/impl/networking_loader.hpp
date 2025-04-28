@@ -33,7 +33,7 @@ namespace jam::loaders {
 
     std::shared_ptr<
         BaseSubscriber<qtils::Empty,
-                       std::shared_ptr<const messages::BlockRequestMessage>>>
+                       std::shared_ptr<const messages::SendBlockRequest>>>
         on_block_request_;
 
    public:
@@ -83,7 +83,7 @@ namespace jam::loaders {
 
       on_block_request_ = se::SubscriberCreator<
           qtils::Empty,
-          std::shared_ptr<const messages::BlockRequestMessage>>::
+          std::shared_ptr<const messages::SendBlockRequest>>::
           template create<EventTypes::BlockRequest>(
               SubscriptionEngineHandlers::kTest,
               [module_internal, this](auto &, const auto &msg) {
@@ -110,16 +110,25 @@ namespace jam::loaders {
       se::getSubscription()->notify(jam::EventTypes::PeerDisconnected, msg);
     }
 
+    void dispatch_block_announcement_handshake(
+        std::shared_ptr<const messages::BlockAnnouncementHandshakeReceived> msg)
+        override {
+      SL_TRACE(logger_, "Dispatch BlockAnnouncementHandshakeReceived");
+      se::getSubscription()->notify(
+          jam::EventTypes::BlockAnnouncementHandshakeReceived, msg);
+    }
+
     void dispatch_block_announce(
-        std::shared_ptr<const messages::BlockAnnounceMessage> msg) override {
+        std::shared_ptr<const messages::BlockAnnouncementReceived> msg)
+        override {
       SL_TRACE(logger_, "Dispatch BlockAnnounceReceived");
       se::getSubscription()->notify(jam::EventTypes::BlockAnnounceReceived,
                                     msg);
     }
 
     void dispatch_block_response(
-        std::shared_ptr<const messages::BlockResponseMessage> msg) override {
-      SL_TRACE(logger_, "Dispatch BlockResponse; rid={}", msg->ctx.rid);
+        std::shared_ptr<const messages::BlockResponseReceived> msg) override {
+      SL_TRACE(logger_, "Dispatch BlockResponse; rid={}", msg->for_ctx.rid);
       se::getSubscription()->notify(jam::EventTypes::BlockResponse,
                                     std::move(msg));
     }

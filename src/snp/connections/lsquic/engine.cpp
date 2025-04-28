@@ -68,6 +68,9 @@ namespace jam::snp::lsquic {
     settings.es_init_max_stream_data_bidi_remote = kWindowSize;
     settings.es_init_max_stream_data_bidi_local = kWindowSize;
 
+    // TODO: disconnect not detected during this time
+    settings.es_idle_timeout = 5;
+
     static lsquic_stream_if stream_if{};
     stream_if.on_new_conn = on_new_conn;
     stream_if.on_conn_closed = on_conn_closed;
@@ -442,7 +445,6 @@ namespace jam::snp::lsquic {
 
   void Engine::on_conn_closed(lsquic_conn_t *ls_conn) {
     auto *conn_ctx = from_ls<ConnCtx>(lsquic_conn_get_ctx(ls_conn));
-    conn_ctx->ls_conn.reset();
     lsquic_conn_set_ctx(ls_conn, nullptr);
     if (auto connecting = qtils::optionTake(conn_ctx->connecting)) {
       connecting->handler(ConnectionsError::ENGINE_CONNECT_CLOSED);
@@ -451,6 +453,11 @@ namespace jam::snp::lsquic {
         controller->onConnectionClose(conn_ctx->info.value());
       }
     }
+    // allow deleting context after controller callback,
+    // because controller may call `Connection` destructor,
+    // which may delete context before this function tries to delete it,
+    // causing double free.
+    conn_ctx->ls_conn.reset();
     tryDelete(conn_ctx);
   }
 
@@ -474,6 +481,7 @@ namespace jam::snp::lsquic {
       conn_ctx->info = ConnectionInfo{
           .id = connection_id_counter.fetch_add(1),
           .key = key,
+          .outbound = connecting.has_value(),
       };
       auto connection = std::make_shared<Connection>(
           self->io_context_ptr_, conn_ctx, conn_ctx->info.value());
@@ -525,13 +533,17 @@ namespace jam::snp::lsquic {
   void Engine::on_close(lsquic_stream_t *ls_stream,
                         lsquic_stream_ctx_t *ls_stream_ctx) {
     auto *stream_ctx = from_ls<StreamCtx>(ls_stream_ctx);
-    stream_ctx->ls_stream.reset();
     if (auto reading = qtils::optionTake(stream_ctx->reading)) {
       reading.value()();
     }
     if (auto writing = qtils::optionTake(stream_ctx->writing)) {
       writing.value()();
     }
+    // allow deleting context after callback,
+    // because callback may call `Stream` destructor,
+    // which may delete context before this function tries to delete it,
+    // causing double free.
+    stream_ctx->ls_stream.reset();
     tryDelete(stream_ctx);
   }
 

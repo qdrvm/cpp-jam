@@ -114,6 +114,9 @@ namespace {
 }  // namespace
 
 int main(int argc, const char **argv, const char **env) {
+  setvbuf(stdout, nullptr, _IOLBF, 0);
+  setvbuf(stderr, nullptr, _IOLBF, 0);
+
   qtils::FinalAction dispose_se_on_exit(
       [se_manager{jam::se::getSubscription()}] { se_manager->dispose(); });
 
