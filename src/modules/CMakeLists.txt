@@ -87,6 +87,8 @@ target_link_libraries(modules
     qtils::qtils
 )
 
+add_subdirectory(pvm)
+
 # -------------- Modules --------------
 
 # Example module

@@ -19,6 +19,7 @@
 #include "log/logger.hpp"
 #include "modules/module_loader.hpp"
 #include "se/subscription.hpp"
+#include "loaders/pvm_loader.hpp"
 
 using std::string_view_literals::operator""sv;
 
@@ -160,6 +161,13 @@ namespace {
           //   loaders.emplace_back(loader);
           //   loader->start();
           // }
+        }         if ("PVMLoader" == module->get_loader_id()) {
+          auto loader = std::make_shared<jam::loaders::PVMLoader>(*injector, logsys, module);
+          if (auto info = loader->module_info()) {
+            SL_INFO(logger, "> Module: {} [{}]", *info, module->get_path());
+            loaders.emplace_back(loader);
+            loader->start();
+          }
         }
       }
     }
