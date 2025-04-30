@@ -12,7 +12,7 @@
 #include <mutex>
 #include <queue>
 
-#include <qtils/strict_sptr.hpp>
+#include <qtils/shared_ref.hpp>
 
 #include "utils/ctor_limiters.hpp"
 
@@ -30,7 +30,7 @@ namespace jam::app {
         public StateManager,
         public std::enable_shared_from_this<StateManagerImpl> {
    public:
-    StateManagerImpl(qtils::StrictSharedPtr<log::LoggingSystem> logging_system);
+    StateManagerImpl(qtils::SharedRef<log::LoggingSystem> logging_system);
 
     ~StateManagerImpl() override;
 
@@ -67,8 +67,8 @@ namespace jam::app {
 
     void shutdownRequestWaiting();
 
-    qtils::StrictSharedPtr<soralog::Logger> logger_;
-    qtils::StrictSharedPtr<log::LoggingSystem> logging_system_;
+    qtils::SharedRef<soralog::Logger> logger_;
+    qtils::SharedRef<log::LoggingSystem> logging_system_;
 
     std::atomic<State> state_ = State::Init;
 

@@ -14,8 +14,8 @@
 namespace jam::modules {
 
   SynchronizerImpl::SynchronizerImpl(
-      qtils::StrictSharedPtr<SynchronizerLoader> loader,
-      qtils::StrictSharedPtr<log::LoggingSystem> logging_system)
+      qtils::SharedRef<SynchronizerLoader> loader,
+      qtils::SharedRef<log::LoggingSystem> logging_system)
       : loader_(loader),
         logger_(
             logging_system->getLogger("Synchronizer", "synchronizer_module")) {}

@@ -7,13 +7,12 @@
 #include "modules/example/example.hpp"
 
 namespace jam::modules {
-
   ExampleModuleImpl::ExampleModuleImpl(
-      std::shared_ptr<jam::modules::ExampleModuleLoader> loader,
-      std::shared_ptr<jam::log::LoggingSystem> logsys)
-      : loader_(std::move(loader)),
-        logsys_(std::move(logsys)),
-        logger_(logsys_->getLogger("ExampleModule", "jam")) {}
+      qtils::SharedRef<ExampleModuleLoader> loader,
+      qtils::SharedRef<log::LoggingSystem> logging_system)
+      : loader_(loader),
+        logsys_(std::move(logging_system)),
+        logger_(logsys_->getLogger("ExampleModule", "example_module")) {}
 
   void ExampleModuleImpl::on_loaded_success() {
     SL_INFO(logger_, "Loaded success");

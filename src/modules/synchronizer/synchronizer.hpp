@@ -9,7 +9,7 @@
 #include <log/logger.hpp>
 #include <modules/synchronizer/interfaces.hpp>
 #include <qtils/create_smart_pointer_macros.hpp>
-#include <qtils/strict_sptr.hpp>
+#include <qtils/shared_ref.hpp>
 #include <utils/ctor_limiters.hpp>
 
 namespace jam::modules {
@@ -20,8 +20,8 @@ namespace jam::modules {
     static std::shared_ptr<Synchronizer> instance;
     CREATE_SHARED_METHOD(SynchronizerImpl);
 
-    SynchronizerImpl(qtils::StrictSharedPtr<SynchronizerLoader> loader,
-                     qtils::StrictSharedPtr<log::LoggingSystem> logging_system);
+    SynchronizerImpl(qtils::SharedRef<SynchronizerLoader> loader,
+                     qtils::SharedRef<log::LoggingSystem> logging_system);
 
     void on_loaded_success() override;
 
@@ -35,7 +35,7 @@ namespace jam::modules {
         std::shared_ptr<const messages::BlockResponseMessage> msg) override;
 
    private:
-    qtils::StrictSharedPtr<SynchronizerLoader> loader_;
+    qtils::SharedRef<SynchronizerLoader> loader_;
     log::Logger logger_;
 
     std::unordered_map<

@@ -10,7 +10,7 @@
 
 #include <memory>
 
-#include <qtils/strict_sptr.hpp>
+#include <qtils/shared_ref.hpp>
 
 #include <metrics/registry.hpp>
 
@@ -45,22 +45,22 @@ namespace jam::app {
 
   class ApplicationImpl final : public Application {
    public:
-    ApplicationImpl(qtils::StrictSharedPtr<log::LoggingSystem> logsys,
-                    qtils::StrictSharedPtr<Configuration> config,
-                    qtils::StrictSharedPtr<StateManager> state_manager,
-                    qtils::StrictSharedPtr<Watchdog> watchdog,
-                    qtils::StrictSharedPtr<metrics::Exposer> metrics_exposer,
-                    qtils::StrictSharedPtr<clock::SystemClock> system_clock);
+    ApplicationImpl(qtils::SharedRef<log::LoggingSystem> logsys,
+                    qtils::SharedRef<Configuration> config,
+                    qtils::SharedRef<StateManager> state_manager,
+                    qtils::SharedRef<Watchdog> watchdog,
+                    qtils::SharedRef<metrics::Exposer> metrics_exposer,
+                    qtils::SharedRef<clock::SystemClock> system_clock);
 
     void run() override;
 
    private:
-    qtils::StrictSharedPtr<soralog::Logger> logger_;
-    qtils::StrictSharedPtr<Configuration> app_config_;
-    qtils::StrictSharedPtr<StateManager> state_manager_;
-    qtils::StrictSharedPtr<Watchdog> watchdog_;
-    qtils::StrictSharedPtr<metrics::Exposer> metrics_exposer_;
-    qtils::StrictSharedPtr<clock::SystemClock> system_clock_;
+    qtils::SharedRef<soralog::Logger> logger_;
+    qtils::SharedRef<Configuration> app_config_;
+    qtils::SharedRef<StateManager> state_manager_;
+    qtils::SharedRef<Watchdog> watchdog_;
+    qtils::SharedRef<metrics::Exposer> metrics_exposer_;
+    qtils::SharedRef<clock::SystemClock> system_clock_;
 
     // Metrics
     std::unique_ptr<metrics::Registry> metrics_registry_;

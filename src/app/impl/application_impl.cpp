@@ -20,12 +20,12 @@
 namespace jam::app {
 
   ApplicationImpl::ApplicationImpl(
-      qtils::StrictSharedPtr<log::LoggingSystem> logsys,
-      qtils::StrictSharedPtr<Configuration> config,
-      qtils::StrictSharedPtr<StateManager> state_manager,
-      qtils::StrictSharedPtr<Watchdog> watchdog,
-      qtils::StrictSharedPtr<metrics::Exposer> metrics_exposer,
-      qtils::StrictSharedPtr<clock::SystemClock> system_clock)
+      qtils::SharedRef<log::LoggingSystem> logsys,
+      qtils::SharedRef<Configuration> config,
+      qtils::SharedRef<StateManager> state_manager,
+      qtils::SharedRef<Watchdog> watchdog,
+      qtils::SharedRef<metrics::Exposer> metrics_exposer,
+      qtils::SharedRef<clock::SystemClock> system_clock)
       : logger_(logsys->getLogger("Application", "application")),
         app_config_(std::move(config)),
         state_manager_(std::move(state_manager)),

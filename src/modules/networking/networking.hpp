@@ -9,7 +9,7 @@
 #include <log/logger.hpp>
 #include <modules/networking/interfaces.hpp>
 #include <qtils/create_smart_pointer_macros.hpp>
-#include <qtils/strict_sptr.hpp>
+#include <qtils/shared_ref.hpp>
 #include <utils/ctor_limiters.hpp>
 
 namespace jam::modules {
@@ -19,8 +19,8 @@ namespace jam::modules {
     static std::shared_ptr<Networking> instance;
     CREATE_SHARED_METHOD(NetworkingImpl);
 
-    NetworkingImpl(qtils::StrictSharedPtr<NetworkingLoader> loader,
-                   qtils::StrictSharedPtr<log::LoggingSystem> logging_system);
+    NetworkingImpl(qtils::SharedRef<NetworkingLoader> loader,
+                   qtils::SharedRef<log::LoggingSystem> logging_system);
 
     void on_loaded_success() override;
 
@@ -30,7 +30,7 @@ namespace jam::modules {
         std::shared_ptr<const messages::BlockRequestMessage> msg) override;
 
    private:
-    qtils::StrictSharedPtr<NetworkingLoader> loader_;
+    qtils::SharedRef<NetworkingLoader> loader_;
     log::Logger logger_;
   };
 

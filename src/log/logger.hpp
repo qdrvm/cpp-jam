@@ -11,7 +11,7 @@
 
 #include <qtils/enum_error_code.hpp>
 #include <qtils/outcome.hpp>
-#include <qtils/strict_sptr.hpp>
+#include <qtils/shared_ref.hpp>
 #include <soralog/level.hpp>
 #include <soralog/logger.hpp>
 #include <soralog/logging_system.hpp>
@@ -23,7 +23,7 @@
 namespace jam::log {
   using soralog::Level;
 
-  using Logger = qtils::StrictSharedPtr<soralog::Logger>;
+  using Logger = qtils::SharedRef<soralog::Logger>;
 
   enum class Error : uint8_t { WRONG_LEVEL = 1, WRONG_GROUP, WRONG_LOGGER };
 

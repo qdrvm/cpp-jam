@@ -13,7 +13,7 @@
 #include <boost/program_options.hpp>
 #include <boost/program_options/value_semantic.hpp>
 #include <qtils/outcome.hpp>
-#include <qtils/strict_sptr.hpp>
+#include <qtils/shared_ref.hpp>
 
 #include "app/build_version.hpp"
 #include "app/configuration.hpp"
@@ -196,7 +196,7 @@ namespace jam::app {
   }
 
   outcome::result<std::shared_ptr<Configuration>> Configurator::calculateConfig(
-      qtils::StrictSharedPtr<soralog::Logger> logger) {
+      qtils::SharedRef<soralog::Logger> logger) {
     logger_ = std::move(logger);
     OUTCOME_TRY(initGeneralConfig());
     OUTCOME_TRY(initOpenMetricsConfig());

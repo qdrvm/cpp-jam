@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+
 #include "modules/networking/networking.hpp"
+
 
 namespace jam::modules {
 
   NetworkingImpl::NetworkingImpl(
-      qtils::StrictSharedPtr<NetworkingLoader> loader,
-      qtils::StrictSharedPtr<log::LoggingSystem> logging_system)
+      qtils::SharedRef<NetworkingLoader> loader,
+      qtils::SharedRef<log::LoggingSystem> logging_system)
       : loader_(loader),
         logger_(logging_system->getLogger("Networking", "networking_module")) {}
 

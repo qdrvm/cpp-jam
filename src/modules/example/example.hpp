@@ -12,13 +12,14 @@
 namespace jam::modules {
 
   class ExampleModuleImpl final : public jam::modules::ExampleModule {
-    qtils::StrictSharedPtr<jam::modules::ExampleModuleLoader> loader_;
-    qtils::StrictSharedPtr<jam::log::LoggingSystem> logsys_;
+    qtils::SharedRef<jam::modules::ExampleModuleLoader> loader_;
+    qtils::SharedRef<jam::log::LoggingSystem> logsys_;
     jam::log::Logger logger_;
 
    public:
-    ExampleModuleImpl(std::shared_ptr<jam::modules::ExampleModuleLoader> loader,
-                      std::shared_ptr<jam::log::LoggingSystem> logsys);
+    ExampleModuleImpl(
+        qtils::SharedRef<jam::modules::ExampleModuleLoader> loader,
+        qtils::SharedRef<jam::log::LoggingSystem> logsys);
 
     void on_loaded_success() override;
 
