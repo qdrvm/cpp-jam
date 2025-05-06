@@ -33,6 +33,7 @@
 #include "modules/module.hpp"
 #include "se/impl/async_dispatcher_impl.hpp"
 #include "se/subscription.hpp"
+#include "storage/in_memory/in_memory_storage.hpp"
 
 namespace {
   namespace di = boost::di;
@@ -65,12 +66,12 @@ namespace {
         di::bind<Dispatcher>.to<se::AsyncDispatcher<kHandlersCount, kThreadPoolSize>>(),
         di::bind<metrics::Exposer::Configuration>.to([](const auto &injector) {
           return metrics::Exposer::Configuration{
-              {boost::asio::ip::address_v4::from_string("127.0.0.1"), 7777}
-              // injector
-              //     .template create<app::Configuration const &>()
-              //     .openmetricsHttpEndpoint()
+              injector
+                  .template create<app::Configuration const &>()
+                  .openmetricsHttpEndpoint()
           };
         }),
+        di::bind<storage::BufferStorage>.to<storage::InMemoryStorage>(),
 
         // user-defined overrides...
         std::forward<decltype(args)>(args)...);
