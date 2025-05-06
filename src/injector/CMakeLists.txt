@@ -17,4 +17,5 @@ target_link_libraries(node_injector
     clock
     se_async
     modules
+    storage
 )

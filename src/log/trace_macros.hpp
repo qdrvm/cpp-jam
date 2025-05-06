@@ -8,7 +8,7 @@
 
 #include "log/logger.hpp"
 
-namespace kagome::log {
+namespace jam::log {
   struct TraceReturnVoid {};
 
   template <typename Ret, typename Args>
@@ -32,19 +32,19 @@ namespace kagome::log {
 #define _SL_TRACE_FUNC_CALL(logger, ret, ...) \
   SL_TRACE(logger,                            \
            "{}",                              \
-           (::kagome::log::TraceFuncCall{     \
+           (::jam::log::TraceFuncCall{     \
                this, __FUNCTION__, ret, std::forward_as_tuple(__VA_ARGS__)}))
 
 #endif
 
-}  // namespace kagome::log
+}  // namespace jam::log
 
 template <typename Ret, typename Args>
-struct fmt::formatter<kagome::log::TraceFuncCall<Ret, Args>> {
+struct fmt::formatter<jam::log::TraceFuncCall<Ret, Args>> {
   static constexpr auto parse(format_parse_context &ctx) {
     return ctx.begin();
   }
-  static auto format(const kagome::log::TraceFuncCall<Ret, Args> &v,
+  static auto format(const jam::log::TraceFuncCall<Ret, Args> &v,
                      format_context &ctx) {
     auto out = ctx.out();
     out = fmt::format_to(out, "call '{}' from {}", v.func_name, v.caller);
@@ -61,7 +61,7 @@ struct fmt::formatter<kagome::log::TraceFuncCall<Ret, Args>> {
       };
       std::apply([&](auto &...arg) { (f(arg), ...); }, v.args);
     }
-    if constexpr (not std::is_same_v<Ret, kagome::log::TraceReturnVoid>) {
+    if constexpr (not std::is_same_v<Ret, jam::log::TraceReturnVoid>) {
       out = fmt::format_to(out, " -> ret: {}", v.ret);
     }
     return out;
@@ -72,4 +72,4 @@ struct fmt::formatter<kagome::log::TraceFuncCall<Ret, Args>> {
   _SL_TRACE_FUNC_CALL(logger, ret, ##__VA_ARGS__)
 
 #define SL_TRACE_VOID_FUNC_CALL(logger, ...) \
-  _SL_TRACE_FUNC_CALL(logger, ::kagome::log::TraceReturnVoid{}, ##__VA_ARGS__)
+  _SL_TRACE_FUNC_CALL(logger, ::jam::log::TraceReturnVoid{}, ##__VA_ARGS__)
