@@ -29,3 +29,6 @@ add_subdirectory(se)
 
 # Modules subsystem
 add_subdirectory(modules)
+
+# Storage
+add_subdirectory(storage)

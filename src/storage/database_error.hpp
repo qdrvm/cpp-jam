@@ -1,0 +1,30 @@
+/**
+ * Copyright Quadrivium LLC
+ * All Rights Reserved
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#pragma once
+
+#include <qtils/outcome.hpp>
+
+namespace jam::storage {
+
+  /**
+   * @brief universal database interface error
+   */
+  enum class DatabaseError : int {  // NOLINT(performance-enum-size)
+    OK = 0,
+    NOT_FOUND = 1,
+    CORRUPTION = 2,
+    NOT_SUPPORTED = 3,
+    INVALID_ARGUMENT = 4,
+    IO_ERROR = 5,
+    DB_PATH_NOT_CREATED = 6,
+    STORAGE_GONE = 7,
+
+    UNKNOWN = 1000
+  };
+}  // namespace jam::storage
+
+OUTCOME_HPP_DECLARE_ERROR(jam::storage, DatabaseError);
