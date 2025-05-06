@@ -4,27 +4,38 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#pragma once
-
 /**
- * This file contains convenience typedefs for interfaces from face/, as they
- * are mostly used with ByteVec key and value types
+ * @brief Convenience typedefs for ByteVec-based storage interfaces.
+ *
+ * Defines specializations and using aliases for storage interfaces
+ * when keys and values are qtils::ByteVec.
  */
 
-#include <qtils/byte_vec.hpp>
+#pragma once
+
 #include <qtils/byte_vec_or_view.hpp>
 
-#include "storage/face/batch_writeable.hpp"
 #include "storage/face/generic_maps.hpp"
 #include "storage/face/write_batch.hpp"
 
 namespace jam::storage::face {
 
+  /**
+   * @brief OwnedOrView trait for ByteVec values.
+   *
+   * Resolves to ByteVecOrView, allowing either an owned container
+   * or a view over ByteVec data.
+   */
   template <>
   struct OwnedOrViewTrait<qtils::ByteVec> {
     using type = qtils::ByteVecOrView;
   };
 
+  /**
+   * @brief ViewTrait for ByteVec keys.
+   *
+   * Resolves to ByteView, providing a view over ByteVec key data.
+   */
   template <>
   struct ViewTrait<qtils::ByteVec> {
     using type = qtils::ByteView;
@@ -38,10 +49,23 @@ namespace jam::storage {
   using qtils::ByteVecOrView;
   using qtils::ByteView;
 
+  /**
+   * @brief Alias for a byte-vector write batch.
+   *
+   * Provides a WriteBatch specialized for ByteVec keys and values.
+   */
   using BufferBatch = face::WriteBatch<ByteVec, ByteVec>;
 
+  /**
+   * @brief Alias for generic byte-vector storage.
+   *
+   * Combines read, write, iteration, and batch support for ByteVec.
+   */
   using BufferStorage = face::GenericStorage<ByteVec, ByteVec>;
 
+  /**
+   * @brief Cursor type for iterating over byte-vector storage.
+   */
   using BufferStorageCursor = face::MapCursor<ByteVec, ByteVec>;
 
 }  // namespace jam::storage

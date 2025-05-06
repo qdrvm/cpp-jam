@@ -6,9 +6,9 @@
 
 #include "storage/in_memory/in_memory_storage.hpp"
 
-#include "storage/database_error.hpp"
 #include "storage/in_memory/cursor.hpp"
 #include "storage/in_memory/in_memory_batch.hpp"
+#include "storage/storage_error.hpp"
 
 using qtils::ByteVec;
 
@@ -16,17 +16,17 @@ namespace jam::storage {
 
   outcome::result<ByteVecOrView> InMemoryStorage::get(
       const ByteView &key) const {
-    if (storage.find(key.toHex()) != storage.end()) {
-      return ByteView{storage.at(key.toHex())};
+    if (storage_.find(key.toHex()) != storage_.end()) {
+      return ByteView{storage_.at(key.toHex())};
     }
 
-    return DatabaseError::NOT_FOUND;
+    return StorageError::NOT_FOUND;
   }
 
   outcome::result<std::optional<ByteVecOrView>> InMemoryStorage::tryGet(
       const qtils::ByteView &key) const {
-    if (storage.find(key.toHex()) != storage.end()) {
-      return ByteView{storage.at(key.toHex())};
+    if (storage_.find(key.toHex()) != storage_.end()) {
+      return ByteView{storage_.at(key.toHex())};
     }
 
     return std::nullopt;
@@ -34,26 +34,26 @@ namespace jam::storage {
 
   outcome::result<void> InMemoryStorage::put(const ByteView &key,
                                              ByteVecOrView &&value) {
-    auto it = storage.find(key.toHex());
-    if (it != storage.end()) {
+    auto it = storage_.find(key.toHex());
+    if (it != storage_.end()) {
       size_t old_value_size = it->second.size();
       BOOST_ASSERT(size_ >= old_value_size);
       size_ -= old_value_size;
     }
     size_ += value.size();
-    storage[key.toHex()] = std::move(value).intoByteVec();
+    storage_[key.toHex()] = std::move(value).intoByteVec();
     return outcome::success();
   }
 
   outcome::result<bool> InMemoryStorage::contains(const ByteView &key) const {
-    return storage.find(key.toHex()) != storage.end();
+    return storage_.find(key.toHex()) != storage_.end();
   }
 
   outcome::result<void> InMemoryStorage::remove(const ByteView &key) {
-    auto it = storage.find(key.toHex());
-    if (it != storage.end()) {
+    auto it = storage_.find(key.toHex());
+    if (it != storage_.end()) {
       size_ -= it->second.size();
-      storage.erase(it);
+      storage_.erase(it);
     }
     return outcome::success();
   }

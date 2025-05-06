@@ -20,31 +20,32 @@ namespace jam::storage {
    * Mostly needed to have an in-memory trie in tests to avoid integration with
    * an actual persistent database
    */
-  class InMemoryStorage : public storage::BufferStorage {
+  class InMemoryStorage : public BufferStorage {
    public:
     ~InMemoryStorage() override = default;
 
-    outcome::result<ByteVecOrView> get(
-        const qtils::ByteView &key) const override;
+    [[nodiscard]] outcome::result<ByteVecOrView> get(
+        const ByteView &key) const override;
 
-    outcome::result<std::optional<ByteVecOrView>> tryGet(
-        const qtils::ByteView &key) const override;
+    [[nodiscard]] outcome::result<std::optional<ByteVecOrView>> tryGet(
+        const ByteView &key) const override;
 
-    outcome::result<void> put(const qtils::ByteView &key,
+    outcome::result<void> put(const ByteView &key,
                               ByteVecOrView &&value) override;
 
-    outcome::result<bool> contains(const qtils::ByteView &key) const override;
+    [[nodiscard]] outcome::result<bool> contains(
+        const ByteView &key) const override;
 
-    outcome::result<void> remove(const qtils::ByteView &key) override;
+    outcome::result<void> remove(const ByteView &key) override;
 
     std::unique_ptr<BufferBatch> batch() override;
 
     std::unique_ptr<Cursor> cursor() override;
 
-    std::optional<size_t> byteSizeHint() const override;
+    [[nodiscard]] std::optional<size_t> byteSizeHint() const override;
 
    private:
-    std::map<std::string, qtils::ByteVec> storage;
+    std::map<std::string, ByteVec> storage_;
     size_t size_ = 0;
 
     friend class InMemoryCursor;

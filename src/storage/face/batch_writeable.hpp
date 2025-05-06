@@ -4,28 +4,40 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * @brief Interface mixin for batched write support.
+ *
+ * BatchWriteable exposes a method to create a WriteBatch
+ * for efficient bulk updates to a map-like storage.
+ */
+
 #pragma once
 
 #include <memory>
 
 #include "storage/face/write_batch.hpp"
-#include "storage/face/writeable.hpp"
 
 namespace jam::storage::face {
 
   /**
-   * @brief A mixin for a map that supports batching for efficiency of
-   * modifications.
-   * @tparam K key type
-   * @tparam V value type
+   * @brief Mixin interface for batched map modifications.
+   * @tparam K Key type.
+   * @tparam V Value type.
+   *
+   * BatchWriteable implementations provide a method to create
+   * write batches that group multiple write operations for
+   * atomic and efficient application.
    */
   template <typename K, typename V>
   struct BatchWriteable {
     virtual ~BatchWriteable() = default;
 
     /**
-     * @brief Creates new Write Batch - an object, which can be used to
-     * efficiently write bulk data.
+     * @brief Create a new write batch.
+     *
+     * @return std::unique_ptr<WriteBatch<K, V>> A batch object
+     * for efficient bulk writes. The default implementation throws
+     * logic_error if not overridden.
      */
     virtual std::unique_ptr<WriteBatch<K, V>> batch() {
       throw std::logic_error{"BatchWriteable::batch not implemented"};

@@ -26,21 +26,23 @@ namespace jam::storage::face {
      * @param key K
      * @return true if key has value, false if does not, or error at .
      */
-    virtual outcome::result<bool> contains(const View<K> &key) const = 0;
+    [[nodiscard]] virtual outcome::result<bool> contains(
+        const View<K> &key) const = 0;
 
     /**
      * @brief Get value by key
      * @param key K
      * @return V
      */
-    virtual outcome::result<OwnedOrView<V>> get(const View<K> &key) const = 0;
+    [[nodiscard]] virtual outcome::result<OwnedOrView<V>> get(
+        const View<K> &key) const = 0;
 
     /**
      * @brief Get value by key
      * @param key K
      * @return V if contains(K) or std::nullopt
      */
-    virtual outcome::result<std::optional<OwnedOrView<V>>> tryGet(
+    [[nodiscard]] virtual outcome::result<std::optional<OwnedOrView<V>>> tryGet(
         const View<K> &key) const = 0;
   };
 }  // namespace jam::storage::face
