@@ -24,6 +24,8 @@
 #include "se/subscription.hpp"
 #include "storage/in_memory/in_memory_storage.hpp"
 #include "storage/in_memory/in_memory_spaced_storage.hpp"
+#include "storage/rocksdb/rocksdb.hpp"
+
 namespace {
   namespace di = boost::di;
   namespace fs = std::filesystem;
@@ -60,7 +62,8 @@ namespace {
           };
         }),
         di::bind<storage::BufferStorage>.to<storage::InMemoryStorage>(),
-        di::bind<storage::SpacedStorage>.to<storage::InMemorySpacedStorage>(),
+        //di::bind<storage::SpacedStorage>.to<storage::InMemorySpacedStorage>(),
+        di::bind<storage::SpacedStorage>.to<storage::RocksDb>(),
 
         // user-defined overrides...
         std::forward<decltype(args)>(args)...);

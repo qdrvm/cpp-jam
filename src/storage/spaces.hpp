@@ -1,5 +1,5 @@
 /**
-* Copyright Quadrivium LLC
+ * Copyright Quadrivium LLC
  * All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 
 namespace jam::storage {
@@ -26,14 +27,16 @@ namespace jam::storage {
    * of the system's storage. The values are used as keys to retrieve
    * specific BufferStorage instances.
    */
-  enum Space : uint8_t {
-    Default = 0,   ///< Default space used for general-purpose storage
-    LookupKey,     ///< Space used for mapping lookup keys
+  enum class Space : uint8_t {
+    Default = 0,  ///< Default space used for general-purpose storage
+    LookupKey,    ///< Space used for mapping lookup keys
 
     // application-defined spaces
+    TrieNode,
     // ... append here
 
-    kTotal         ///< Total number of defined spaces (must be last)
+    Total  ///< Total number of defined spaces (must be last)
   };
 
+  constexpr size_t SpacesCount = static_cast<size_t>(Space::Total);
 }
