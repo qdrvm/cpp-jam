@@ -74,7 +74,8 @@ namespace {
         di::bind<storage::SpacedStorage>.to<storage::RocksDb>(),
         di::bind<app::ChainSpec>.to<app::ChainSpecImpl>(),
         di::bind<storage::BufferStorage>.to<storage::InMemoryStorage>(),
-        di::bind<storage::SpacedStorage>.to<storage::InMemorySpacedStorage>(),
+        //di::bind<storage::SpacedStorage>.to<storage::InMemorySpacedStorage>(),
+        di::bind<storage::SpacedStorage>.to<storage::RocksDb>(),
 
         // user-defined overrides...
         std::forward<decltype(args)>(args)...);
