@@ -10,6 +10,9 @@ add_subdirectory(executable)
 # Application's thinks
 add_subdirectory(app)
 
+# Blockchain
+add_subdirectory(blockchain)
+
 # Cryptography thinks
 add_subdirectory(crypto)
 

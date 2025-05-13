@@ -32,7 +32,10 @@ namespace jam::storage {
     LookupKey,    ///< Space used for mapping lookup keys
 
     // application-defined spaces
+    Header,
+    Extrinsic,
     TrieNode,
+    Justification,
     // ... append here
 
     Total  ///< Total number of defined spaces (must be last)
