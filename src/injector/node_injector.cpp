@@ -16,6 +16,7 @@
 #include "app/impl/application_impl.hpp"
 #include "app/impl/state_manager_impl.hpp"
 #include "app/impl/watchdog.hpp"
+#include "blockchain/impl/block_storage_impl.hpp"
 #include "clock/impl/clock_impl.hpp"
 #include "crypto/hasher/hasher_impl.hpp"
 #include "injector/bind_by_lambda.hpp"
@@ -23,8 +24,8 @@
 #include "metrics/impl/exposer_impl.hpp"
 #include "metrics/impl/prometheus/handler_impl.hpp"
 #include "se/subscription.hpp"
-#include "storage/in_memory/in_memory_storage.hpp"
 #include "storage/in_memory/in_memory_spaced_storage.hpp"
+#include "storage/in_memory/in_memory_storage.hpp"
 #include "storage/rocksdb/rocksdb.hpp"
 
 namespace {
@@ -46,13 +47,13 @@ namespace {
                                Ts &&...args) {
     // clang-format off
     return di::make_injector(
+        di::bind<app::Configuration>.to(config),
+        di::bind<log::LoggingSystem>.to(logsys),
         di::bind<app::StateManager>.to<app::StateManagerImpl>(),
         di::bind<app::Application>.to<app::ApplicationImpl>(),
         di::bind<clock::SystemClock>.to<clock::SystemClockImpl>(),
         di::bind<clock::SteadyClock>.to<clock::SteadyClockImpl>(),
-        di::bind<Watchdog>. to<Watchdog>(),
-        di::bind<app::Configuration>.to(config),
-        di::bind<log::LoggingSystem>.to(logsys),
+        di::bind<Watchdog>.to<Watchdog>(),
         di::bind<metrics::Handler>.to<metrics::PrometheusHandler>(),
         di::bind<metrics::Exposer>.to<metrics::ExposerImpl>(),
         di::bind<metrics::Exposer::Configuration>.to([](const auto &injector) {
@@ -101,7 +102,7 @@ namespace jam::injector {
   NodeInjector::NodeInjector(std::shared_ptr<log::LoggingSystem> logsys,
                              std::shared_ptr<app::Configuration> config)
       : pimpl_{std::make_unique<NodeInjectorImpl>(
-          makeNodeInjector(std::move(logsys), std::move(config)))} {}
+            makeNodeInjector(std::move(logsys), std::move(config)))} {}
 
   std::shared_ptr<app::Application> NodeInjector::injectApplication() {
     return pimpl_->injector_

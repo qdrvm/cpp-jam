@@ -19,4 +19,5 @@ target_link_libraries(node_injector
     se_async
     modules
     storage
+    blockchain
 )

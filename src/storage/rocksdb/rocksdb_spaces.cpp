@@ -16,6 +16,8 @@ namespace jam::storage {
 
   static constexpr std::array kNames{
       "lookup_key",
+      "header",
+      "extrinsic",
       "trie_node",
       "justification",
   };
