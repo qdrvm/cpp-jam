@@ -35,3 +35,6 @@ logging:
             - name: rpc
             - name: metrics
             - name: threads
+            - name: storage
+              children:
+                - name: block_storage
