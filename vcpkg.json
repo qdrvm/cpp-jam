@@ -13,7 +13,8 @@
     "boost-asio",
     "boost-beast",
     "prometheus-cpp",
-    "ftxui"
+    "ftxui",
+    "yaml-cpp"
   ],
   "features": {
     "test": { "description": "Test", "dependencies": ["gtest"]}

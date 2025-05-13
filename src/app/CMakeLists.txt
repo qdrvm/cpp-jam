@@ -6,6 +6,10 @@
 
 set(BUILD_VERSION_CPP "${CMAKE_BINARY_DIR}/generated/app/build_version.cpp")
 set(GET_VERSION_SCRIPT "${CMAKE_SOURCE_DIR}/scripts/get_version.sh")
+
+# Создаём директорию для сгенерированного файла
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/generated/app")
+
 add_custom_command(
     OUTPUT ${BUILD_VERSION_CPP}
     COMMAND echo "// Auto-generated file\\n" > ${BUILD_VERSION_CPP}

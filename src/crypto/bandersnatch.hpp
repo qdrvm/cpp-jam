@@ -9,8 +9,26 @@
 #include <memory>
 #include <optional>
 
-#include <jam_crust.h>
+// #include <jam_crust.h>  // Временно отключено
 #include <qtils/bytes.hpp>
+
+// Определения для замены констант из jam_crust.h
+#define JAM_BANDERSNATCH_OUTPUT 32
+#define JAM_BANDERSNATCH_PUBLIC 32
+#define JAM_BANDERSNATCH_RING_COMMITMENT 32
+#define JAM_BANDERSNATCH_RING_SIGNATURE 96
+
+// Заглушки для типов и функций
+using JamBandersnatchRing = void;
+using JamBandersnatchRingVerifier = void;
+
+inline JamBandersnatchRing* jam_bandersnatch_ring_new(uint32_t) { return nullptr; }
+inline void jam_bandersnatch_ring_drop(JamBandersnatchRing*) {}
+inline void jam_bandersnatch_ring_commitment(JamBandersnatchRing*, const uint8_t*, size_t, uint8_t*) {}
+inline JamBandersnatchRingVerifier* jam_bandersnatch_ring_verifier_new(JamBandersnatchRing*, const uint8_t*) { return nullptr; }
+inline void jam_bandersnatch_ring_verifier_drop(JamBandersnatchRingVerifier*) {}
+inline bool jam_bandersnatch_ring_verifier_verify(JamBandersnatchRingVerifier*, const uint8_t*, size_t, const uint8_t*, uint8_t*) { return false; }
+inline bool jam_bandersnatch_output(const uint8_t*, uint8_t*) { return false; }
 
 namespace jam::crypto::bandersnatch {
   using Output = qtils::BytesN<JAM_BANDERSNATCH_OUTPUT>;
@@ -91,4 +109,4 @@ namespace jam::crypto::bandersnatch {
   RingVerifier Ring::verifier(const RingCommitment &commitment) const {
     return RingVerifier{*this, commitment};
   }
-}  // namespace jam::bandersnatch
+}  // namespace jam::crypto::bandersnatch

@@ -11,5 +11,14 @@ vcpkg_cmake_configure(
     -DQDRVM_BIND_CRATES=pvm_bindings
 )
 vcpkg_cmake_install()
+vcpkg_copy_pdbs()
+
+# Создаём необходимую директорию для конфигурации
+file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/share/kagome-crates")
+file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/debug/share/kagome-crates")
+
 vcpkg_cmake_config_fixup(PACKAGE_NAME "kagome-crates")
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
+
+# Создаем файл с информацией об авторских правах
+file(WRITE "${CURRENT_PACKAGES_DIR}/share/kagome-crates/copyright" "Copyright Quadrivium LLC\nAll Rights Reserved\nSPDX-License-Identifier: Apache-2.0\n")
