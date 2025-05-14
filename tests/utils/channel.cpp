@@ -1,3 +1,9 @@
+/**
+ * Copyright Quadrivium LLC
+ * All Rights Reserved
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #include "utils/channel.hpp"
 
 #include <gtest/gtest.h>
@@ -10,7 +16,7 @@ using namespace std::chrono_literals;
 using namespace jam;
 
 /**
- * @file ChannelTest.cpp
+ * @file channel.cpp
  * @brief Unit tests for Channel class covering send/receive behavior.
  */
 
@@ -19,7 +25,6 @@ using namespace jam;
 #include <optional>
 #include <thread>
 
-#include "Channel.h"
 
 /**
  * @brief Tests sending and receiving a single integer value through the
