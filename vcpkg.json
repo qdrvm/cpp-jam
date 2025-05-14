@@ -15,7 +15,9 @@
     "prometheus-cpp",
     "ftxui",
     "boost-property-tree",
-    "rocksdb"
+    "rocksdb",
+    "openssl",
+    "xxhash"
   ],
   "features": {
     "test": { "description": "Test", "dependencies": ["gtest"]}
