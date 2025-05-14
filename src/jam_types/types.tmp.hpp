@@ -9,9 +9,9 @@
 #include <cinttypes>
 
 #include <jam_types/common-types.hpp>
+#include <scale/tie_hash.hpp>
 
 namespace jam {
-
   // stub types. must be refactored in future
 
   struct Stub {};
@@ -24,7 +24,12 @@ namespace jam {
   struct BlockIndex {
     BlockNumber number;
     BlockHash hash;
+    auto operator<=>(const BlockIndex &other) const = default;
   };
+
+}  // namespace jam
+SCALE_TIE_HASH_STD(jam::BlockIndex);
+namespace jam {
 
   using Block = test_vectors::Block;
   using BlockHeader = test_vectors::Header;
