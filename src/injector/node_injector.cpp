@@ -17,6 +17,7 @@
 #include "app/impl/state_manager_impl.hpp"
 #include "app/impl/watchdog.hpp"
 #include "clock/impl/clock_impl.hpp"
+#include "crypto/hasher/hasher_impl.hpp"
 #include "injector/bind_by_lambda.hpp"
 #include "log/logger.hpp"
 #include "metrics/impl/exposer_impl.hpp"
@@ -62,8 +63,10 @@ namespace {
           };
         }),
         di::bind<storage::BufferStorage>.to<storage::InMemoryStorage>(),
-        //di::bind<storage::SpacedStorage>.to<storage::InMemorySpacedStorage>(),
-        di::bind<storage::SpacedStorage>.to<storage::RocksDb>(),
+        di::bind<storage::SpacedStorage>.to<storage::InMemorySpacedStorage>(),
+        // di::bind<storage::SpacedStorage>.to<storage::RocksDb>(),
+        di::bind<blockchain::BlockStorage>.to<blockchain::BlockStorageImpl>(),
+        di::bind<crypto::Hasher>.to<crypto::HasherImpl>(),
 
         // user-defined overrides...
         std::forward<decltype(args)>(args)...);

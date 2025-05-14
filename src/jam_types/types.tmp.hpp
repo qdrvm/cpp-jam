@@ -9,12 +9,19 @@
 #include <cinttypes>
 
 #include <jam_types/common-types.hpp>
+#include <scale/tie_hash.hpp>
 
 namespace jam {
-
   // stub types. must be refactored in future
 
   struct Stub {};
+
+  // crypto types
+
+  using Hash64 = qtils::ByteArr<8>;
+  using Hash128 = qtils::ByteArr<16>;
+  using Hash256 = qtils::ByteArr<32>;
+  using Hash512 = qtils::ByteArr<64>;
 
   // blockchain types
 
@@ -24,7 +31,12 @@ namespace jam {
   struct BlockIndex {
     BlockNumber number;
     BlockHash hash;
+    auto operator<=>(const BlockIndex &other) const = default;
   };
+
+}  // namespace jam
+SCALE_TIE_HASH_STD(jam::BlockIndex);
+namespace jam {
 
   using Block = test_vectors::Block;
   using BlockHeader = test_vectors::Header;
@@ -107,4 +119,3 @@ struct fmt::formatter<jam::Stub> {
 
 template <typename T, typename U>
 struct fmt::formatter<qtils::Tagged<T, U>> : formatter<T> {};
-

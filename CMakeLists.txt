@@ -40,6 +40,8 @@ find_package(schnorrkel_crust CONFIG REQUIRED)
 find_package(Boost.DI CONFIG REQUIRED)
 find_package(qtils CONFIG REQUIRED)
 find_package(prometheus-cpp CONFIG REQUIRED)
+find_package(OpenSSL CONFIG REQUIRED)
+find_package(xxHash CONFIG REQUIRED)
 find_package(RocksDB CONFIG REQUIRED)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
