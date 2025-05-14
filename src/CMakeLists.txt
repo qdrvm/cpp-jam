@@ -4,15 +4,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-include_directories(${CMAKE_SOURCE_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(${CMAKE_BINARY_DIR}/generated)
-
 # Executables (should contain `main()` function)
 add_subdirectory(executable)
 
 # Application's thinks
 add_subdirectory(app)
+
+# Cryptography thinks
+add_subdirectory(crypto)
 
 # Dependency injection
 add_subdirectory(injector)
@@ -34,3 +33,6 @@ add_subdirectory(modules)
 
 # Storage
 add_subdirectory(storage)
+
+# 3rd-party things
+add_subdirectory(third_party)
