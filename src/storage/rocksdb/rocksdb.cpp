@@ -173,7 +173,7 @@ namespace jam::storage {
     }
 
     // Print size of each column family
-    SL_INFO(logger, "RocksDB column family sizes:");
+    SL_VERBOSE(logger, "RocksDB column family sizes:");
     for (size_t i = 0; i < rocks_db->column_family_handles_.size(); i++) {
       auto handle = rocks_db->column_family_handles_[i];
       std::string size_str;
@@ -181,10 +181,10 @@ namespace jam::storage {
               handle, "rocksdb.estimate-live-data-size", &size_str)) {
         uint64_t size_bytes = std::stoull(size_str);
         double size_mb = static_cast<double>(size_bytes) / (1024 * 1024);
-        SL_INFO(logger,
-                "Column family '{}': {:.2f} MB",
-                handle->GetName(),
-                size_mb);
+        SL_VERBOSE(logger,
+                   "Column family '{}': {:.2f} MB",
+                   handle->GetName(),
+                   size_mb);
       } else {
         SL_WARN(logger,
                 "Failed to get size of column family '{}'",
@@ -572,7 +572,7 @@ namespace jam::storage {
       return outcome::success();
     }
 
-    return status_as_error(status,logger_);
+    return status_as_error(status, logger_);
   }
 
   outcome::result<void> RocksDbSpace::remove(const ByteView &key) {
