@@ -15,5 +15,6 @@ add_library(storage
 
 target_link_libraries(storage
     qtils::qtils
+    RocksDB::rocksdb
 )
 

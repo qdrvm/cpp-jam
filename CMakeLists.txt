@@ -19,7 +19,7 @@ set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API ON)
 
 project(cpp-jam
     VERSION 0.0.1
-    LANGUAGES CXX
+    LANGUAGES CXX C
 )
 
 if(DEFINED CMAKE_TOOLCHAIN_FILE AND CMAKE_TOOLCHAIN_FILE MATCHES "vcpkg")
@@ -75,6 +75,7 @@ find_package(soralog CONFIG REQUIRED)
 find_package(Boost.DI CONFIG REQUIRED)
 find_package(qtils CONFIG REQUIRED)
 find_package(prometheus-cpp CONFIG REQUIRED)
+find_package(RocksDB CONFIG REQUIRED)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options(-fmodules-ts)
@@ -84,9 +85,17 @@ endif()
 
 add_library(headers INTERFACE)
 target_include_directories(headers INTERFACE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src_>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
+
+include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_SOURCE_DIR}/src/third_party)
+include_directories(${CMAKE_SOURCE_DIR}/src/_TODO)
+include_directories(${CMAKE_BINARY_DIR}/generated)
 
 add_subdirectory(src)
 
