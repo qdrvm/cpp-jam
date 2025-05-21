@@ -609,7 +609,7 @@ namespace jam::storage {
       return outcome::success();
     }
 
-    return status_as_error(status,logger_);
+    return status_as_error(status, logger_);
   }
 
   outcome::result<void> RocksDbSpace::remove(const ByteView &key) {
