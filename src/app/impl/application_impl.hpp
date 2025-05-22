@@ -6,13 +6,13 @@
 
 #pragma once
 
-#include "app/application.hpp"
-
 #include <memory>
 
+#include <blockchain/block_tree.hpp>
+#include <metrics/registry.hpp>
 #include <qtils/shared_ref.hpp>
 
-#include <metrics/registry.hpp>
+#include "app/application.hpp"
 
 namespace jam {
   class Watchdog;
@@ -50,7 +50,13 @@ namespace jam::app {
                     qtils::SharedRef<StateManager> state_manager,
                     qtils::SharedRef<Watchdog> watchdog,
                     qtils::SharedRef<metrics::Exposer> metrics_exposer,
-                    qtils::SharedRef<clock::SystemClock> system_clock);
+                    qtils::SharedRef<clock::SystemClock> system_clock
+
+                    ,
+                    qtils::SharedRef<blockchain::BlockTree>
+                    // qtils::SharedRef<blockchain::BlockTreeInitializer>
+
+                    );
 
     void run() override;
 
