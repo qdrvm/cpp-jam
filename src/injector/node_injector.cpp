@@ -27,6 +27,8 @@
 #include "app/impl/watchdog.hpp"
 #include "blockchain/impl/genesis_block_header_impl.hpp"
 #include "blockchain/impl/block_storage_impl.hpp"
+#include "blockchain/impl/block_tree_impl.hpp"
+#include "blockchain/impl/justification_storage_policy.hpp"
 #include "clock/impl/clock_impl.hpp"
 #include "crypto/hasher/hasher_impl.hpp"
 #include "injector/bind_by_lambda.hpp"
@@ -84,6 +86,8 @@ namespace {
         di::bind<crypto::Hasher>.to<crypto::HasherImpl>(),
         di::bind<blockchain::GenesisBlockHeader>.to<blockchain::GenesisBlockHeaderImpl>(),
         di::bind<blockchain::BlockStorage>.to<blockchain::BlockStorageImpl>(),
+        di::bind<blockchain::BlockTree>.to<blockchain::BlockTreeImpl>(),
+        di::bind<blockchain::JustificationStoragePolicy>.to<blockchain::JustificationStoragePolicyImpl>(),
 
         // user-defined overrides...
         std::forward<decltype(args)>(args)...);

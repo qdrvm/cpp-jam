@@ -6,9 +6,15 @@
 
 add_library(blockchain
     impl/storage_util.cpp
-    impl/block_storage_impl.cpp
     impl/block_storage_error.cpp
+    impl/block_storage_impl.cpp
     impl/block_storage_initializer.cpp
+    impl/genesis_block_header_impl.cpp
+    impl/block_tree_error.cpp
+    impl/justification_storage_policy.cpp
+    impl/cached_tree.cpp
+    impl/block_tree_impl.cpp
+    impl/block_tree_initializer.cpp
 )
 target_link_libraries(blockchain
     Boost::boost

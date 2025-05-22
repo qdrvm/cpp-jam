@@ -42,3 +42,6 @@ logging:
             - name: storage
               children:
                 - name: block_storage
+            - name: blockchain
+              children:
+                - name: block_tree
