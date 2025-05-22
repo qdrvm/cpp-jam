@@ -64,9 +64,7 @@ namespace jam::blockchain {
     return outcome::success();
   }
 
-  outcome::result<BlockIndex>
-  BlockStorageImpl::getLastFinalized()
-      const {
+  outcome::result<BlockIndex> BlockStorageImpl::getLastFinalized() const {
     OUTCOME_TRY(leaves, getBlockTreeLeaves());
     auto current_hash = leaves[0];
     for (;;) {
@@ -126,7 +124,7 @@ namespace jam::blockchain {
   }
 
   outcome::result<std::vector<BlockHash>> BlockStorageImpl::getBlockHash(
-      BlockNumber slot) const {
+      TimeSlot slot) const {
     auto storage = storage_->getSpace(storage::Space::LookupKey);
     OUTCOME_TRY(data_opt, storage->tryGet(slotToHashLookupKey(slot)));
     if (data_opt.has_value()) {
@@ -135,19 +133,19 @@ namespace jam::blockchain {
     return {{}};
   }
 
-  //   outcome::result<std::optional<primitives::BlockHash>>
-  //   BlockStorageImpl::getBlockHash(const primitives::BlockId &block_id) const
+  //   outcome::result<std::optional<BlockHash>>
+  //   BlockStorageImpl::getBlockHash(const BlockId &block_id) const
   //   {
   //     return visit_in_place(
   //         block_id,
-  //         [&](const primitives::BlockNumber &block_number)
-  //             -> outcome::result<std::optional<primitives::BlockHash>> {
+  //         [&](const BlockNumber &block_number)
+  //             -> outcome::result<std::optional<BlockHash>> {
   //           auto key_space = storage_->getSpace(storage::Space::kLookupKey);
   //           OUTCOME_TRY(data_opt,
   //                       key_space->tryGet(slotToHashLookupKey(block_number)));
   //           if (data_opt.has_value()) {
   //             OUTCOME_TRY(block_hash,
-  //                         primitives::BlockHash::fromSpan(data_opt.value()));
+  //                         BlockHash::fromSpan(data_opt.value()));
   //             return block_hash;
   //           }
   //           return std::nullopt;
@@ -213,40 +211,37 @@ namespace jam::blockchain {
     return space->remove(block_hash);
   }
 
-  //   outcome::result<void> BlockStorageImpl::putJustification(
-  //       const primitives::Justification &justification,
-  //       const primitives::BlockHash &hash) {
-  //     BOOST_ASSERT(not justification.data.empty());
-  //
-  //     OUTCOME_TRY(encoded_justification, scale::encode(justification));
-  //     OUTCOME_TRY(putToSpace(*storage_,
-  //                            Space::kJustification,
-  //                            hash,
-  //                            std::move(encoded_justification)));
-  //
-  //     return outcome::success();
-  //   }
-  //
-  //   outcome::result<std::optional<primitives::Justification>>
-  //   BlockStorageImpl::getJustification(
-  //       const primitives::BlockHash &block_hash) const {
-  //     OUTCOME_TRY(encoded_justification_opt,
-  //                 getFromSpace(*storage_, Space::kJustification,
-  //                 block_hash));
-  //     if (encoded_justification_opt.has_value()) {
-  //       OUTCOME_TRY(justification,
-  //                   scale::decode<primitives::Justification>(
-  //                       encoded_justification_opt.value()));
-  //       return justification;
-  //     }
-  //     return std::nullopt;
-  //   }
-  //
-  //   outcome::result<void> BlockStorageImpl::removeJustification(
-  //       const primitives::BlockHash &block_hash) {
-  //     auto space = storage_->getSpace(Space::kJustification);
-  //     return space->remove(block_hash);
-  //   }
+  outcome::result<void> BlockStorageImpl::putJustification(
+      const Justification &justification, const BlockHash &hash) {
+    BOOST_ASSERT(not justification.empty());
+
+    OUTCOME_TRY(encoded_justification, encode(justification));
+    OUTCOME_TRY(putToSpace(*storage_,
+                           storage::Space::Justification,
+                           hash,
+                           std::move(encoded_justification)));
+
+    return outcome::success();
+  }
+
+  outcome::result<std::optional<Justification>>
+  BlockStorageImpl::getJustification(const BlockHash &block_hash) const {
+    OUTCOME_TRY(
+        encoded_justification_opt,
+        getFromSpace(*storage_, storage::Space::Justification, block_hash));
+    if (encoded_justification_opt.has_value()) {
+      OUTCOME_TRY(justification,
+                  decode<Justification>(encoded_justification_opt.value()));
+      return justification;
+    }
+    return std::nullopt;
+  }
+
+  outcome::result<void> BlockStorageImpl::removeJustification(
+      const BlockHash &block_hash) {
+    auto space = storage_->getSpace(storage::Space::Justification);
+    return space->remove(block_hash);
+  }
 
   outcome::result<BlockHash> BlockStorageImpl::putBlock(const Block &block) {
     // insert provided block's parts into the database
@@ -330,15 +325,15 @@ namespace jam::blockchain {
       return res;
     }
 
-    // // Remove justification for a block
-    // if (auto res = removeJustification(block_index.hash); res.has_error()) {
-    //   SL_ERROR(
-    //       logger_,
-    //       "could not remove justification of block {} from the storage: {}",
-    //       block_index,
-    //       res.error());
-    //   return res;
-    // }
+    // Remove justification for a block
+    if (auto res = removeJustification(block_index.hash); res.has_error()) {
+      SL_ERROR(
+          logger_,
+          "could not remove justification of block {} from the storage: {}",
+          block_index,
+          res.error());
+      return res;
+    }
 
     {  // Remove the block header
       auto header_space = storage_->getSpace(storage::Space::Header);
