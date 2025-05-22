@@ -4,63 +4,68 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "blockchain/impl/block_tree_impl.hpp"
-
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <qtils/cxx23/ranges/contains.hpp>
 #include <qtils/test/outcome.hpp>
 
+#include "app/configuration.hpp"
 #include "blockchain/block_tree_error.hpp"
+#include "blockchain/impl/block_tree_impl.hpp"
 #include "blockchain/impl/cached_tree.hpp"
-#include "common/main_thread_pool.hpp"
-#include "consensus/babe/types/babe_block_header.hpp"
-#include "consensus/babe/types/seal.hpp"
+// #include "common/main_thread_pool.hpp"
+#include "blockchain/impl/block_storage_initializer.hpp"
+// #include "consensus/babe/types/babe_block_header.hpp"
+// #include "consensus/babe/types/seal.hpp"
 #include "crypto/hasher/hasher_impl.hpp"
-#include "mock/core/application/app_configuration_mock.hpp"
-#include "mock/core/application/app_state_manager_mock.hpp"
-#include "mock/core/blockchain/block_storage_mock.hpp"
-#include "mock/core/blockchain/justification_storage_policy.hpp"
-#include "mock/core/consensus/babe/babe_config_repository_mock.hpp"
-#include "mock/core/storage/trie_pruner/trie_pruner_mock.hpp"
-#include "mock/core/transaction_pool/transaction_pool_mock.hpp"
-#include "network/impl/extrinsic_observer_impl.hpp"
-#include "scale/kagome_scale.hpp"
+// #include "mock/core/app/configuration_mock.hpp"
+#include "mock/app/state_manager_mock.hpp"
+#include "mock/blockchain/block_storage_mock.hpp"
+#include "mock/blockchain/justification_storage_policy_mock.hpp"
+// #include "mock/core/consensus/babe/babe_config_repository_mock.hpp"
+// #include "mock/core/storage/trie_pruner/trie_pruner_mock.hpp"
+// #include "mock/core/transaction_pool/transaction_pool_mock.hpp"
+// #include "network/impl/extrinsic_observer_impl.hpp"
+// #include "scale/kagome_scale.hpp"
+#include "jam_types/justification.hpp"
+#include "se/subscription.hpp"
 #include "testutil/literals.hpp"
 #include "testutil/prepare_loggers.hpp"
 
-using namespace kagome;
-using application::AppConfigurationMock;
-using application::AppStateManagerMock;
-using blockchain::BlockStorageMock;
-using blockchain::BlockTreeError;
-using blockchain::BlockTreeImpl;
-using blockchain::JustificationStoragePolicyMock;
-using blockchain::TreeNode;
-using common::Buffer;
-using common::MainThreadPool;
-using consensus::SlotNumber;
-using consensus::babe::BabeBlockHeader;
-using consensus::babe::SlotType;
-using crypto::HasherImpl;
-using ::kagome::scale::encode;
-using network::ExtrinsicObserverImpl;
-using primitives::Block;
-using primitives::BlockBody;
-using primitives::BlockHash;
-using primitives::BlockHeader;
-using primitives::BlockId;
-using primitives::BlockInfo;
-using primitives::BlockNumber;
-using primitives::calculateBlockHash;
-using primitives::Consensus;
-using primitives::Digest;
-using primitives::Justification;
-using primitives::PreRuntime;
-using storage::trie_pruner::TriePrunerMock;
-using transaction_pool::TransactionPoolMock;
-using BabeSeal = consensus::babe::Seal;
-using Seal = primitives::Seal;
+using jam::Block;
+using jam::BlockBody;
+using jam::BlockHash;
+using jam::BlockHeader;
+using jam::BlockId;
+using jam::BlockInfo;
+using jam::BlockNumber;
+using jam::calculateBlockHash;
+using jam::encode;
+using jam::TimeSlot;
+using jam::app::Configuration;
+using jam::app::StateManagerMock;
+using jam::blockchain::BlockStorageMock;
+using jam::blockchain::BlockTreeError;
+using jam::blockchain::BlockTreeImpl;
+using jam::blockchain::BlockTreeInitializer;
+using jam::blockchain::JustificationStoragePolicyMock;
+using jam::blockchain::TreeNode;
+// using jam::consensus::babe::BabeBlockHeader;
+// using jam::consensus::babe::SlotType;
+using jam::crypto::HasherImpl;
+// using jam::network::ExtrinsicObserverImpl;
+// using jam::primitives::Consensus;
+// using jam::primitives::Digest;
+using jam::Justification;
+// using jam::primitives::PreRuntime;
+using jam::storage::trie::RootHash;
+// using jam::storage::trie_pruner::TriePrunerMock;
+// using jam::transaction_pool::TransactionPoolMock;
+using qtils::ByteVec;
+using qtils::literals::operator""_vec;
+// using BabeSeal = consensus::babe::Seal;
+// using Seal = primitives::Seal;
 
 using testing::_;
 using testing::Invoke;
@@ -71,28 +76,31 @@ using testing::StrictMock;
 namespace kagome::primitives {
   void PrintTo(const BlockHeader &header, std::ostream *os) {
     *os << "BlockHeader {\n"
-        << "\tnumber: " << header.number << ",\n"
-        << "\tparent: " << header.parent_hash << ",\n"
-        << "\tstate_root: " << header.state_root << ",\n"
-        << "\text_root: " << header.extrinsics_root << "\n}";
+        << "\tslot: " << header.slot << ",\n"
+        << "\tparent: " << header.parent << ",\n"
+        << "\tparent_state_root: " << header.parent_state_root << ",\n"
+        << "\textrinsic_hash: " << header.extrinsic_hash << "\n}";
   }
 }  // namespace kagome::primitives
 
-struct BlockTreeTest : public testing::Test {
+struct BlockTreeTest : testing::Test {
   static void SetUpTestCase() {
     testutil::prepareLoggers();
   }
+  static void TearDownTestCase() {}
 
   void SetUp() override {
+    se_ = jam::se::getSubscription();
+
     EXPECT_CALL(*storage_, getBlockTreeLeaves())
-        .WillOnce(Return(std::vector<BlockHash>{kFinalizedBlockInfo.hash}));
+        .WillOnce(Return(std::vector{kFinalizedBlockInfo.hash}));
 
     EXPECT_CALL(*storage_, setBlockTreeLeaves(_))
         .WillRepeatedly(Return(outcome::success()));
 
     for (BlockNumber i = 1; i < 100; ++i) {
       EXPECT_CALL(*storage_, getBlockHash(i))
-          .WillRepeatedly(Return(kFirstBlockInfo.hash));
+          .WillRepeatedly(Return(std::vector{kFirstBlockInfo.hash}));
     }
 
     EXPECT_CALL(*storage_, hasBlockHeader(kFirstBlockInfo.hash))
@@ -112,71 +120,66 @@ struct BlockTreeTest : public testing::Test {
 
     EXPECT_CALL(*storage_, removeBlock(_))
         .WillRepeatedly(Invoke([&](const auto &hash) {
-          delNumToHash(hash);
+          delSlotToHash(hash);
           return outcome::success();
         }));
 
     EXPECT_CALL(*storage_, getBlockHash(testing::Matcher<BlockNumber>(_)))
         .WillRepeatedly(Invoke(
-            [&](BlockNumber n)
-                -> outcome::result<std::optional<primitives::BlockHash>> {
-              auto it = num_to_hash_.find(n);
-              if (it == num_to_hash_.end()) {
+            [&](BlockNumber n) -> outcome::result<std::vector<BlockHash>> {
+              auto it = slot_to_hash_.find(n);
+              if (it == slot_to_hash_.end()) {
                 return BlockTreeError::HEADER_NOT_FOUND;
               }
-              return it->second;
+              return std::vector{it->second};
             }));
 
-    EXPECT_CALL(*storage_,
-                getBlockHeader({finalized_block_header_.parent_hash}))
+    EXPECT_CALL(*storage_, getBlockHeader({finalized_block_header_.parent}))
         .WillRepeatedly(Return(BlockTreeError::HEADER_NOT_FOUND));
 
     EXPECT_CALL(*storage_, getBlockHeader(kFinalizedBlockInfo.hash))
         .WillRepeatedly(Return(finalized_block_header_));
 
-    EXPECT_CALL(*storage_, assignNumberToHash(_))
+    EXPECT_CALL(*storage_, assignHashToSlot(_))
         .WillRepeatedly(
             Invoke([&](const BlockInfo &b) -> outcome::result<void> {
-              putNumToHash(b);
+              putSlotToHash(b);
               return outcome::success();
             }));
 
-    EXPECT_CALL(*storage_, deassignNumberToHash(_))
-        .WillRepeatedly(Invoke([&](const auto &number) {
-          delNumToHash(number);
-          return outcome::success();
-        }));
+    EXPECT_CALL(*storage_, deassignHashToSlot(_))
+        .WillRepeatedly(
+            Invoke([&](const BlockInfo &b) -> outcome::result<void> {
+              delSlotToHash(b);
+              return outcome::success();
+            }));
 
-    ON_CALL(*state_pruner_, recoverState(_))
-        .WillByDefault(Return(outcome::success()));
+    // ON_CALL(*state_pruner_, recoverState(_))
+    //     .WillByDefault(Return(outcome::success()));
 
-    ON_CALL(*state_pruner_, schedulePrune(_, _, _)).WillByDefault(Return());
+    // ON_CALL(*state_pruner_, schedulePrune(_, _, _)).WillByDefault(Return());
 
-    putNumToHash(kGenesisBlockInfo);
-    putNumToHash(kFinalizedBlockInfo);
+    putSlotToHash(kGenesisBlockInfo);
+    putSlotToHash(kFinalizedBlockInfo);
 
-    auto chain_events_engine =
-        std::make_shared<primitives::events::ChainSubscriptionEngine>();
-    auto ext_events_engine =
-        std::make_shared<primitives::events::ExtrinsicSubscriptionEngine>();
+    auto logsys = testutil::prepareLoggers();
 
-    auto extrinsic_event_key_repo =
-        std::make_shared<subscription::ExtrinsicEventKeyRepository>();
+    // Initialize the block tree
+    qtils::SharedRef initializer =
+        std::make_shared<BlockTreeInitializer>(logsys, storage_);
 
-    block_tree_ = BlockTreeImpl::create(*app_config_,
-                                        storage_,
-                                        hasher_,
-                                        chain_events_engine,
-                                        ext_events_engine,
-                                        extrinsic_event_key_repo,
-                                        justification_storage_policy_,
-                                        state_pruner_,
-                                        *main_thread_pool_)
-                      .value();
+    block_tree_ = std::make_shared<BlockTreeImpl>(logsys,
+                                                  app_config_,
+                                                  storage_,
+                                                  hasher_,
+                                                  justification_storage_policy_,
+                                                  initializer);
   }
 
   void TearDown() override {
-    watchdog_->stop();
+    // watchdog_->stop();
+    se_->dispose();
+    se_.reset();
   }
 
   /**
@@ -186,12 +189,12 @@ struct BlockTreeTest : public testing::Test {
   BlockHash addBlock(const Block &block) {
     auto encoded_block = encode(block).value();
     auto hash = hasher_->blake2b_256(encoded_block);
-    BlockInfo block_info(block.header.number, hash);
+    BlockInfo block_info(block.header.slot, hash);
     const_cast<BlockHeader &>(block.header).hash_opt.emplace(hash);
 
     EXPECT_CALL(*storage_, putBlock(block))
         .WillRepeatedly(Invoke([&](const auto &block) {
-          putNumToHash(block_info);
+          putSlotToHash(block_info);
           return hash;
         }));
 
@@ -207,22 +210,23 @@ struct BlockTreeTest : public testing::Test {
   /**
    * Creates block and add it to block tree
    * @param parent - hash of parent block
-   * @param number - number of new block
-   * @param state - hash of state root
+   * @param slot - slot of new block
+   * @param state - hash of parent state root
+   * @param is_primary - true if block created by ticket winning
    * @return hash newly created block
-   * @note To create different block with same number and parent, use different
+   * @note To create different block with same slot and parent, use different
    * hash ot state root
    */
   std::tuple<BlockHash, BlockHeader> addHeaderToRepositoryAndGet(
-      const BlockHash &parent,
-      BlockNumber number,
-      storage::trie::RootHash state,
-      SlotType slot_type) {
+      const BlockHash &parent, TimeSlot slot, RootHash state, bool is_primary) {
     BlockHeader header;
-    header.parent_hash = parent;
-    header.number = number;
-    header.state_root = state;
-    header.digest = make_digest(number, slot_type);
+    header.parent = parent;
+    header.slot = slot;
+    header.parent_state_root = state;
+
+    // Trick with fake extrinsic hash to mark a block producing way
+    header.extrinsic_hash = is_primary ? "ticket"_arr32 : "fallback"_arr32;
+
     calculateBlockHash(header, *hasher_);
 
     auto hash = addBlock(Block{header, {}});
@@ -236,38 +240,40 @@ struct BlockTreeTest : public testing::Test {
 
   uint32_t state_nonce_ = 0;
   BlockHash addHeaderToRepository(const BlockHash &parent, BlockNumber number) {
-    Hash256 state;
+    RootHash state;
     memcpy(state.data(), &state_nonce_, sizeof(state_nonce_));
     ++state_nonce_;
-    return std::get<0>(addHeaderToRepositoryAndGet(
-        parent, number, state, SlotType::SecondaryPlain));
-  }
-
-  BlockHash addHeaderToRepository(const BlockHash &parent,
-                                  BlockNumber number,
-                                  SlotType slot_type) {
     return std::get<0>(
-        addHeaderToRepositoryAndGet(parent, number, {}, slot_type));
+        addHeaderToRepositoryAndGet(parent, number, state, false));
   }
 
   BlockHash addHeaderToRepository(const BlockHash &parent,
                                   BlockNumber number,
-                                  storage::trie::RootHash state) {
-    return std::get<0>(addHeaderToRepositoryAndGet(
-        parent, number, state, SlotType::SecondaryPlain));
+                                  bool is_primary) {
+    return std::get<0>(
+        addHeaderToRepositoryAndGet(parent, number, {}, is_primary));
   }
 
-  std::shared_ptr<AppConfigurationMock> app_config_ =
-      std::make_shared<AppConfigurationMock>();
+  BlockHash addHeaderToRepository(const BlockHash &parent,
+                                  BlockNumber number,
+                                  RootHash state) {
+    return std::get<0>(
+        addHeaderToRepositoryAndGet(parent, number, state, false));
+  }
+
+  std::shared_ptr<jam::Subscription> se_;
+
+  std::shared_ptr<Configuration> app_config_ =
+      std::make_shared<Configuration>();
 
   std::shared_ptr<BlockStorageMock> storage_ =
       std::make_shared<BlockStorageMock>();
 
-  std::shared_ptr<TransactionPoolMock> pool_ =
-      std::make_shared<TransactionPoolMock>();
+  // std::shared_ptr<TransactionPoolMock> pool_ =
+  //     std::make_shared<TransactionPoolMock>();
 
-  std::shared_ptr<ExtrinsicObserverImpl> extrinsic_observer_ =
-      std::make_shared<ExtrinsicObserverImpl>(pool_);
+  // std::shared_ptr<ExtrinsicObserverImpl> extrinsic_observer_ =
+  //     std::make_shared<ExtrinsicObserverImpl>(pool_);
 
   std::shared_ptr<HasherImpl> hasher_ = std::make_shared<HasherImpl>();
 
@@ -275,54 +281,42 @@ struct BlockTreeTest : public testing::Test {
       justification_storage_policy_ =
           std::make_shared<StrictMock<JustificationStoragePolicyMock>>();
 
-  std::shared_ptr<TriePrunerMock> state_pruner_ =
-      std::make_shared<TriePrunerMock>();
+  // std::shared_ptr<TriePrunerMock> state_pruner_ =
+  //     std::make_shared<TriePrunerMock>();
 
-  std::shared_ptr<AppStateManagerMock> app_state_manager_ =
-      std::make_shared<AppStateManagerMock>();
-
-  std::shared_ptr<Watchdog> watchdog_ =
-      std::make_shared<Watchdog>(std::chrono::milliseconds(1));
-
-  std::shared_ptr<MainThreadPool> main_thread_pool_ =
-      std::make_shared<MainThreadPool>(
-          watchdog_, std::make_shared<boost::asio::io_context>());
+  std::shared_ptr<StateManagerMock> app_state_manager_ =
+      std::make_shared<StateManagerMock>();
 
   std::shared_ptr<BlockTreeImpl> block_tree_;
 
   const BlockId kLastFinalizedBlockId = kFinalizedBlockInfo.hash;
 
-  static Digest make_digest(SlotNumber slot,
-                            SlotType slot_type = SlotType::SecondaryPlain) {
-    Digest digest;
-
-    BabeBlockHeader babe_header{
-        .slot_assignment_type = slot_type,
-        .authority_index = 0,
-        .slot_number = slot,
-    };
-    Buffer encoded_header{encode(babe_header).value()};
-    digest.emplace_back(
-        PreRuntime{{primitives::kBabeEngineId, encoded_header}});
-
-    BabeSeal seal{};
-    Buffer encoded_seal{encode(seal).value()};
-    digest.emplace_back(Seal{{primitives::kBabeEngineId, encoded_seal}});
-
-    return digest;
-  }
+  // static Digest make_digest(SlotNumber slot,
+  //                           SlotType slot_type = SlotType::SecondaryPlain) {
+  //   Digest digest;
+  //
+  //   BabeBlockHeader babe_header{
+  //       .slot_assignment_type = slot_type,
+  //       .authority_index = 0,
+  //       .slot_number = slot,
+  //   };
+  //   ByteVec encoded_header{encode(babe_header).value()};
+  //   digest.emplace_back(
+  //       PreRuntime{{primitives::kBabeEngineId, encoded_header}});
+  //
+  //   BabeSeal seal{};
+  //   ByteVec encoded_seal{encode(seal).value()};
+  //   digest.emplace_back(Seal{{primitives::kBabeEngineId, encoded_seal}});
+  //
+  //   return digest;
+  // }
 
   const BlockInfo kGenesisBlockInfo{
       0ul, BlockHash::fromString("genesis_block___________________").value()};
 
-  BlockHeader first_block_header_{
-      1,                       // number
-      kGenesisBlockInfo.hash,  // parent
-      {},                      // state root
-      {},                      // extrinsics root
-      make_digest(1),          // digests
-      kGenesisBlockInfo.hash   // hash
-  };
+  BlockHeader first_block_header_{.parent = kGenesisBlockInfo.hash,
+                                  .slot = 1,
+                                  .hash_opt = kGenesisBlockInfo.hash};
 
   const BlockInfo kFirstBlockInfo{
       1ul, BlockHash::fromString("first_block_____________________").value()};
@@ -331,40 +325,60 @@ struct BlockTreeTest : public testing::Test {
       42ull, BlockHash::fromString("finalized_block_________________").value()};
 
   BlockHeader finalized_block_header_{
-      kFinalizedBlockInfo.number,  // number
-      // parent
-      BlockHash::fromString("parent_of_finalized_____________").value(),
-      {},                                       // state root
-      {},                                       // extrinsics root
-      make_digest(kFinalizedBlockInfo.number),  // digests
-      kFinalizedBlockInfo.hash                  // hash
+      .parent =
+          BlockHash::fromString("parent_of_finalized_____________").value(),
+      .slot = kFinalizedBlockInfo.slot,
+      .hash_opt = kFinalizedBlockInfo.hash};
+
+  BlockBody finalized_block_body_{
+      //{ByteVec{0x22, 0x44}}, {ByteVec{0x55, 0x66}}
   };
 
-  BlockBody finalized_block_body_{{Buffer{0x22, 0x44}}, {Buffer{0x55, 0x66}}};
+  std::map<TimeSlot, std::vector<BlockHash>> slot_to_hash_;
 
-  std::map<BlockNumber, BlockHash> num_to_hash_;
-
-  void putNumToHash(const BlockInfo &b) {
-    num_to_hash_.emplace(b.number, b.hash);
-  }
-  void delNumToHash(BlockHash hash) {
-    auto it = std::ranges::find_if(
-        num_to_hash_.begin(), num_to_hash_.end(), [&](const auto &it) {
-          return it.second == hash;
-        });
-    if (it == num_to_hash_.end()) {
-      return;
+  void putSlotToHash(const BlockInfo &b) {
+    auto it = slot_to_hash_.find(b.slot);
+    if (it == slot_to_hash_.end()) {
+      slot_to_hash_.emplace(b.slot, std::vector{b.hash});
+    } else {
+      auto &hashes = it->second;
+      if (not qtils::cxx23::ranges::contains(hashes, b.hash)) {
+        hashes.emplace_back(b.hash);
+      }
     }
-    num_to_hash_.erase(it);
   }
-  void delNumToHash(BlockNumber number) {
-    num_to_hash_.erase(number);
+  void delSlotToHash(const BlockInfo &b) {
+    auto it = slot_to_hash_.find(b.slot);
+    if (it == slot_to_hash_.end()) {
+      return;
+      ;
+    }
+    auto &hashes = it->second;
+    auto to_erase = std::ranges::remove(hashes, b.hash);
+    if (not to_erase.empty()) {
+      hashes.erase(to_erase.begin(), to_erase.end());
+      if (hashes.empty()) {
+        slot_to_hash_.erase(it);
+      }
+    }
+  }
+  void delSlotToHash(const BlockHash &hash) {
+    for (auto it = slot_to_hash_.begin(); it != slot_to_hash_.end();) {
+      auto &hashes = it->second;
+      auto to_erase = std::ranges::remove(hashes, hash);
+      if (not to_erase.empty()) {
+        hashes.erase(to_erase.begin(), to_erase.end());
+        if (hashes.empty()) {
+          it = slot_to_hash_.erase(it);
+          continue;
+        }
+      }
+      ++it;
+    }
   }
 
-  BlockHeader makeBlockHeader(BlockNumber number,
-                              BlockHash parent,
-                              Digest digest) {
-    BlockHeader header{number, std::move(parent), {}, {}, std::move(digest)};
+  BlockHeader makeBlockHeader(TimeSlot slot, BlockHash parent) const {
+    BlockHeader header{.parent = parent, .slot = slot};
     calculateBlockHash(header, *hasher_);
     return header;
   }
@@ -389,7 +403,7 @@ TEST_F(BlockTreeTest, GetBody) {
 
 /**
  * @given block tree with at least one block inside
- * @when adding a new block, which is a child of that block
+ * @when adding a new block, which is a child of that block.
  * @then block is added
  */
 TEST_F(BlockTreeTest, AddBlock) {
@@ -406,10 +420,8 @@ TEST_F(BlockTreeTest, AddBlock) {
   ASSERT_TRUE(children_res.value().empty());
 
   // WHEN
-  BlockHeader header = makeBlockHeader(
-      kFinalizedBlockInfo.number + 1, kFinalizedBlockInfo.hash, {PreRuntime{}});
-  BlockBody body{{Buffer{0x55, 0x55}}};
-  Block new_block{header, body};
+  Block new_block{.header = makeBlockHeader(kFinalizedBlockInfo.slot + 1,
+                                            kFinalizedBlockInfo.hash)};
   auto hash = addBlock(new_block);
 
   // THEN
@@ -432,9 +444,7 @@ TEST_F(BlockTreeTest, AddBlock) {
  */
 TEST_F(BlockTreeTest, AddBlockNoParent) {
   // GIVEN
-  BlockHeader header = makeBlockHeader(123, {}, {PreRuntime{}});
-  BlockBody body{{Buffer{0x55, 0x55}}};
-  Block new_block{header, body};
+  Block new_block{.header = makeBlockHeader(123, {})};
 
   // WHEN-THEN
   ASSERT_OUTCOME_ERROR(block_tree_->addBlock(new_block),
@@ -451,10 +461,8 @@ TEST_F(BlockTreeTest, Finalize) {
   auto &&last_finalized_hash = block_tree_->getLastFinalized().hash;
   ASSERT_EQ(last_finalized_hash, kFinalizedBlockInfo.hash);
 
-  BlockHeader header = makeBlockHeader(
-      kFinalizedBlockInfo.number + 1, kFinalizedBlockInfo.hash, {PreRuntime{}});
-  BlockBody body{{Buffer{0x55, 0x55}}};
-  Block new_block{header, body};
+  Block new_block{.header = makeBlockHeader(kFinalizedBlockInfo.slot + 1,
+                                            kFinalizedBlockInfo.hash)};
   auto hash = addBlock(new_block);
 
   Justification justification{{0x45, 0xF4}};
@@ -468,9 +476,9 @@ TEST_F(BlockTreeTest, Finalize) {
   EXPECT_CALL(*storage_, removeJustification(kFinalizedBlockInfo.hash))
       .WillRepeatedly(Return(outcome::success()));
   EXPECT_CALL(*storage_, getBlockHeader(hash))
-      .WillRepeatedly(Return(outcome::success(header)));
+      .WillRepeatedly(Return(outcome::success(new_block.header)));
   EXPECT_CALL(*storage_, getBlockBody(hash))
-      .WillRepeatedly(Return(outcome::success(body)));
+      .WillRepeatedly(Return(outcome::success(new_block.extrinsic)));
   EXPECT_CALL(*justification_storage_policy_,
               shouldStoreFor(finalized_block_header_, _))
       .WillOnce(Return(outcome::success(false)));
@@ -491,7 +499,8 @@ TEST_F(BlockTreeTest, Finalize) {
  * ---A*---B
  *
  * @when finalizing non-finalized block B1
- * @then finalization completes successfully: block B pruned, block C1 persists,
+ * @then finalization completes successfully: block B pruned, block C1
+ persists,
  * metadata valid
  */
 TEST_F(BlockTreeTest, FinalizeWithPruning) {
@@ -499,21 +508,21 @@ TEST_F(BlockTreeTest, FinalizeWithPruning) {
   auto &&A_finalized_hash = block_tree_->getLastFinalized().hash;
   ASSERT_EQ(A_finalized_hash, kFinalizedBlockInfo.hash);
 
-  BlockHeader B_header = makeBlockHeader(
-      kFinalizedBlockInfo.number + 1, A_finalized_hash, {PreRuntime{}});
-  BlockBody B_body{{Buffer{0x55, 0x55}}};
+  BlockHeader B_header =
+      makeBlockHeader(kFinalizedBlockInfo.slot + 1, A_finalized_hash);
+  BlockBody B_body{.preimages = {{.blob = {1}}}};
   Block B_block{B_header, B_body};
   auto B_hash = addBlock(B_block);
 
-  BlockHeader B1_header = makeBlockHeader(
-      kFinalizedBlockInfo.number + 1, A_finalized_hash, {PreRuntime{}});
-  BlockBody B1_body{{Buffer{0x55, 0x56}}};
+  BlockHeader B1_header =
+      makeBlockHeader(kFinalizedBlockInfo.slot + 1, A_finalized_hash);
+  BlockBody B1_body{.preimages = {{.blob = {2}}}};
   Block B1_block{B1_header, B1_body};
   auto B1_hash = addBlock(B1_block);
 
   BlockHeader C1_header =
-      makeBlockHeader(kFinalizedBlockInfo.number + 2, B1_hash, {PreRuntime{}});
-  BlockBody C1_body{{Buffer{0x55, 0x57}}};
+      makeBlockHeader(kFinalizedBlockInfo.slot + 2, B1_hash);
+  BlockBody C1_body{.preimages = {{.blob = {3}}}};
   Block C1_block{C1_header, C1_body};
   auto C1_hash = addBlock(C1_block);
 
@@ -529,9 +538,10 @@ TEST_F(BlockTreeTest, FinalizeWithPruning) {
       .WillRepeatedly(Return(outcome::success(B1_body)));
   EXPECT_CALL(*storage_, getBlockBody(B_hash))
       .WillRepeatedly(Return(outcome::success(B1_body)));
-  EXPECT_CALL(*pool_, submitExtrinsic(_, _))
-      .WillRepeatedly(
-          Return(outcome::success(hasher_->blake2b_256(Buffer{0xaa, 0xbb}))));
+  // EXPECT_CALL(*pool_, submitExtrinsic(_, _))
+  //     .WillRepeatedly(
+  //         Return(outcome::success(hasher_->blake2b_256(ByteVec{0xaa,
+  //         0xbb}))));
   EXPECT_CALL(*storage_, removeJustification(kFinalizedBlockInfo.hash))
       .WillRepeatedly(Return(outcome::success()));
   EXPECT_CALL(*justification_storage_policy_,
@@ -548,8 +558,8 @@ TEST_F(BlockTreeTest, FinalizeWithPruning) {
 }
 
 /**
- * @given block tree with following topology (finalized blocks marked with an
- * asterisk):
+ * @given block tree with the following topology (finalized blocks marked with
+ * an asterisk):
  *
  *      +---B1---C1
  *     /
@@ -564,21 +574,21 @@ TEST_F(BlockTreeTest, FinalizeWithPruningDeepestLeaf) {
   auto &&A_finalized_hash = block_tree_->getLastFinalized().hash;
   ASSERT_EQ(A_finalized_hash, kFinalizedBlockInfo.hash);
 
-  BlockHeader B_header = makeBlockHeader(
-      kFinalizedBlockInfo.number + 1, A_finalized_hash, {PreRuntime{}});
-  BlockBody B_body{{Buffer{0x55, 0x55}}};
+  BlockHeader B_header =
+      makeBlockHeader(kFinalizedBlockInfo.slot + 1, A_finalized_hash);
+  BlockBody B_body{.preimages = {{.blob = {1}}}};
   Block B_block{B_header, B_body};
   auto B_hash = addBlock(B_block);
 
-  BlockHeader B1_header = makeBlockHeader(
-      kFinalizedBlockInfo.number + 1, A_finalized_hash, {PreRuntime{}});
-  BlockBody B1_body{{Buffer{0x55, 0x56}}};
+  BlockHeader B1_header =
+      makeBlockHeader(kFinalizedBlockInfo.slot + 1, A_finalized_hash);
+  BlockBody B1_body{.preimages = {{.blob = {2}}}};
   Block B1_block{B1_header, B1_body};
   auto B1_hash = addBlock(B1_block);
 
   BlockHeader C1_header =
-      makeBlockHeader(kFinalizedBlockInfo.number + 2, B1_hash, {PreRuntime{}});
-  BlockBody C1_body{{Buffer{0x55, 0x57}}};
+      makeBlockHeader(kFinalizedBlockInfo.slot + 2, B1_hash);
+  BlockBody C1_body{.preimages = {{.blob = {3}}}};
   Block C1_block{C1_header, C1_body};
   auto C1_hash = addBlock(C1_block);
 
@@ -594,9 +604,10 @@ TEST_F(BlockTreeTest, FinalizeWithPruningDeepestLeaf) {
       .WillRepeatedly(Return(outcome::success(B1_body)));
   EXPECT_CALL(*storage_, getBlockBody(C1_hash))
       .WillRepeatedly(Return(outcome::success(C1_body)));
-  EXPECT_CALL(*pool_, submitExtrinsic(_, _))
-      .WillRepeatedly(
-          Return(outcome::success(hasher_->blake2b_256(Buffer{0xaa, 0xbb}))));
+  // EXPECT_CALL(*pool_, submitExtrinsic(_, _))
+  //     .WillRepeatedly(
+  //         Return(outcome::success(hasher_->blake2b_256(ByteVec{0xaa,
+  //         0xbb}))));
   EXPECT_CALL(*storage_, removeJustification(kFinalizedBlockInfo.hash))
       .WillRepeatedly(Return(outcome::success()));
   EXPECT_CALL(*justification_storage_policy_,
@@ -612,16 +623,17 @@ TEST_F(BlockTreeTest, FinalizeWithPruningDeepestLeaf) {
   ASSERT_EQ(block_tree_->bestBlock().hash, B_hash);
 }
 
-std::shared_ptr<TreeNode> makeFullTree(size_t depth, size_t branching_factor) {
-  auto make_subtree = [branching_factor](std::shared_ptr<TreeNode> parent,
-                                         BlockNumber current_depth,
-                                         BlockNumber max_depth,
-                                         std::string name,
-                                         auto &make_subtree) {
+std::shared_ptr<TreeNode> makeFullTree(size_t depth,
+                                       const size_t branching_factor) {
+  auto make_subtree = [&branching_factor](std::shared_ptr<TreeNode> parent,
+                                          BlockNumber current_depth,
+                                          BlockNumber max_depth,
+                                          std::string name,
+                                          auto &make_subtree) {
     BlockHash hash{};
     std::copy_n(name.begin(), name.size(), hash.begin());
     auto node = std::make_shared<TreeNode>(
-        BlockInfo{hash, current_depth}, parent, false);
+        BlockInfo{current_depth, hash}, parent, false);
     if (current_depth + 1 == max_depth) {
       return node;
     }
@@ -645,20 +657,19 @@ struct NodeProcessor {
 
 /**
  * @given block tree with at least three blocks inside
- * @when asking for chain from the given block to top
+ * @when asking for a chain from the given block to top one
  * @then expected chain is returned
  */
 TEST_F(BlockTreeTest, GetChainByBlockAscending) {
   // GIVEN
-  BlockHeader header = makeBlockHeader(
-      kFinalizedBlockInfo.number + 1, kFinalizedBlockInfo.hash, {PreRuntime{}});
-  BlockBody body{{Buffer{0x55, 0x55}}};
+  BlockHeader header =
+      makeBlockHeader(kFinalizedBlockInfo.slot + 1, kFinalizedBlockInfo.hash);
+  BlockBody body{.preimages = {{.blob = {0}}}};
   Block new_block{header, body};
   auto hash1 = addBlock(new_block);
 
-  header =
-      makeBlockHeader(kFinalizedBlockInfo.number + 2, hash1, {Consensus{}});
-  body = BlockBody{{Buffer{0x55, 0x55}}};
+  header = makeBlockHeader(kFinalizedBlockInfo.slot + 2, hash1);
+  body = BlockBody{.preimages = {{.blob = {0}}}};
   new_block = Block{header, body};
   auto hash2 = addBlock(new_block);
 
@@ -679,14 +690,14 @@ TEST_F(BlockTreeTest, GetChainByBlockAscending) {
  */
 TEST_F(BlockTreeTest, GetChainByBlockDescending) {
   // GIVEN
-  BlockHeader header = makeBlockHeader(
-      kFinalizedBlockInfo.number + 1, kFinalizedBlockInfo.hash, {PreRuntime{}});
-  BlockBody body{{Buffer{0x55, 0x55}}};
+  BlockHeader header =
+      makeBlockHeader(kFinalizedBlockInfo.slot + 1, kFinalizedBlockInfo.hash);
+  BlockBody body{.preimages = {{.blob = {0}}}};
   Block new_block{header, body};
   auto hash1 = addBlock(new_block);
 
-  header = makeBlockHeader(header.number + 1, hash1, {Consensus{}});
-  body = BlockBody{{Buffer{0x55, 0x55}}};
+  header = makeBlockHeader(header.slot + 1, hash1);
+  body = BlockBody{.preimages = {{.blob = {0}}}};
   new_block = Block{header, body};
   auto hash2 = addBlock(new_block);
 
@@ -711,9 +722,9 @@ TEST_F(BlockTreeTest, GetChainByBlockDescending) {
  */
 TEST_F(BlockTreeTest, GetBestChain_DiscardedBlock) {
   BlockInfo target = kFirstBlockInfo;
-  BlockInfo other(kFirstBlockInfo.number, "OtherBlock#1"_hash256);
-  EXPECT_CALL(*storage_, getBlockHash(target.number))
-      .WillRepeatedly(Return(other.hash));
+  BlockInfo other(kFirstBlockInfo.slot, "OtherBlock#1"_arr32);
+  EXPECT_CALL(*storage_, getBlockHash(target.slot))
+      .WillRepeatedly(Return(std::vector{other.hash}));
 
   ASSERT_OUTCOME_ERROR(block_tree_->getBestContaining(target.hash),
                        BlockTreeError::BLOCK_ON_DEAD_END);
@@ -734,8 +745,7 @@ TEST_F(BlockTreeTest, GetBestChain_ShortChain) {
 
 /**
  * @given a block tree with two branches-chains
- * @when trying to obtain the best chain containing the root of the split on
- two
+ * @when trying to obtain the best chain containing the root of the split on two
  * chains
  * @then the longest chain with is returned
  */
@@ -769,8 +779,7 @@ TEST_F(BlockTreeTest, GetBestChain_TwoChains) {
 
 /**
  * @given a block tree with two branches-chains
- * @when trying to obtain the best chain containing the root of the split on
- two
+ * @when trying to obtain the best chain containing the root of the split on two
  * chains
  * @then the longest chain with is returned
  */
@@ -784,9 +793,9 @@ TEST_F(BlockTreeTest, Reorganize) {
   //   LF - A - B
 
   // WHEN.1
-  auto C1_hash = addHeaderToRepository(B_hash, 45, "1"_hash256);
-  auto D1_hash = addHeaderToRepository(C1_hash, 46, "1"_hash256);
-  auto E1_hash = addHeaderToRepository(D1_hash, 47, "1"_hash256);
+  auto C1_hash = addHeaderToRepository(B_hash, 45, "1"_arr32);
+  auto D1_hash = addHeaderToRepository(C1_hash, 46, "1"_arr32);
+  auto E1_hash = addHeaderToRepository(D1_hash, 47, "1"_arr32);
 
   //   42   43  44  45   46   47
   //
@@ -796,9 +805,9 @@ TEST_F(BlockTreeTest, Reorganize) {
   ASSERT_TRUE(block_tree_->bestBlock() == BlockInfo(47, E1_hash));
 
   // WHEN.2
-  auto C2_hash = addHeaderToRepository(B_hash, 45, "2"_hash256);
-  auto D2_hash = addHeaderToRepository(C2_hash, 46, "2"_hash256);
-  auto E2_hash = addHeaderToRepository(D2_hash, 47, "2"_hash256);
+  auto C2_hash = addHeaderToRepository(B_hash, 45, "2"_arr32);
+  auto D2_hash = addHeaderToRepository(C2_hash, 46, "2"_arr32);
+  auto E2_hash = addHeaderToRepository(D2_hash, 47, "2"_arr32);
 
   //   42   43  44  45   46   47
   //
@@ -838,7 +847,7 @@ TEST_F(BlockTreeTest, CleanupObsoleteJustificationOnFinalized) {
   auto b56 = addHeaderToRepository(b55, 56);
   EXPECT_CALL(*storage_, getBlockBody(b56)).WillOnce(Return(BlockBody{}));
 
-  Justification new_justification{"justification_56"_buf};
+  Justification new_justification{"justification_56"_vec};
 
   // shouldn't keep old justification
   EXPECT_CALL(*justification_storage_policy_,
@@ -859,7 +868,7 @@ TEST_F(BlockTreeTest, KeepLastFinalizedJustificationIfItShouldBeStored) {
   auto b56 = addHeaderToRepository(b55, 56);
   EXPECT_CALL(*storage_, getBlockBody(b56)).WillOnce(Return(BlockBody{}));
 
-  Justification new_justification{"justification_56"_buf};
+  Justification new_justification{"justification_56"_vec};
 
   // shouldn't keep old justification
   EXPECT_CALL(*justification_storage_policy_,
@@ -873,8 +882,7 @@ TEST_F(BlockTreeTest, KeepLastFinalizedJustificationIfItShouldBeStored) {
 
 /**
  * @given a block tree with two branches-chains
- * @when trying to obtain the best chain containing the root of the split on
- two
+ * @when trying to obtain the best chain containing the root of the split on two
  * chains
  * @then the longest chain with is returned
  */
@@ -909,7 +917,7 @@ TEST_F(BlockTreeTest, GetBestBlock) {
 
   // ---------------------------------------------------------------------------
 
-  auto E2_hash = addHeaderToRepository(D2_hash, 48, SlotType::Primary);
+  auto E2_hash = addHeaderToRepository(D2_hash, 48, true);
 
   //  42   43  44  45  46   47   48   49   50
   //
@@ -926,7 +934,7 @@ TEST_F(BlockTreeTest, GetBestBlock) {
 
   // ---------------------------------------------------------------------------
 
-  auto G3_hash = addHeaderToRepository(F3_hash, 50, SlotType::Primary);
+  auto G3_hash = addHeaderToRepository(F3_hash, 50, true);
 
   //  42   43  44  45  46   47   48   49   50
   //
