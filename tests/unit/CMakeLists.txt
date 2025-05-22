@@ -5,4 +5,5 @@
 #
 
 add_subdirectory(app)
+add_subdirectory(blockchain)
 add_subdirectory(storage)
