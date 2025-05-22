@@ -125,28 +125,28 @@ namespace jam::blockchain {
 
     // -- justification --
 
-    // /**
-    //  * Saves {@param justification} of block with hash {@param block_hash} to
-    //  * block storage
-    //  * @returns result of saving
-    //  */
-    // virtual outcome::result<void> putJustification(
-    //     const Justification &justification, const BlockHash &block_hash) = 0;
-    //
-    // /**
-    //  * Tries to get justification of block finality by {@param block_hash}
-    //  * @returns justification or error
-    //  */
-    // virtual outcome::result<std::optional<Justification>> getJustification(
-    //     const BlockHash &block_hash) const = 0;
-    //
-    // /**
-    //  * Removes justification of block with hash {@param block_hash} from block
-    //  * storage
-    //  * @returns result of saving
-    //  */
-    // virtual outcome::result<void> removeJustification(
-    //     const BlockHash &block_hash) = 0;
+    /**
+     * Saves {@param justification} of block with hash {@param block_hash} to
+     * block storage
+     * @returns result of saving
+     */
+    virtual outcome::result<void> putJustification(
+        const Justification &justification, const BlockHash &block_hash) = 0;
+
+    /**
+     * Tries to get justification of block finality by {@param block_hash}
+     * @returns justification or error
+     */
+    virtual outcome::result<std::optional<Justification>> getJustification(
+        const BlockHash &block_hash) const = 0;
+
+    /**
+     * Removes justification of block with hash {@param block_hash} from block
+     * storage
+     * @returns result of saving
+     */
+    virtual outcome::result<void> removeJustification(
+        const BlockHash &block_hash) = 0;
 
     // -- combined
 
