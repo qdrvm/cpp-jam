@@ -33,7 +33,12 @@ namespace jam::app {
       qtils::SharedRef<Watchdog> watchdog,
       qtils::SharedRef<metrics::Exposer> metrics_exposer,
       qtils::SharedRef<clock::SystemClock> system_clock,
-      std::shared_ptr<SeHolder>)
+      std::shared_ptr<SeHolder>
+
+      ,
+      qtils::SharedRef<blockchain::BlockTree>
+
+      )
       : logger_(logsys->getLogger("Application", "application")),
         app_config_(std::move(config)),
         state_manager_(std::move(state_manager)),

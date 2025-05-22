@@ -8,9 +8,9 @@
 
 #include <memory>
 
-#include <qtils/shared_ref.hpp>
-
+#include <blockchain/block_tree.hpp>
 #include <metrics/registry.hpp>
+#include <qtils/shared_ref.hpp>
 
 #include "app/application.hpp"
 #include "se/subscription_fwd.hpp"
@@ -83,7 +83,13 @@ namespace jam::app {
                     qtils::SharedRef<Watchdog> watchdog,
                     qtils::SharedRef<metrics::Exposer> metrics_exposer,
                     qtils::SharedRef<clock::SystemClock> system_clock,
-                    std::shared_ptr<SeHolder>);
+                    std::shared_ptr<SeHolder>
+
+                    ,
+                    qtils::SharedRef<blockchain::BlockTree>
+                    // qtils::SharedRef<blockchain::BlockTreeInitializer>
+
+    );
 
     void run() override;
 
