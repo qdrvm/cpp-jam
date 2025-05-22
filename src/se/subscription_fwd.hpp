@@ -44,10 +44,19 @@ namespace jam {
     PeerConnected,
     /// Peer disconnected
     PeerDisconnected,
-    /// Data of block is requested
+    /// Data of a block is requested
     BlockRequest,
-    /// Data of block is respond
+    /// Data of a block is respond
     BlockResponse,
+
+    // -- BlockTree
+
+    // A new block was added
+    BlockAdded,
+    // BlockFinalized
+    BlockFinalized,
+    // Some side chain was deactivated after finalization
+    DeactivateAfterFinalization,
 
     // -- Synchronizer
 

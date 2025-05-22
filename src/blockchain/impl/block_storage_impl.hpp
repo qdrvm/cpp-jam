@@ -65,18 +65,17 @@ namespace jam::blockchain {
 
     outcome::result<void> removeBlockBody(const BlockHash &block_hash) override;
 
-    // // -- justification --
-    //
-    // outcome::result<void> putJustification(
-    //     const primitives::Justification &justification,
-    //     const primitives::BlockHash &block_hash) override;
-    //
-    // outcome::result<std::optional<primitives::Justification>>
-    // getJustification(
-    //     const primitives::BlockHash &block_hash) const override;
-    //
-    // outcome::result<void> removeJustification(
-    //     const primitives::BlockHash &block_hash) override;
+    // -- justification --
+
+    outcome::result<void> putJustification(
+        const Justification &justification,
+        const BlockHash &block_hash) override;
+
+    outcome::result<std::optional<Justification>> getJustification(
+        const BlockHash &block_hash) const override;
+
+    outcome::result<void> removeJustification(
+        const BlockHash &block_hash) override;
 
     // -- combined
 

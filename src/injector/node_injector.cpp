@@ -17,6 +17,8 @@
 #include "app/impl/state_manager_impl.hpp"
 #include "app/impl/watchdog.hpp"
 #include "blockchain/impl/block_storage_impl.hpp"
+#include "blockchain/impl/block_tree_impl.hpp"
+#include "blockchain/impl/justification_storage_policy.hpp"
 #include "clock/impl/clock_impl.hpp"
 #include "crypto/hasher/hasher_impl.hpp"
 #include "injector/bind_by_lambda.hpp"
@@ -68,6 +70,8 @@ namespace {
         // di::bind<storage::SpacedStorage>.to<storage::RocksDb>(),
         di::bind<blockchain::BlockStorage>.to<blockchain::BlockStorageImpl>(),
         di::bind<crypto::Hasher>.to<crypto::HasherImpl>(),
+        di::bind<blockchain::BlockTree>.to<blockchain::BlockTreeImpl>(),
+        di::bind<blockchain::JustificationStoragePolicy>.to<blockchain::JustificationStoragePolicyImpl>(),
 
         // user-defined overrides...
         std::forward<decltype(args)>(args)...);
