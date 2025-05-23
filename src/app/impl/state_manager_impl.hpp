@@ -25,7 +25,7 @@ namespace jam::log {
 
 namespace jam::app {
 
-  class StateManagerImpl final
+  class StateManagerImpl  // left non-final on purpose to be accessible in tests
       : Singleton<StateManager>,
         public StateManager,
         public std::enable_shared_from_this<StateManagerImpl> {
