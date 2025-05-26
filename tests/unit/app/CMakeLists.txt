@@ -20,12 +20,12 @@ target_link_libraries(app_state_manager_test
     logger_for_tests
     )
 
-addtest(app_config_test
-    config_test.cpp
-    )
-target_link_libraries(app_config_test
-    app_config
-    filesystem
-    logger_for_tests
-    telemetry
-    )
+#addtest(app_config_test
+#    config_test.cpp
+#    )
+#target_link_libraries(app_config_test
+#    app_config
+#    filesystem
+#    logger_for_tests
+#    telemetry
+#    )

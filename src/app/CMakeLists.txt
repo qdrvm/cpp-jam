@@ -45,6 +45,13 @@ target_link_libraries(app_state_manager
     logger
 )
 
+add_library(chain_spec SHARED impl/chain_spec_impl.cpp)
+target_link_libraries(chain_spec
+    logger
+    Boost::property_tree
+    app_configuration
+)
+
 add_library(application SHARED impl/application_impl.cpp)
 target_link_libraries(application
     qtils::qtils

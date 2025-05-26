@@ -12,12 +12,15 @@
 #include "blockchain/block_storage_error.hpp"
 #include "blockchain/impl/block_storage_impl.hpp"
 #include "blockchain/impl/block_storage_initializer.hpp"
+#include "mock/app/chain_spec_mock.hpp"
 #include "mock/crypto/hasher_mock.hpp"
 #include "mock/storage/generic_storage_mock.hpp"
 #include "mock/storage/spaced_storage_mock.hpp"
 #include "scale/jam_scale.hpp"
 #include "storage/storage_error.hpp"
 // #include "testutil/literals.hpp"
+#include <blockchain/genesis_block_header.hpp>
+
 #include "qtils/error_throw.hpp"
 #include "testutil/prepare_loggers.hpp"
 
@@ -28,14 +31,15 @@ using jam::BlockHash;
 using jam::BlockHeader;
 using jam::BlockNumber;
 using jam::encode;
+using jam::app::ChainSpecMock;
 using jam::blockchain::BlockStorageError;
 using jam::blockchain::BlockStorageImpl;
 using jam::blockchain::BlockStorageInitializer;
+using jam::blockchain::GenesisBlockHeader;
 using jam::crypto::HasherMock;
 using jam::storage::BufferStorageMock;
 using jam::storage::Space;
 using jam::storage::SpacedStorageMock;
-using jam::storage::trie::RootHash;
 using qtils::ByteVec;
 using qtils::ByteView;
 using testing::_;
@@ -49,7 +53,7 @@ class BlockStorageTest : public testing::Test {
   }
 
   void SetUp() override {
-    root_hash.fill(1);
+    genesis_header->hash_opt = genesis_block_hash;
 
     hasher = std::make_shared<HasherMock>();
     spaced_storage = std::make_shared<SpacedStorageMock>();
@@ -71,16 +75,22 @@ class BlockStorageTest : public testing::Test {
       EXPECT_CALL(*storage, tryGetMock(_)).WillRepeatedly(Return(std::nullopt));
     }
   }
+
+  BlockHash genesis_block_hash{{'g', 'e', 'n', 'e', 's', 'i', 's'}};
+  BlockHash regular_block_hash{{'r', 'e', 'g', 'u', 'l', 'a', 'r'}};
+  BlockHash unhappy_block_hash{{'u', 'n', 'h', 'a', 'p', 'p', 'y'}};
+
   qtils::SharedRef<jam::log::LoggingSystem> logsys = testutil::prepareLoggers();
+
+  qtils::SharedRef<GenesisBlockHeader> genesis_header =
+      std::make_shared<GenesisBlockHeader>();
+  qtils::SharedRef<ChainSpecMock> chain_spec =
+      std::make_shared<ChainSpecMock>();
   qtils::SharedRef<HasherMock> hasher = std::make_shared<HasherMock>();
   qtils::SharedRef<SpacedStorageMock> spaced_storage =
       std::make_shared<SpacedStorageMock>();
   std::map<Space, std::shared_ptr<BufferStorageMock>> spaces;
 
-  BlockHash genesis_block_hash{{'g', 'e', 'n', 'e', 's', 'i', 's'}};
-  BlockHash regular_block_hash{{'r', 'e', 'g', 'u', 'l', 'a', 'r'}};
-  BlockHash unhappy_block_hash{{'u', 'n', 'h', 'a', 'p', 'p', 'y'}};
-  RootHash root_hash;
 
   qtils::SharedRef<BlockStorageImpl> createWithGenesis() {
     // calculate hash of genesis block at put block header
@@ -140,7 +150,8 @@ TEST_F(BlockStorageTest, CreateWithExistingGenesis) {
       .WillOnce(Return(ByteVec{genesis_block_hash}));
 
   // Init underlying storage
-  ASSERT_NO_THROW(BlockStorageInitializer(logsys, spaced_storage, {}, hasher));
+  ASSERT_NO_THROW(BlockStorageInitializer(
+      logsys, spaced_storage, genesis_header, chain_spec, hasher));
 
   // Create block storage
   ASSERT_NO_THROW(BlockStorageImpl(logsys, spaced_storage, hasher, {}));
@@ -159,7 +170,7 @@ TEST_F(BlockStorageTest, CreateWithStorageError) {
 
   // Init underlying storage
   EXPECT_THROW_OUTCOME(
-      BlockStorageInitializer(logsys, spaced_storage, {}, hasher),
+      BlockStorageInitializer(logsys, spaced_storage, genesis_header, chain_spec, hasher),
       jam::storage::StorageError::IO_ERROR);
 }
 

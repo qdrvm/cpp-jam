@@ -2,6 +2,7 @@ general:
   name: NameFromConfig
   base_path: /tmp/jam_node
   modules_dir: modules
+  spec_file: jamduna-spec.json
 
 metrics:
   enabled: true

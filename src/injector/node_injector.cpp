@@ -15,8 +15,10 @@
 #include "app/configuration.hpp"
 #include "app/impl/application_impl.hpp"
 #include "app/impl/state_manager_impl.hpp"
+#include "app/impl/chain_spec_impl.hpp"
 #include "app/impl/watchdog.hpp"
 #include "blockchain/impl/block_storage_impl.hpp"
+#include "blockchain/impl/genesis_block_header_impl.hpp"
 #include "blockchain/impl/block_tree_impl.hpp"
 #include "blockchain/impl/justification_storage_policy.hpp"
 #include "clock/impl/clock_impl.hpp"
@@ -72,6 +74,8 @@ namespace {
         di::bind<crypto::Hasher>.to<crypto::HasherImpl>(),
         di::bind<blockchain::BlockTree>.to<blockchain::BlockTreeImpl>(),
         di::bind<blockchain::JustificationStoragePolicy>.to<blockchain::JustificationStoragePolicyImpl>(),
+        di::bind<blockchain::GenesisBlockHeader>.to<blockchain::GenesisBlockHeaderImpl>(),
+        di::bind<app::ChainSpec>.to<app::ChainSpecImpl>(),
 
         // user-defined overrides...
         std::forward<decltype(args)>(args)...);

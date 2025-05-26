@@ -59,13 +59,13 @@ using jam::crypto::HasherImpl;
 // using jam::primitives::Digest;
 using jam::Justification;
 // using jam::primitives::PreRuntime;
-using jam::storage::trie::RootHash;
 // using jam::storage::trie_pruner::TriePrunerMock;
 // using jam::transaction_pool::TransactionPoolMock;
 using qtils::ByteVec;
 using qtils::literals::operator""_vec;
 // using BabeSeal = consensus::babe::Seal;
 // using Seal = primitives::Seal;
+using RootHash = jam::OpaqueHash;
 
 using testing::_;
 using testing::Invoke;

@@ -16,11 +16,14 @@ namespace jam::log {
 namespace jam::storage {
   class SpacedStorage;
 }
+namespace jam::blockchain {
+  class GenesisBlockHeader;
+}
+namespace jam::app {
+  class ChainSpec;
+}
 namespace jam::crypto {
   class Hasher;
-}
-namespace jam::storage::trie {
-  using RootHash = test_vectors::OpaqueHash;
 }
 
 namespace jam::blockchain {
@@ -29,7 +32,8 @@ namespace jam::blockchain {
    public:
     BlockStorageInitializer(qtils::SharedRef<log::LoggingSystem> logsys,
                             qtils::SharedRef<storage::SpacedStorage> storage,
-                            storage::trie::RootHash state_root,
+                            qtils::SharedRef<GenesisBlockHeader> genesis_header,
+                            qtils::SharedRef<app::ChainSpec> chain_spec,
                             qtils::SharedRef<crypto::Hasher> hasher);
   };
 

@@ -12,6 +12,7 @@
 #include <storage/spaced_storage.hpp>
 
 #include "blockchain/block_storage_error.hpp"
+#include "blockchain/genesis_block_header.hpp"
 #include "blockchain/impl/block_storage_impl.hpp"
 #include "blockchain/impl/storage_util.hpp"
 #include "jam_types/block.hpp"
@@ -21,44 +22,41 @@ namespace jam::blockchain {
   BlockStorageInitializer::BlockStorageInitializer(
       qtils::SharedRef<log::LoggingSystem> logsys,
       qtils::SharedRef<storage::SpacedStorage> storage,
-      storage::trie::RootHash state_root,
+      qtils::SharedRef<GenesisBlockHeader> genesis_header,
+      qtils::SharedRef<app::ChainSpec> chain_spec,
       qtils::SharedRef<crypto::Hasher> hasher) {
     // temporary instance of block storage
     BlockStorageImpl block_storage(std::move(logsys), storage, hasher, {});
 
-    // Try to get hash of the genesis block (block #0)
-    auto hash_opt_res = blockHashByNumber(*storage, 0);
-    if (hash_opt_res.has_error()) {
+    auto genesis_block_hash = genesis_header->hash();
+
+    // Try to get genesis header from storage
+    auto genesis_block_existing_res =
+        block_storage.hasBlockHeader(genesis_block_hash);
+    if (genesis_block_existing_res.has_error()) {
       block_storage.logger_->critical(
           "Database error at check existing genesis block: {}",
-          hash_opt_res.error());
-      qtils::raise(hash_opt_res.error());
+          genesis_block_existing_res.error());
+      qtils::raise(genesis_block_existing_res.error());
     }
-    auto hash_opt = hash_opt_res.value();
+    auto genesis_header_is_exist = genesis_block_existing_res.value();
 
-    if (not hash_opt.has_value()) {
+    if (not genesis_header_is_exist) {
       // genesis block initialization
-      Block genesis_block;
-      genesis_block.header.parent = {};             // no parent
-      genesis_block.header.parent_state_root = {};  // no parent
-      genesis_block.header.extrinsic_hash = {};     // no extrinsic
-      genesis_block.header.slot = 0;                // genesis
-      // the rest of the fields have a default value
+      Block genesis_block{
+          .header = *genesis_header,
+      };
 
-      // Calculate and save hash
-      calculateBlockHash(genesis_block.header, *hasher);
-
-      auto genesis_block_hash_res = block_storage.putBlock(genesis_block);
-      if (genesis_block_hash_res.has_error()) {
+      auto res = block_storage.putBlock(genesis_block);
+      if (res.has_error()) {
         block_storage.logger_->critical(
-            "Database error at store genesis block into: {}",
-            genesis_block_hash_res.error());
-        qtils::raise(genesis_block_hash_res.error());
+            "Database error at store genesis block into: {}", res.error());
+        qtils::raise(res.error());
       }
-      const auto &genesis_block_hash = genesis_block_hash_res.value();
+      BOOST_ASSERT(genesis_block_hash == res.value());
 
       auto assignment_res =
-          block_storage.assignHashToSlot(BlockInfo{0, genesis_block_hash});
+          block_storage.assignHashToSlot(genesis_header->index());
       if (assignment_res.has_error()) {
         block_storage.logger_->critical(
             "Database error at assigning genesis block hash: {}",
@@ -67,7 +65,7 @@ namespace jam::blockchain {
       }
 
       auto sel_leaves_res =
-          block_storage.setBlockTreeLeaves({genesis_block_hash});
+          block_storage.setBlockTreeLeaves({genesis_header->hash()});
       if (sel_leaves_res.has_error()) {
         block_storage.logger_->critical(
             "Database error at set genesis block as leaf: {}",
@@ -75,17 +73,11 @@ namespace jam::blockchain {
         qtils::raise(sel_leaves_res.error());
       }
 
-      block_storage.logger_->info(
-          "Genesis block {}, state {}", genesis_block_hash, state_root);
-    } else {
-      auto res = block_storage.hasBlockHeader(hash_opt.value());
-      qtils::raise_on_err(res);
-      if (not res.value()) {
-        block_storage.logger_->critical(
-            "Database is not consistent: Genesis block header not found, "
-            "but exists num-to-hash record for block #0");
-        qtils::raise(BlockStorageError::HEADER_NOT_FOUND);
-      }
+      // TODO Save genesis state here
+
+      block_storage.logger_->info("Genesis block {}, state {}",
+                                  genesis_block_hash,
+                                  genesis_header->parent_state_root);
     }
   }
 

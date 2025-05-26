@@ -30,7 +30,7 @@ find_package(Python3 REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(libb2 REQUIRED IMPORTED_TARGET GLOBAL libb2)
 
-find_package(Boost CONFIG REQUIRED COMPONENTS algorithm outcome program_options)
+find_package(Boost CONFIG REQUIRED COMPONENTS algorithm outcome program_options property_tree)
 find_package(fmt CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 find_package(jam_crust CONFIG REQUIRED)

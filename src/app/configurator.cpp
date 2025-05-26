@@ -230,6 +230,16 @@ namespace jam::app {
               file_has_error_ = true;
             }
           }
+          auto spec_file = section["spec_file"];
+          if (spec_file.IsDefined()) {
+            if (spec_file.IsScalar()) {
+              auto value = spec_file.as<std::string>();
+              config_->spec_file_ = value;
+            } else {
+              file_errors_ << "E: Value 'general.spec_file' must be scalar\n";
+              file_has_error_ = true;
+            }
+          }
           auto modules_dir = section["modules_dir"];
           if (modules_dir.IsDefined()) {
             if (modules_dir.IsScalar()) {
@@ -278,6 +288,10 @@ namespace jam::app {
         cli_values_map_, "modules_dir", [&](const std::string &value) {
           config_->modules_dir_ = value;
         });
+    find_argument<std::string>(
+        cli_values_map_, "spec_file", [&](const std::string &value) {
+          config_->spec_file_ = value;
+        });
     if (fail) {
       return Error::CliArgsParseFailed;
     }
@@ -308,6 +322,14 @@ namespace jam::app {
       SL_ERROR(logger_,
                "The 'modules_dir' does not exist or is not a directory: {}",
                config_->modules_dir_.c_str());
+      return Error::InvalidValue;
+    }
+
+    config_->spec_file_ = make_absolute(config_->spec_file_);
+    if (not is_regular_file(config_->spec_file_)) {
+      SL_ERROR(logger_,
+               "The 'spec_file' does not exist or is not a file: {}",
+               config_->spec_file_.c_str());
       return Error::InvalidValue;
     }
 

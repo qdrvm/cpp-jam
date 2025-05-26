@@ -16,7 +16,8 @@
     "ftxui",
     "openssl",
     "xxhash",
-    "rocksdb"
+    "rocksdb",
+    "boost-property-tree"
   ],
   "features": {
     "test": { "description": "Test", "dependencies": ["gtest"]}
