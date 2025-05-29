@@ -19,6 +19,8 @@ on:
 env:
   USE_CACHE: ${{ github.event.inputs.use_cache || 'true' }}
   CACHE_VERSION: v01
+  CARGO_HOME: ~/.cargo
+  RUSTUP_HOME: ~/.rustup
   CACHE_PATH: |
     ~/.cargo
     ~/.hunter
@@ -43,6 +45,11 @@ jobs:
           submodules: true
           fetch-depth: 0
 
+      - name: "Set up Rust"
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
       - name: "Restore cache dependencies"
         id: cache-restore
         if: ${{ env.USE_CACHE == 'true' }}
@@ -62,6 +69,7 @@ jobs:
           else
             ./.ci/scripts/init.sh
           fi
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: "Init all dependencies"
         run: |
