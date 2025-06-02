@@ -9,7 +9,7 @@
 #include <memory>
 #include <optional>
 
-#include <jam_crust.h>
+#include <bandersnatch_vrfs.h>
 #include <qtils/bytes.hpp>
 
 namespace jam::crypto::bandersnatch {
