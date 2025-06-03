@@ -13,68 +13,35 @@
 
 namespace jam {
 
-  using test_vectors::BandersnatchVrfSignature;
-  using test_vectors::EpochMark;
-  using test_vectors::HeaderHash;
-  using test_vectors::OffendersMark;
-  using test_vectors::OpaqueHash;
-  using test_vectors::StateRoot;
-  using test_vectors::TicketsMark;
-  using test_vectors::TimeSlot;
-  using test_vectors::ValidatorIndex;
-
   /**
-   * @struct BlockHeader represents header of a block
-   */
-  struct BlockHeader {
-    /// Hp - parent block header hash
-    HeaderHash parent;
-    /// Hr - prior state root
-    StateRoot parent_state_root;
-    /// Hx - exctrinsic hash
-    OpaqueHash extrinsic_hash;
-    /// Ht - time-slot index
-    TimeSlot slot;
-    /// He - epoch marker
-    std::optional<EpochMark> epoch_mark;
-    /// Hw - winning-tickets marker
-    std::optional<TicketsMark> tickets_mark;
-    /// Ho - offenders marker
-    OffendersMark offenders_mark;
-    /// Hi - Bandersnatch block author index
-    ValidatorIndex author_index;
-    /// Hv - the entropy-yielding vrf signature
-    BandersnatchVrfSignature entropy_source;
-    /// Hs - block seal
-    BandersnatchVrfSignature seal;
+    * @struct BlockHeader
+    * This is a lighter version of the block, used for referencing and
+    * verification.
+    */
+  class BlockHeader {
+  public:
+    /// The block’s slot number
+    Slot slot;
+    /// Index of the validator that proposed the block
+    ProposerIndex proposer_index;
+    /// Hash of the parent block
+    HeaderHash parent_root;
+    /// Hash of the post-state after the block is processed
+    StateRoot state_root;
+    /// The block’s body, containing further operations and data
+    BodyRoot body_root;
+
+    BlockHeader() = default;
 
     /// Block hash if calculated
-    mutable std::optional<BlockHash> hash_opt{};
+    mutable std::optional<HeaderHash> hash_opt{};
 
-    CUSTOM_EQUALITY(BlockHeader,
-                    parent,
-                    parent_state_root,
-                    extrinsic_hash,
-                    slot,
-                    epoch_mark,
-                    tickets_mark,
-                    offenders_mark,
-                    author_index,
-                    entropy_source,
-                    seal);
-    SCALE_CUSTOM_DECOMPOSITION(BlockHeader,
-                               parent,
-                               parent_state_root,
-                               extrinsic_hash,
-                               slot,
-                               epoch_mark,
-                               tickets_mark,
-                               offenders_mark,
-                               author_index,
-                               entropy_source,
-                               seal);
+    CUSTOM_EQUALITY(
+        BlockHeader, slot, proposer_index, parent_root, state_root, body_root);
+    SCALE_CUSTOM_DECOMPOSITION(
+        BlockHeader, slot, proposer_index, parent_root, state_root, body_root);
 
-    const BlockHash &hash() const {
+    const HeaderHash &hash() const {
       BOOST_ASSERT_MSG(hash_opt.has_value(),
                        "Hash must be calculated and saved before that");
       return hash_opt.value();
@@ -87,44 +54,9 @@ namespace jam {
       hash_opt.emplace(hasher.blake2b_256(enc_res.value()));
     }
 
-    BlockInfo index() const {
+    BlockIndex index() const {
       return {slot, hash()};
     }
-  };
-
-  struct UnsealedBlockHeader : private BlockHeader {
-    UnsealedBlockHeader() = delete;
-
-    using BlockHeader::author_index;
-    using BlockHeader::entropy_source;
-    using BlockHeader::epoch_mark;
-    using BlockHeader::extrinsic_hash;
-    using BlockHeader::offenders_mark;
-    using BlockHeader::parent;
-    using BlockHeader::parent_state_root;
-    using BlockHeader::slot;
-    using BlockHeader::tickets_mark;
-
-    CUSTOM_EQUALITY(UnsealedBlockHeader,
-                    parent,
-                    parent_state_root,
-                    extrinsic_hash,
-                    slot,
-                    epoch_mark,
-                    tickets_mark,
-                    offenders_mark,
-                    author_index,
-                    entropy_source);
-    SCALE_CUSTOM_DECOMPOSITION(UnsealedBlockHeader,
-                               parent,
-                               parent_state_root,
-                               extrinsic_hash,
-                               slot,
-                               epoch_mark,
-                               tickets_mark,
-                               offenders_mark,
-                               author_index,
-                               entropy_source);
   };
 
   inline void calculateBlockHash(const BlockHeader &header,

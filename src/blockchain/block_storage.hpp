@@ -9,7 +9,8 @@
 #include <qtils/outcome.hpp>
 
 #include "jam_types/block.hpp"
-#include "jam_types/block_data.hpp"
+#include "jam_types/block_body.hpp"
+#include "jam_types/block_header.hpp"
 #include "jam_types/justification.hpp"
 #include "jam_types/types.tmp.hpp"
 

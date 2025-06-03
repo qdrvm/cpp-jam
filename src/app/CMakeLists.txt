@@ -60,9 +60,6 @@ target_link_libraries(chain_spec
     Boost::property_tree
     app_configuration
 )
-add_dependencies(chain_spec
-    generate_common_types
-)
 
 add_library(application SHARED
     impl/application_impl.cpp

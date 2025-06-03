@@ -13,6 +13,3 @@ add_library(blockchain
 target_link_libraries(blockchain
     Boost::boost
 )
-add_dependencies(blockchain
-    generate_common_types
-)

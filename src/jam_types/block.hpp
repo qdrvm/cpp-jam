@@ -6,15 +6,18 @@
 
 #pragma once
 
-#include <jam_types/block_header.hpp>
-#include <jam_types/extricsic.hpp>
+#include <qtils/byte_arr.hpp>
+
+#include "jam_types/block_body.hpp"
 
 namespace jam {
 
   struct Block {
-    BlockHeader header;
-    BlockBody extrinsic;
-    bool operator==(const Block &) const = default;
+    uint64_t slot;
+    uint64_t proposer_index;
+    qtils::ByteArr<32> parent_root;
+    qtils::ByteArr<32> state_root;
+    BlockBody body;
   };
 
 }  // namespace jam

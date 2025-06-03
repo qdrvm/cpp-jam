@@ -77,7 +77,7 @@ namespace jam::blockchain {
 
       block_storage.logger_->info("Genesis block {}, state {}",
                                   genesis_block_hash,
-                                  genesis_header->parent_state_root);
+                                  genesis_header->state_root);
     }
   }
 

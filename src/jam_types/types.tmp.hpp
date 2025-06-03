@@ -8,8 +8,8 @@
 
 #include <cinttypes>
 
-#include <jam_types/common-types.hpp>
 #include <scale/tie_hash.hpp>
+#include <qtils/byte_arr.hpp>
 
 namespace jam {
   // stub types. must be refactored in future
@@ -18,9 +18,18 @@ namespace jam {
 
   // blockchain types
 
-  using BlockHash = test_vectors::HeaderHash;
+  using OpaqueHash = qtils::ByteArr<32>;
 
-  using test_vectors::TimeSlot;
+  using BlockHash = OpaqueHash;
+  using HeaderHash = OpaqueHash;
+  using StateRoot = OpaqueHash;
+  using BodyRoot = OpaqueHash;
+
+  using Slot = uint64_t;
+
+  using TimeSlot = Slot;
+
+  using ProposerIndex = uint64_t;
 
   struct BlockIndex {
     TimeSlot slot;
@@ -34,7 +43,7 @@ namespace jam {
 
   using BlockInfo = BlockIndex;
 
-  using BlockNumber = test_vectors::TimeSlot;
+  using BlockNumber = TimeSlot;
 
   using BlockId = std::variant<TimeSlot, BlockHash>;
 

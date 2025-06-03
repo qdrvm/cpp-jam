@@ -80,7 +80,7 @@ namespace jam::blockchain {
                  current_hash);
         return {0, current_hash};  // genesis
       }
-      current_hash = header.parent;
+      current_hash = header.parent_root;
     }
 
     OUTCOME_TRY(header, getBlockHeader(current_hash));
@@ -261,7 +261,7 @@ namespace jam::blockchain {
 
     logger_->info("Added block {} as child of {}",
                   BlockIndex{block.header.slot, block_hash},
-                  block.header.parent);
+                  block.header.parent_root);
     return block_hash;
   }
 

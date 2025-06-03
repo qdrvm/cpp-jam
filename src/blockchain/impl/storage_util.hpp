@@ -12,6 +12,7 @@
 
 // #include "primitives/block_id.hpp"
 #include "storage/spaced_storage.hpp"
+#include "scale/jam_scale.hpp"
 
 /**
  * Storage schema overview
@@ -41,7 +42,7 @@ namespace jam::blockchain {
    * Convert slot into a short lookup key (LE representation)
    */
   inline qtils::ByteVec slotToHashLookupKey(TimeSlot slot) {
-    BOOST_STATIC_ASSERT(std::is_same_v<decltype(slot), uint32_t>);
+    BOOST_STATIC_ASSERT(std::is_same_v<decltype(slot), uint64_t>);
     return encode(slot).value();
   }
 
