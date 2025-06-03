@@ -18,7 +18,7 @@ on:
 
 env:
   USE_CACHE: ${{ github.event.inputs.use_cache || 'true' }}
-  CACHE_VERSION: v01
+  CACHE_VERSION: v02
   CARGO_HOME: ~/.cargo
   RUSTUP_HOME: ~/.rustup
   CACHE_PATH: |

@@ -22,7 +22,3 @@ file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share")
 
 # Use vcpkg_cmake_config_fixup to properly move config files
 vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/qdrvm-crates PACKAGE_NAME qdrvm-crates)
-
-# Remove any remaining empty lib/cmake/qdrvm-crates directory  
-file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/lib/cmake")
-file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/lib/cmake")
