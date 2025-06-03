@@ -1,4 +1,5 @@
 vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
+# Force rebuild to debug bandersnatch_vrfs issue
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO qdrvm/kagome-crates
@@ -10,7 +11,7 @@ vcpkg_from_github(
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
-        -DQDRVM_BIND_CRATES=schnorrkel;bandersnatch_vrfs
+        "-DQDRVM_BIND_CRATES=schnorrkel;bandersnatch_vrfs"
 )
 
 vcpkg_cmake_build()
