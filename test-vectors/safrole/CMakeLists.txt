@@ -7,6 +7,6 @@
 add_test_vector(safrole tiny full)
 
 add_test_vector_libraries(safrole
-    jam_crust::jam_crust
+    ark_vrf::ark_vrf
     PkgConfig::libb2
 )
