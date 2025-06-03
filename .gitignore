@@ -42,3 +42,4 @@
 /.venv
 /.vcpkg
 /.build*
+/vcpkg_installed
