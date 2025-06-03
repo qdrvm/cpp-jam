@@ -11,7 +11,7 @@ vcpkg_from_github(
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
-        "-DQDRVM_BIND_CRATES=schnorrkel;bandersnatch_vrfs"
+        "-DQDRVM_BIND_CRATES=schnorrkel;ark_vrf"
 )
 
 vcpkg_cmake_build()
