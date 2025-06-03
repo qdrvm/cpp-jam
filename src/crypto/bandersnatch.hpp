@@ -9,7 +9,7 @@
 #include <memory>
 #include <optional>
 
-#include <ark_vrf/ark_vrf.h>
+#include <ark_vrf.h>
 #include <qtils/byte_arr.hpp>
 
 namespace jam::crypto::bandersnatch {
