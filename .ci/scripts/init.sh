@@ -13,6 +13,10 @@ main() {
     linux_deb)
       echo "=== Detected Linux system with apt"
       apt update && apt install -y  $LINUX_PACKAGES
+      if [ -f "$HOME/.cargo/env" ]; then
+        source "$HOME/.cargo/env"
+      fi
+      export PATH="$HOME/.cargo/bin:$PATH"
       ;;
     linux_other)
       echo "=== Detected Linux system without apt"
@@ -31,6 +35,12 @@ main() {
       echo "=== Unknown system"
       ;;
   esac
+  
+  if command -v cargo >/dev/null 2>&1; then
+    echo "=== Cargo is available: $(cargo --version)"
+  else
+    echo "=== Warning: Cargo is not available in PATH"
+  fi
 }
 
 main
