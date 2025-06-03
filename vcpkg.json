@@ -6,7 +6,7 @@
     "scale",
     "fmt",
     "soralog",
-    "kagome-crates",
+    "qdrvm-crates",
     "libb2",
     "boost-di",
     "boost-program-options",

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <schnorrkel/schnorrkel.h>
+#include <schnorrkel.h>
 #include <qtils/byte_arr.hpp>
 
 namespace jam::crypto::ed25519 {
