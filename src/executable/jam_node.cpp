@@ -6,6 +6,9 @@
 
 #include <chrono>
 #include <iostream>
+#include <memory>
+#include <optional>
+#include <variant>
 
 #include <qtils/final_action.hpp>
 #include <soralog/impl/configurator_from_yaml.hpp>
