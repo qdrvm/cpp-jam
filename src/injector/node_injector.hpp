@@ -7,6 +7,7 @@
 #pragma once
 
 #include <memory>
+
 #include "se/subscription.hpp"
 
 namespace jam::log {

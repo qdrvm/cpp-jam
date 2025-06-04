@@ -6,9 +6,9 @@
 
 #pragma once
 
+#include <chrono>
 #include <functional>
 #include <optional>
-#include <chrono>
 
 namespace jam::se {
 

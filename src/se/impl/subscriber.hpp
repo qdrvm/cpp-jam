@@ -26,14 +26,14 @@ namespace jam::se {
    public:
     // Default constructor
     Subscriber() = default;
-    
+
     // Disable copying
-    Subscriber(const Subscriber&) = delete;
-    Subscriber& operator=(const Subscriber&) = delete;
-    
+    Subscriber(const Subscriber &) = delete;
+    Subscriber &operator=(const Subscriber &) = delete;
+
     // Disable moving
-    Subscriber(Subscriber&&) = delete;
-    Subscriber& operator=(Subscriber&&) = delete;
+    Subscriber(Subscriber &&) = delete;
+    Subscriber &operator=(Subscriber &&) = delete;
 
     using EventType = EventKey;
     virtual ~Subscriber() = default;

@@ -18,12 +18,12 @@ namespace jam::se {
 
    public:
     // Disable copying
-    SyncDispatcher(const SyncDispatcher&) = delete;
-    SyncDispatcher& operator=(const SyncDispatcher&) = delete;
-    
+    SyncDispatcher(const SyncDispatcher &) = delete;
+    SyncDispatcher &operator=(const SyncDispatcher &) = delete;
+
     // Disable moving
-    SyncDispatcher(SyncDispatcher&&) = delete;
-    SyncDispatcher& operator=(SyncDispatcher&&) = delete;
+    SyncDispatcher(SyncDispatcher &&) = delete;
+    SyncDispatcher &operator=(SyncDispatcher &&) = delete;
 
     static constexpr uint32_t kHandlersCount = kCount;
 

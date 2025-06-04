@@ -35,12 +35,12 @@ namespace jam::se {
             SubscriptionEngine<EventKey, Dispatcher, Receiver>> {
    public:
     // Disable copying
-    SubscriptionEngine(const SubscriptionEngine&) = delete;
-    SubscriptionEngine& operator=(const SubscriptionEngine&) = delete;
-    
+    SubscriptionEngine(const SubscriptionEngine &) = delete;
+    SubscriptionEngine &operator=(const SubscriptionEngine &) = delete;
+
     // Disable moving
-    SubscriptionEngine(SubscriptionEngine&&) = delete;
-    SubscriptionEngine& operator=(SubscriptionEngine&&) = delete;
+    SubscriptionEngine(SubscriptionEngine &&) = delete;
+    SubscriptionEngine &operator=(SubscriptionEngine &&) = delete;
 
     using EventKeyType = EventKey;
     using ReceiverType = Receiver;

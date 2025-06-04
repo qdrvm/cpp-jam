@@ -31,12 +31,12 @@ namespace jam::se {
             SubscriptionManager<kHandlersCount, kPoolSize>> {
    public:
     // Disable copying
-    SubscriptionManager(const SubscriptionManager&) = delete;
-    SubscriptionManager& operator=(const SubscriptionManager&) = delete;
-    
+    SubscriptionManager(const SubscriptionManager &) = delete;
+    SubscriptionManager &operator=(const SubscriptionManager &) = delete;
+
     // Disable moving
-    SubscriptionManager(SubscriptionManager&&) = delete;
-    SubscriptionManager& operator=(SubscriptionManager&&) = delete;
+    SubscriptionManager(SubscriptionManager &&) = delete;
+    SubscriptionManager &operator=(SubscriptionManager &&) = delete;
 
     using Dispatcher = jam::se::IDispatcher;
 

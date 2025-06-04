@@ -6,13 +6,12 @@
 
 #pragma once
 
-#include "app/application.hpp"
-
 #include <memory>
 
+#include <metrics/registry.hpp>
 #include <qtils/strict_sptr.hpp>
 
-#include <metrics/registry.hpp>
+#include "app/application.hpp"
 
 namespace jam {
   class Watchdog;

@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include <optional>
 #include <memory>
+#include <optional>
 
 #include "scheduler.hpp"
 

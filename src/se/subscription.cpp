@@ -8,8 +8,4 @@
 
 #include <mutex>
 
-namespace jam::se {
-
-
-
-}  // namespace jam::se
+namespace jam::se {}  // namespace jam::se

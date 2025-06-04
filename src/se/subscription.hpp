@@ -19,9 +19,8 @@ namespace jam::se {
   template <typename ObjectType, typename... EventData>
   struct SubscriberCreator {
     template <EventTypes key, typename F, typename... Args>
-    static auto create(
-      Subscription &se,
-      SubscriptionEngineHandlers tid,
+    static auto create(Subscription &se,
+                       SubscriptionEngineHandlers tid,
                        F &&callback,
                        Args &&...args) {
       auto subscriber = BaseSubscriber<ObjectType, EventData...>::create(

@@ -95,7 +95,7 @@ namespace jam::injector {
   NodeInjector::NodeInjector(std::shared_ptr<log::LoggingSystem> logsys,
                              std::shared_ptr<app::Configuration> config)
       : pimpl_{std::make_unique<NodeInjectorImpl>(
-          makeNodeInjector(std::move(logsys), std::move(config)))} {}
+            makeNodeInjector(std::move(logsys), std::move(config)))} {}
 
   std::shared_ptr<app::Application> NodeInjector::injectApplication() {
     return pimpl_->injector_
@@ -103,8 +103,7 @@ namespace jam::injector {
   }
 
   std::shared_ptr<Subscription> NodeInjector::getSE() {
-    return pimpl_->injector_
-        .template create<std::shared_ptr<Subscription>>();
+    return pimpl_->injector_.template create<std::shared_ptr<Subscription>>();
   }
 
 }  // namespace jam::injector

@@ -43,7 +43,7 @@ namespace {
                std::shared_ptr<Configuration> appcfg) {
     auto injector = std::make_unique<NodeInjector>(logsys, appcfg);
     qtils::FinalAction dispose_se_on_exit(
-      [se_manager{injector->getSE()}] { se_manager->dispose(); });
+        [se_manager{injector->getSE()}] { se_manager->dispose(); });
 
     // Load modules
     {

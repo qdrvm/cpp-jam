@@ -21,7 +21,7 @@ namespace jam::loaders {
       : public std::enable_shared_from_this<ExampleLoader>,
         public Loader,
         public modules::ExampleModuleLoader {
-    struct __T{};
+    struct __T {};
     std::shared_ptr<log::LoggingSystem> logsys_;
 
     using InitCompleteSubscriber = BaseSubscriber<__T>;
@@ -50,15 +50,15 @@ namespace jam::loaders {
         auto module_internal = (*function)(shared_from_this(), logsys_);
         on_init_complete_ = se::SubscriberCreator<__T>::template create<
             EventTypes::kOnTestOperationComplete>(
-              *se_manager,
-            SubscriptionEngineHandlers::kTest, [module_internal](auto &) {
+            *se_manager,
+            SubscriptionEngineHandlers::kTest,
+            [module_internal](auto &) {
               if (auto m = module_internal.lock()) {
                 m->on_loaded_success();
               }
             });
 
-            se_manager->notify(
-            jam::EventTypes::kOnTestOperationComplete);
+        se_manager->notify(jam::EventTypes::kOnTestOperationComplete);
       }
     }
   };
