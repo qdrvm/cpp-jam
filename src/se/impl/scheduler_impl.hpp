@@ -21,7 +21,7 @@
 
 namespace jam::se {
 
-  class SchedulerBase : public IScheduler, utils::NoCopy, utils::NoMove {
+  class SchedulerBase : public IScheduler {
    private:
     using Time = std::chrono::high_resolution_clock;
     using Timepoint = std::chrono::time_point<Time>;
@@ -118,6 +118,14 @@ namespace jam::se {
     }
 
    public:
+    // Disable copying
+    SchedulerBase(const SchedulerBase&) = delete;
+    SchedulerBase& operator=(const SchedulerBase&) = delete;
+    
+    // Disable moving  
+    SchedulerBase(SchedulerBase&&) = delete;
+    SchedulerBase& operator=(SchedulerBase&&) = delete;
+
     SchedulerBase() : is_busy_(false) {
       proceed_.test_and_set();
     }

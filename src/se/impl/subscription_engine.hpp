@@ -32,10 +32,16 @@ namespace jam::se {
   class SubscriptionEngine final
       : public IDisposable,
         public std::enable_shared_from_this<
-            SubscriptionEngine<EventKey, Dispatcher, Receiver>>,
-        utils::NoMove,
-        utils::NoCopy {
+            SubscriptionEngine<EventKey, Dispatcher, Receiver>> {
    public:
+    // Disable copying
+    SubscriptionEngine(const SubscriptionEngine&) = delete;
+    SubscriptionEngine& operator=(const SubscriptionEngine&) = delete;
+    
+    // Disable moving
+    SubscriptionEngine(SubscriptionEngine&&) = delete;
+    SubscriptionEngine& operator=(SubscriptionEngine&&) = delete;
+
     using EventKeyType = EventKey;
     using ReceiverType = Receiver;
     using SubscriberType = Receiver;

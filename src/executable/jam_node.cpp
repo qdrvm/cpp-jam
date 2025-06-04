@@ -101,17 +101,6 @@ struct Channel {
     using Sender = Endpoint<_Sender>;
 };
 
-void tttt() {
-  Channel<int>::Receiver r;
-  Channel<int>::Sender s;
-
-  r.register_opp(s);
-  s.register_opp(r);
-
-  int q = 10;
-  s.set(q);
-}
-
 namespace {
   void wrong_usage() {
     std::cerr << "Wrong usage.\n"
@@ -152,14 +141,6 @@ namespace {
             loaders.emplace_back(loader);
             loader->start();
           }
-        }         if ("PVM_Module_Rust" == module->get_loader_id()) {
-          // auto loader = std::make_shared<jam::loaders::PVMBindingsLoaderV1>(
-          //     *injector, logsys, module);
-          // if (auto info = loader->module_info()) {
-          //   SL_INFO(logger, "> Module: {} [{}]", *info, module->get_path());
-          //   loaders.emplace_back(loader);
-          //   loader->start();
-          // }
         }
       }
     }
@@ -168,7 +149,6 @@ namespace {
     auto app = injector->injectApplication();
     SL_INFO(logger, "Node started. Version: {} ", appcfg->nodeVersion());
 
-    tttt();
     app->run();
 
     SL_INFO(logger, "Node stopped");

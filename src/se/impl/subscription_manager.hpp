@@ -28,10 +28,16 @@ namespace jam::se {
   template <uint32_t kHandlersCount, uint32_t kPoolSize>
   class SubscriptionManager final
       : public std::enable_shared_from_this<
-            SubscriptionManager<kHandlersCount, kPoolSize>>,
-        utils::NoMove,
-        utils::NoCopy {
+            SubscriptionManager<kHandlersCount, kPoolSize>> {
    public:
+    // Disable copying
+    SubscriptionManager(const SubscriptionManager&) = delete;
+    SubscriptionManager& operator=(const SubscriptionManager&) = delete;
+    
+    // Disable moving
+    SubscriptionManager(SubscriptionManager&&) = delete;
+    SubscriptionManager& operator=(SubscriptionManager&&) = delete;
+
     using Dispatcher = jam::se::IDispatcher;
 
    private:
@@ -73,7 +79,7 @@ namespace jam::se {
         {
           std::shared_lock lock(engines_cs_);
           for (auto &descriptor : engines_) {
-            utils::reinterpret_pointer_cast<IDisposable>(descriptor.second)
+            std::reinterpret_pointer_cast<IDisposable>(descriptor.second)
                 ->dispose();
           }
         }
@@ -98,12 +104,12 @@ namespace jam::se {
       {
         std::shared_lock lock(engines_cs_);
         if (auto it = engines_.find(engineId); it != engines_.end()) {
-          return utils::reinterpret_pointer_cast<EngineType>(it->second);
+          return std::reinterpret_pointer_cast<EngineType>(it->second);
         }
       }
       std::unique_lock lock(engines_cs_);
       if (auto it = engines_.find(engineId); it != engines_.end()) {
-        return utils::reinterpret_pointer_cast<EngineType>(it->second);
+        return std::reinterpret_pointer_cast<EngineType>(it->second);
       }
 
       /// To be sure IDisposable is the first base class, because of later cast
@@ -114,7 +120,7 @@ namespace jam::se {
                  reinterpret_cast<EngineType *>(0x1))));
 
       auto obj = std::make_shared<EngineType>(dispatcher_);
-      engines_[engineId] = utils::reinterpret_pointer_cast<void>(obj);
+      engines_[engineId] = std::reinterpret_pointer_cast<void>(obj);
       return obj;
     }
 
@@ -152,7 +158,7 @@ namespace jam::se {
       {
         std::shared_lock lock(engines_cs_);
         if (auto it = engines_.find(engineId); it != engines_.end()) {
-          engine = utils::reinterpret_pointer_cast<EngineType>(it->second);
+          engine = std::reinterpret_pointer_cast<EngineType>(it->second);
         } else {
           return;
         }

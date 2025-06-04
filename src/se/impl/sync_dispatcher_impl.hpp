@@ -12,13 +12,21 @@
 namespace jam::se {
 
   template <uint32_t kCount, uint32_t kPoolSize>
-  class SyncDispatcher final : public IDispatcher,
-                               utils::NoCopy,
-                               utils::NoMove {
+  class SyncDispatcher final : public IDispatcher {
    private:
     using Parent = IDispatcher;
 
    public:
+    // Disable copying
+    SyncDispatcher(const SyncDispatcher&) = delete;
+    SyncDispatcher& operator=(const SyncDispatcher&) = delete;
+    
+    // Disable moving
+    SyncDispatcher(SyncDispatcher&&) = delete;
+    SyncDispatcher& operator=(SyncDispatcher&&) = delete;
+
+    static constexpr uint32_t kHandlersCount = kCount;
+
     SyncDispatcher() = default;
 
     void dispose() override {}
