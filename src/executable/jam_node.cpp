@@ -38,17 +38,14 @@ namespace {
   using jam::injector::NodeInjector;
   using jam::log::LoggingSystem;
 
-
   int run_node(std::shared_ptr<LoggingSystem> logsys,
                std::shared_ptr<Configuration> appcfg) {
     auto injector = std::make_unique<NodeInjector>(logsys, appcfg);
-    qtils::FinalAction dispose_se_on_exit(
-        [se_manager{injector->getSE()}] { se_manager->dispose(); });
-
     // Load modules
+    std::deque<std::unique_ptr<jam::loaders::Loader>> loaders;
     {
       auto logger = logsys->getLogger("Modules", "jam");
-      const std::string path(appcfg->modulesDir());
+      const std::string path("modules");
 
       jam::modules::ModuleLoader module_loader(path);
       auto modules = module_loader.get_modules();
@@ -57,16 +54,10 @@ namespace {
         return EXIT_FAILURE;
       }
 
-      std::deque<std::shared_ptr<jam::loaders::Loader>> loaders;
       for (const auto &module : modules.value()) {
-        if ("ExampleLoader" == module->get_loader_id()) {
-          auto loader = std::make_shared<jam::loaders::ExampleLoader>(
-              *injector, logsys, module);
-          if (auto info = loader->module_info()) {
-            SL_INFO(logger, "> Module: {} [{}]", *info, module->get_path());
-            loaders.emplace_back(loader);
-            loader->start();
-          }
+        auto loader = injector->register_loader(module);
+        if (loader) {
+          loaders.emplace_back(std::move(loader));
         }
       }
     }

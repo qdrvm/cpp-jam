@@ -16,16 +16,24 @@
 #include "log/logger.hpp"
 #include "metrics/histogram_timer.hpp"
 #include "metrics/metrics.hpp"
+#include "se/impl/subscription_manager.hpp"
 
 namespace jam::app {
 
+  SeHolder::SeHolder(se_ptr se) : se_(std::move(se)) {}
+
+  SeHolder::~SeHolder() {
+    se_->dispose();
+  }
+
   ApplicationImpl::ApplicationImpl(
-      qtils::StrictSharedPtr<log::LoggingSystem> logsys,
-      qtils::StrictSharedPtr<Configuration> config,
-      qtils::StrictSharedPtr<StateManager> state_manager,
-      qtils::StrictSharedPtr<Watchdog> watchdog,
-      qtils::StrictSharedPtr<metrics::Exposer> metrics_exposer,
-      qtils::StrictSharedPtr<clock::SystemClock> system_clock)
+      std::shared_ptr<log::LoggingSystem> logsys,
+      std::shared_ptr<Configuration> config,
+      std::shared_ptr<StateManager> state_manager,
+      std::shared_ptr<Watchdog> watchdog,
+      std::shared_ptr<metrics::Exposer> metrics_exposer,
+      std::shared_ptr<clock::SystemClock> system_clock,
+      std::shared_ptr<SeHolder>)
       : logger_(logsys->getLogger("Application", "application")),
         app_config_(std::move(config)),
         state_manager_(std::move(state_manager)),
@@ -34,13 +42,15 @@ namespace jam::app {
         system_clock_(std::move(system_clock)),
         metrics_registry_(metrics::createRegistry()) {
     // Metric for exposing name and version of node
-    metrics::GaugeHelper(
-        "jam_build_info",
-        "A metric with a constant '1' value labeled by name, version",
-        std::map<std::string, std::string>{
-            {"name", app_config_->nodeName()},
-            {"version", app_config_->nodeVersion()}})
-        ->set(1);
+    constexpr auto buildInfoMetricName = "jam_build_info";
+    metrics_registry_->registerGaugeFamily(
+        buildInfoMetricName,
+        "A metric with a constant '1' value labeled by name, version");
+    auto metric_build_info = metrics_registry_->registerGaugeMetric(
+        buildInfoMetricName,
+        {{"name", app_config_->nodeName()},
+         {"version", app_config_->nodeVersion()}});
+    metric_build_info->set(1);
   }
 
   void ApplicationImpl::run() {

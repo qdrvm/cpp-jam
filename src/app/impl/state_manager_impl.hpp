@@ -7,10 +7,9 @@
 #pragma once
 
 #include <condition_variable>
+#include <csignal>
 #include <mutex>
 #include <queue>
-
-#include <qtils/strict_sptr.hpp>
 
 #include "app/state_manager.hpp"
 #include "utils/ctor_limiters.hpp"
@@ -29,7 +28,7 @@ namespace jam::app {
         public StateManager,
         public std::enable_shared_from_this<StateManagerImpl> {
    public:
-    StateManagerImpl(qtils::StrictSharedPtr<log::LoggingSystem> logging_system);
+    StateManagerImpl(std::shared_ptr<log::LoggingSystem> logging_system);
 
     ~StateManagerImpl() override;
 
@@ -66,8 +65,8 @@ namespace jam::app {
 
     void shutdownRequestWaiting();
 
-    qtils::StrictSharedPtr<soralog::Logger> logger_;
-    qtils::StrictSharedPtr<log::LoggingSystem> logging_system_;
+    std::shared_ptr<soralog::Logger> logger_;
+    std::shared_ptr<log::LoggingSystem> logging_system_;
 
     std::atomic<State> state_ = State::Init;
 

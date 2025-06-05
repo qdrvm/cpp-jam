@@ -23,8 +23,6 @@ namespace jam::app {
 
     [[nodiscard]] std::string nodeVersion() const;
     [[nodiscard]] std::string nodeName() const;
-    [[nodiscard]] std::filesystem::path basePath() const;
-    [[nodiscard]] std::filesystem::path modulesDir() const;
 
     [[nodiscard]] std::optional<Endpoint> metricsEndpoint() const;
 
@@ -33,8 +31,6 @@ namespace jam::app {
 
     std::string version_;
     std::string name_;
-    std::filesystem::path base_path_;
-    std::filesystem::path modules_dir_;
 
     Endpoint metrics_endpoint_;
     std::optional<bool> metrics_enabled_;

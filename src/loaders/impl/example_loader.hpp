@@ -7,6 +7,7 @@
 #pragma once
 
 #include <iostream>
+#include <memory>
 
 #include <soralog/logging_system.hpp>
 
@@ -28,24 +29,25 @@ namespace jam::loaders {
     std::shared_ptr<InitCompleteSubscriber> on_init_complete_;
 
    public:
-    ExampleLoader(injector::NodeInjector &injector,
-                  std::shared_ptr<log::LoggingSystem> logsys,
-                  std::shared_ptr<modules::Module> module)
-        : Loader(injector, std::move(module)), logsys_(std::move(logsys)) {}
+    ExampleLoader(std::shared_ptr<log::LoggingSystem> logsys,
+                  std::shared_ptr<Subscription> se_manager)
+        : Loader(std::move(logsys), std::move(se_manager)) {}
 
     ExampleLoader(const ExampleLoader &) = delete;
     ExampleLoader &operator=(const ExampleLoader &) = delete;
 
     ~ExampleLoader() = default;
 
-    void start() {
-      auto function = module_->getFunctionFromLibrary<
-          std::weak_ptr<jam::modules::ExampleModule>,
-          std::shared_ptr<modules::ExampleModuleLoader>,
-          std::shared_ptr<log::LoggingSystem>>("query_module_instance");
+    void start(std::shared_ptr<modules::Module> module) {
+      set_module(module);
+      auto function =
+          get_module()
+              ->getFunctionFromLibrary<
+                  std::weak_ptr<jam::modules::ExampleModule>,
+                  std::shared_ptr<modules::ExampleModuleLoader>,
+                  std::shared_ptr<log::LoggingSystem>>("query_module_instance");
 
-      auto se_manager = injector_.getSE();
-
+      auto se_manager = get_se_manager();
       if (function) {
         auto module_internal = (*function)(shared_from_this(), logsys_);
         on_init_complete_ = se::SubscriberCreator<__T>::template create<

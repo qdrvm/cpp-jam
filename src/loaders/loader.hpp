@@ -6,8 +6,20 @@
 
 #pragma once
 
-#include "injector/node_injector.hpp"
+#include <memory>
+#include <optional>
+#include <stdexcept>
+
 #include "modules/module.hpp"
+#include "se/subscription_fwd.hpp"
+
+namespace jam::log {
+  class LoggingSystem;
+}  // namespace jam::log
+
+namespace jam::modules {
+  class Module;
+}  // namespace jam::modules
 
 namespace jam::loaders {
 
@@ -16,24 +28,46 @@ namespace jam::loaders {
     Loader(const Loader &) = delete;
     Loader &operator=(const Loader &) = delete;
 
+    Loader(std::shared_ptr<log::LoggingSystem> logsys,
+           std::shared_ptr<Subscription> se_manager)
+        : logsys_(std::move(logsys)), se_manager_(std::move(se_manager)) {}
+
     virtual ~Loader() = default;
-    virtual void start() = 0;
+    virtual void start(std::shared_ptr<modules::Module>) = 0;
 
     std::optional<const char *> module_info() {
-      auto result =
-          module_->getFunctionFromLibrary<const char *>("module_info");
-      if (result) {
-        return (*result)();
+      if (module_) {
+        auto result =
+            module_->getFunctionFromLibrary<const char *>("module_info");
+        if (result) {
+          return (*result)();
+        }
       }
       return std::nullopt;
     }
 
-    Loader(injector::NodeInjector &injector,
-           std::shared_ptr<modules::Module> module)
-        : injector_(injector), module_(std::move(module)) {}
+    std::shared_ptr<log::LoggingSystem> get_logsys() {
+      return logsys_;
+    }
 
-   protected:
-    injector::NodeInjector &injector_;
+    std::shared_ptr<modules::Module> get_module() {
+      if (!module_) {
+        throw std::runtime_error("Module not set");
+      }
+      return module_;
+    }
+
+    void set_module(std::shared_ptr<modules::Module> module) {
+      module_ = module;
+    }
+
+    std::shared_ptr<Subscription> get_se_manager() {
+      return se_manager_;
+    }
+
+   private:
     std::shared_ptr<modules::Module> module_;
+    std::shared_ptr<log::LoggingSystem> logsys_;
+    std::shared_ptr<Subscription> se_manager_;
   };
 }  // namespace jam::loaders
