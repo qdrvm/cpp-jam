@@ -47,20 +47,14 @@ struct fmt::formatter<Indent> {
 
 #define DIFF_M(m) diff_m(indent, v1.m, v2.m, #m)
 
-enum class color { red = 31, green = 32 };
-template <typename... T>
-void _diff(color color, fmt::format_string<T...> f, T &&...a) {
-  fmt::print("\x1b[0;{}m", (int)color);
-  fmt::print(f, static_cast<T &&>(a)...);
-  fmt::println("\x1b[0;0m");
-}
-template <typename... T>
-void diff1(fmt::format_string<T...> f, T &&...a) {
-  _diff(color::red, f, static_cast<T &&>(a)...);
-}
-template <typename... T>
-void diff2(fmt::format_string<T...> f, T &&...a) {
-  _diff(color::green, f, static_cast<T &&>(a)...);
+template <typename T>
+void print_difference(Indent indent, fmt::format_string<T> f, T &&a, T &&b) {
+  fmt::print("\x1b[0;31m{}actual:   \x1b[0;33m", indent);
+  fmt::print(f, static_cast<T &&>(a));
+  fmt::println("\x1b[0;33m", indent);
+  fmt::print("\x1b[0;32m{}expected: \x1b[0;33m", indent);
+  fmt::print(f, static_cast<T &&>(b));
+  fmt::println("\x1b[0;33m", indent);
 }
 
 template <typename T>
@@ -76,7 +70,7 @@ template <typename T>
   requires std::is_integral_v<std::remove_cvref_t<T>>
 DIFF_F(T) {
   if (v1 != v2) {
-    fmt::println("{}{} != {}", indent, v1, v2);
+    print_difference(indent, "{}", v1, v2);
   }
 }
 
@@ -95,7 +89,7 @@ DIFF_F(std::optional<T>) {
   std::string_view o[] = {"None", "Some"};
   auto i1 = v1 ? 1 : 0, i2 = v2 ? 1 : 0;
   if (i1 != i2) {
-    fmt::println("{}{} != {}", indent, o[i1], o[i2]);
+    print_difference(indent, "{}", o[i1], o[i2]);
     return;
   }
   fmt::println("{}{}", indent, o[i1]);
@@ -114,7 +108,7 @@ void diff(Indent indent, const T &_v1, const T &_v2) {
   }
   std::span v1{_v1}, v2{_v2};
   if (v1.size() != v2.size()) {
-    fmt::println("{}{} != {}", indent, v1.size(), v2.size());
+    print_difference(indent, "{}", v1.size(), v2.size());
     return;
   }
   fmt::println("{}{}", indent, v1.size());
@@ -131,8 +125,7 @@ void diff(Indent indent, const qtils::BytesIn &v1, const qtils::BytesIn &v2) {
   if (v1.size() == v2.size() && memcmp(v1.data(), v2.data(), v1.size()) == 0) {
     return;
   }
-  diff1("{}- {:x}", indent, v1);
-  diff2("{}+ {:x}", indent, v2);
+  print_difference(indent, "{:xx}", v1, v2);
 }
 
 template <typename E>
@@ -150,7 +143,7 @@ void diff_e(Indent indent, const E &v1, const E &v2, const auto &names) {
     return fmt::format("<wrong_value:{}>", (IntType)v);
   };
 
-  fmt::println("{}{} != {}", indent, get_name(v1), get_name(v2));
+  print_difference(indent, "{}", get_name(v1), get_name(v2));
 }
 
 template <size_t I, typename... Ts>
@@ -177,7 +170,7 @@ void diff_v(Indent indent,
     return;
   }
   if (v1.index() != v2.index()) {
-    fmt::println("{}{} != {}", indent, tags[v1.index()], tags[v2.index()]);
+    print_difference(indent, "{}",  tags[v1.index()],  tags[v2.index()]);
     return;
   }
 

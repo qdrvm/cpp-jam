@@ -10,11 +10,11 @@
 #include <unordered_map>
 
 #include <crypto/bandersnatch.hpp>
+#include <jam_types/common-types.hpp>
+#include <jam_types/config-full.hpp>
 #include <qtils/cxx23/ranges/contains.hpp>
 #include <qtils/tagged.hpp>
-#include <jam_types/common-types.hpp>
 #include <test-vectors/common.hpp>
-#include <jam_types/config-full.hpp>
 
 namespace jam::safrole {
   namespace types = jam::test_vectors;
@@ -39,16 +39,11 @@ namespace jam::safrole {
 
   using GammaA = decltype(types::safrole::State::gamma_a);
   using GammaZ = decltype(types::safrole::State::gamma_z);
-  using BandersnatchKeys = decltype(types::EpochMark::validators);
+  using EpochMarkValidatorKeysVec = decltype(types::EpochMark::validators);
 
-  inline auto &ring_ctx(const types::Config &config) {
+  inline auto &ring_ctx(uint32_t n) {
     static std::unordered_map<uint32_t, crypto::bandersnatch::Ring> map;
-    auto &n = config.validators_count;
-    auto it = map.find(n);
-    if (it == map.end()) {
-      it = map.emplace(n, crypto::bandersnatch::Ring{n}).first;
-    }
-    return it->second;
+    return map.try_emplace(n, crypto::bandersnatch::Ring{n}).first->second;
   }
 
   // [GP 0.4.5 I.4.5]
@@ -62,21 +57,33 @@ namespace jam::safrole {
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L269
   constexpr uint32_t K = 16;
 
-  inline BandersnatchKeys bandersnatch_keys(
-      const types::ValidatorsData &validators) {
-    BandersnatchKeys keys;
-    keys.reserve(validators.size());
-    for (auto &validator : validators) {
-      keys.emplace_back(validator.bandersnatch);
+  inline std::vector<test_vectors::BandersnatchPublic> bandersnatch_keys(
+      const types::ValidatorsData &validators_data) {
+    std::vector<test_vectors::BandersnatchPublic> result;
+    result.reserve(validators_data.size());
+    std::ranges::transform(validators_data,
+                           std::back_inserter(result),
+                           [](const auto &item) { return item.bandersnatch; });
+    return result;
+  }
+
+  template <typename KeySetT>
+  inline EpochMarkValidatorKeysVec epoch_mark_validator_keys(
+      const KeySetT &keys) {
+    EpochMarkValidatorKeysVec epoch_mark_validator_keys_vec;
+    epoch_mark_validator_keys_vec.reserve(keys.size());
+    for (auto &item : keys) {
+      epoch_mark_validator_keys_vec.emplace_back(item.bandersnatch,
+                                                 item.ed25519);
     }
-    return keys;
+    return epoch_mark_validator_keys_vec;
   }
 
   // [GP 0.4.5 G 340]
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/bandersnatch.tex#L15
   inline GammaZ mathcal_O(const types::Config &config,
-                          const BandersnatchKeys &pks) {
-    return ring_ctx(config).commitment(pks).value();
+                          const std::vector<types::BandersnatchPublic> &keys) {
+    return ring_ctx(config.validators_count).commitment(keys).value();
   }
 
   // [GP 0.4.5 G 341]
@@ -86,7 +93,9 @@ namespace jam::safrole {
       const GammaZ &gamma_z,
       qtils::BytesIn input,
       const BandersnatchSignature &signature) {
-    return ring_ctx(config).verifier(gamma_z).verify(input, signature);
+    return ring_ctx(config.validators_count)
+        .verifier(gamma_z)
+        .verify(input, signature);
   }
 
   // [GP 0.4.5 6.1 47]
@@ -198,8 +207,10 @@ namespace jam::safrole {
 
     // [GP 0.4.5 6.3 59]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L101
+    // Replace offenter's key by zeroed
     const auto phi = [&](const types::ValidatorsData &k) {
       types::ValidatorsData k_tick;
+      k_tick.reserve(k.size());
       for (auto &validator : k) {
         k_tick.emplace_back(
             qtils::cxx23::ranges::contains(post_offenders, validator.ed25519)
@@ -208,18 +219,37 @@ namespace jam::safrole {
       }
       return k_tick;
     };
+
     // [GP 0.4.5 6.3 58]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L97
     const auto [gamma_tick_k, kappa_tick, lambda_tick, gamma_tick_z] =
-        change_epoch ? [&](const types::ValidatorsData &gamma_tick_k) {
-          return std::tuple{
-              gamma_tick_k,
-              gamma_k,
-              kappa,
-              mathcal_O(config, bandersnatch_keys(gamma_tick_k)),
-          };
-        }(phi(iota))
-                     : std::tuple{gamma_k, kappa, lambda, gamma_z};
+        change_epoch  //
+            ? [&](const types::ValidatorsData &validators_data) {
+                return std::tuple{
+                    validators_data,
+                    gamma_k,
+                    kappa,
+                    mathcal_O(config, bandersnatch_keys(validators_data)),
+                };
+              }(phi(iota))
+            : std::tuple{gamma_k, kappa, lambda, gamma_z};
+
+    /*
+
+        // Prior-scheduled validator keys and metadata.
+        iota
+
+        // Zeroize offenders' keys
+        val_data = phi(iota)
+
+        // Get vector of bandersnatch keys
+        kb = bandersnatch_keys(val_data)
+
+        gamma_z = mathcal_O(config, kb)
+
+
+     */
+
 
     // [GP 0.4.5 6.4 67]
     // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/safrole.tex#L147
@@ -349,10 +379,10 @@ namespace jam::safrole {
     // [GP 0.5.2 6.6 (6.27)]
     std::optional<types::safrole::EpochMark> epoch_mark{};
     if (change_epoch) {
-      epoch_mark =
-          types::EpochMark{.entropy = eta_tick_1,
-                           .tickets_entropy = eta_tick_2,
-                           .validators = bandersnatch_keys(gamma_tick_k)};
+      epoch_mark = types::EpochMark{
+          .entropy = eta_tick_1,
+          .tickets_entropy = eta_tick_2,
+          .validators = epoch_mark_validator_keys(gamma_tick_k)};
     };
 
     return {
