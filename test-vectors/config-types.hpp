@@ -18,7 +18,7 @@ namespace jam {
    public:
     ConfigVec() = default;  // To make non-aggregate
 
-    static size_t configSize(const auto &config) {
+    static auto configSize(const auto &config) {
       return config.get(ConfigField{});
     }
 
