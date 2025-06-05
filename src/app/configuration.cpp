@@ -22,6 +22,10 @@ namespace jam::app {
     return base_path_;
   }
 
+  std::filesystem::path Configuration::specFile() const {
+    return spec_file_;
+  }
+
   std::filesystem::path Configuration::modulesDir() const {
     return modules_dir_;
   }

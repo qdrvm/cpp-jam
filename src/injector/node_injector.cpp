@@ -23,6 +23,7 @@
 #include "app/configuration.hpp"
 #include "app/impl/application_impl.hpp"
 #include "app/impl/state_manager_impl.hpp"
+#include "app/impl/chain_spec_impl.hpp"
 #include "app/impl/watchdog.hpp"
 #include "clock/impl/clock_impl.hpp"
 #include "injector/bind_by_lambda.hpp"
@@ -76,6 +77,7 @@ namespace {
         di::bind<storage::BufferStorage>.to<storage::InMemoryStorage>(),
         //di::bind<storage::SpacedStorage>.to<storage::InMemorySpacedStorage>(),
         di::bind<storage::SpacedStorage>.to<storage::RocksDb>(),
+        di::bind<app::ChainSpec>.to<app::ChainSpecImpl>(),
 
         // user-defined overrides...
         std::forward<decltype(args)>(args)...);

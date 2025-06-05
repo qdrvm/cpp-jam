@@ -8,7 +8,6 @@
 #include <filesystem>
 #include <string>
 
-#include <filesystem>
 #include <boost/asio/ip/tcp.hpp>
 #include <utils/ctor_limiters.hpp>
 
@@ -25,6 +24,7 @@ namespace jam::app {
     [[nodiscard]] std::string nodeVersion() const;
     [[nodiscard]] std::string nodeName() const;
     [[nodiscard]] std::filesystem::path basePath() const;
+    [[nodiscard]] std::filesystem::path specFile() const;
     [[nodiscard]] std::filesystem::path modulesDir() const;
 
     [[nodiscard]] std::optional<Endpoint> metricsEndpoint() const;
@@ -35,6 +35,7 @@ namespace jam::app {
     std::string version_;
     std::string name_;
     std::filesystem::path base_path_;
+    std::filesystem::path spec_file_;
     std::filesystem::path modules_dir_;
 
     Endpoint metrics_endpoint_;
