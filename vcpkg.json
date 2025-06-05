@@ -15,6 +15,7 @@
     "prometheus-cpp",
     "ftxui",
     "rocksdb"
+    "boost-property-tree"
   ],
   "features": {
     "test": { "description": "Test", "dependencies": ["gtest"]}
