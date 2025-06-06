@@ -20,8 +20,10 @@ namespace jam {
       static_cast<uint32_t>(SubscriptionEngineHandlers::kTotalCount);
 
   enum class EventTypes {
-    // TEST
-    kOnTestOperationComplete
+    // -- Modules
+
+    /// All available modules are loaded
+    LoadingIsFinished,
   };
 
   static constexpr uint32_t kThreadPoolSize = 3u;

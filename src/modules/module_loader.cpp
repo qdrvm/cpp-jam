@@ -19,6 +19,10 @@ OUTCOME_CPP_DEFINE_CATEGORY(jam::modules, ModuleLoader::Error, e) {
       return COMPONENT_NAME ": library doesn't provide loader_id function";
     case E::UnexpectedLoaderId:
       return COMPONENT_NAME ": unexpected loader id";
+    case E::NoModuleInfoExport:
+      return COMPONENT_NAME ": library doesn't provide module_info function";
+    case E::UnexpectedModuleInfo:
+      return COMPONENT_NAME ": unexpected module info";
   }
   return COMPONENT_NAME ": unknown error";
 }
@@ -71,7 +75,20 @@ namespace jam::modules {
       return Error::UnexpectedLoaderId;
     }
 
-    auto module = Module::create(module_path, std::move(handle), loader_id);
+    typedef const char *(*ModuleInfoFunc)();
+    ModuleInfoFunc module_info_func =
+        (ModuleInfoFunc)dlsym(handle.get(), "module_info");
+
+    if (!loader_id_func) {
+      return Error::NoModuleInfoExport;
+    }
+
+    const char *module_info = module_info_func();
+    if (!module_info) {
+      return Error::UnexpectedModuleInfo;
+    }
+
+    auto module = Module::create(module_path, module_info, std::move(handle), loader_id);
     modules.push_back(module);
     return outcome::success();
   }
