@@ -32,6 +32,8 @@ namespace jam::modules {
       OpenLibraryFailed,
       NoLoaderIdExport,
       UnexpectedLoaderId,
+      NoModuleInfoExport,
+      UnexpectedModuleInfo,
     };
 
     explicit ModuleLoader(const std::string &dir_path) : dir_path_(dir_path) {}

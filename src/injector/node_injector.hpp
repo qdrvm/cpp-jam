@@ -17,6 +17,14 @@ namespace jam::app {
   class Application;
 }  // namespace jam::app
 
+namespace jam::loaders {
+  class Loader;
+}  // namespace jam::loaders
+
+namespace jam::modules {
+  class Module;
+}  // namespace jam::modules
+
 namespace jam::injector {
 
   /**
@@ -29,6 +37,9 @@ namespace jam::injector {
                           std::shared_ptr<app::Configuration> configuration);
 
     std::shared_ptr<app::Application> injectApplication();
+
+    std::unique_ptr<loaders::Loader> register_loader(
+        std::shared_ptr<modules::Module> module);
 
    protected:
     std::shared_ptr<class NodeInjectorImpl> pimpl_;
