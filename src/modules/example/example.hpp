@@ -6,36 +6,30 @@
 
 #pragma once
 
-#include <metrics/impl/session_impl.hpp>
-#include <modules/module_loader.hpp>
-#include <qtils/shared_ref.hpp>
-
-namespace jam::modules {
-  class ExampleModule;
-  struct ExampleModuleLoader {
-    virtual ~ExampleModuleLoader() = default;
-  };
-
-  struct ExampleModule {
-    virtual ~ExampleModule() = default;
-    virtual void on_loaded_success() = 0;
-  };
-}  // namespace jam::modules
-
-// class BlockTree;
+#include <log/logger.hpp>
+#include <modules/example/interfaces.hpp>
 
 namespace jam::modules {
 
-  // class ExampleModule : public Singleton<ExampleModule> {
-  //  public:
-  //   static std::shared_ptr<ExampleModule> instance;
-  //   CREATE_SHARED_METHOD(ExampleModule);
+  class ExampleModuleImpl final : public jam::modules::ExampleModule {
+    jam::modules::ExampleModuleLoader &loader_;
+    qtils::SharedRef<jam::log::LoggingSystem> logsys_;
+    jam::log::Logger logger_;
 
-  //   ExampleModule(qtils::StrictSharedPtr<ExampleModuleLoader> loader,
-  //                 qtils::StrictSharedPtr<log::LoggingSystem> logging_system);
+   public:
+    ExampleModuleImpl(jam::modules::ExampleModuleLoader &loader,
+                      qtils::SharedRef<jam::log::LoggingSystem> logsys);
 
-  //   qtils::StrictSharedPtr<ExampleModuleLoader> loader_;
-  //   log::Logger logger_;
-  // };
+    void on_loaded_success() override;
+
+    void on_loading_is_finished() override;
+
+    void on_request(std::shared_ptr<const std::string> s) override;
+
+    void on_response(std::shared_ptr<const std::string> s) override;
+
+    void on_notify(std::shared_ptr<const std::string> s) override;
+  };
+
 
 }  // namespace jam::modules

@@ -24,6 +24,19 @@ namespace jam {
 
     /// All available modules are loaded
     LoadingIsFinished,
+
+    // -- Example
+
+    /// Example module is loaded
+    ExampleModuleIsLoaded,
+    /// Example module is unloaded
+    ExampleModuleIsUnloaded,
+    /// Example notification
+    ExampleNotification,
+    /// Example request
+    ExampleRequest,
+    /// Example response
+    ExampleResponse,
   };
 
   static constexpr uint32_t kThreadPoolSize = 3u;
