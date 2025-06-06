@@ -11,6 +11,7 @@
 
 #include <boost/di.hpp>
 #include <boost/di/extension/scopes/shared.hpp>
+#include <loaders/impl/example_loader.hpp>
 
 #include "app/configuration.hpp"
 #include "app/impl/application_impl.hpp"
