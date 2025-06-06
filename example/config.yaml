@@ -27,6 +27,8 @@ logging:
             - name: modules
               children:
                 - name: example_module
+                - name: synchronizer_module
+                - name: networking_module
             - name: injector
             - name: application
             - name: rpc

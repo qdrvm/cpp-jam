@@ -94,3 +94,6 @@ add_subdirectory(example)
 
 # Networking module
 add_subdirectory(networking)
+
+# Blockchain synchronizer module
+add_subdirectory(synchronizer)

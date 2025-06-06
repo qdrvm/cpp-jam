@@ -16,7 +16,6 @@
 #include "app/configuration.hpp"
 #include "app/configurator.hpp"
 #include "injector/node_injector.hpp"
-#include "loaders/impl/example_loader.hpp"
 #include "log/logger.hpp"
 #include "loaders/loader.hpp"
 #include "modules/module_loader.hpp"
