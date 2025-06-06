@@ -9,6 +9,8 @@
 #include <memory>
 
 #include "common.hpp"
+#include "utils/ctor_limiters.hpp"
+
 
 namespace jam::se {
 
@@ -22,18 +24,12 @@ namespace jam::se {
    */
   template <typename EventKey, typename Dispatcher, typename... Arguments>
   class Subscriber : public std::enable_shared_from_this<
-                         Subscriber<EventKey, Dispatcher, Arguments...>> {
+                         Subscriber<EventKey, Dispatcher, Arguments...>>,
+                     NonCopyable,
+                     NonMovable {
    public:
     // Default constructor
     Subscriber() = default;
-
-    // Disable copying
-    Subscriber(const Subscriber &) = delete;
-    Subscriber &operator=(const Subscriber &) = delete;
-
-    // Disable moving
-    Subscriber(Subscriber &&) = delete;
-    Subscriber &operator=(Subscriber &&) = delete;
 
     using EventType = EventKey;
     virtual ~Subscriber() = default;

@@ -34,7 +34,7 @@ namespace jam::se {
             assert(key == event_key);
             std::forward<F>(f)(object, std::move(args)...);
           });
-      subscriber->subscribe(0, key, tid);
+      subscriber->subscribe(0, key, static_cast<Dispatcher::Tid>(tid));
       return subscriber;
     }
   };
