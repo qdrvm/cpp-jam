@@ -6,12 +6,14 @@
 
 #pragma once
 
+#include "app/state_manager.hpp"
+
 #include <condition_variable>
-#include <csignal>
 #include <mutex>
 #include <queue>
 
-#include "app/state_manager.hpp"
+#include <qtils/shared_ref.hpp>
+
 #include "utils/ctor_limiters.hpp"
 
 namespace soralog {
@@ -28,7 +30,7 @@ namespace jam::app {
         public StateManager,
         public std::enable_shared_from_this<StateManagerImpl> {
    public:
-    StateManagerImpl(std::shared_ptr<log::LoggingSystem> logging_system);
+    StateManagerImpl(qtils::SharedRef<log::LoggingSystem> logging_system);
 
     ~StateManagerImpl() override;
 
@@ -65,8 +67,8 @@ namespace jam::app {
 
     void shutdownRequestWaiting();
 
-    std::shared_ptr<soralog::Logger> logger_;
-    std::shared_ptr<log::LoggingSystem> logging_system_;
+    qtils::SharedRef<soralog::Logger> logger_;
+    qtils::SharedRef<log::LoggingSystem> logging_system_;
 
     std::atomic<State> state_ = State::Init;
 

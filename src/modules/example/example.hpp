@@ -8,7 +8,7 @@
 
 #include <metrics/impl/session_impl.hpp>
 #include <modules/module_loader.hpp>
-#include <qtils/strict_sptr.hpp>
+#include <qtils/shared_ref.hpp>
 
 namespace jam::modules {
   class ExampleModule;

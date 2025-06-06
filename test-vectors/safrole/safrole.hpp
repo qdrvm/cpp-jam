@@ -54,7 +54,7 @@ namespace jam::safrole {
   // [GP 0.4.5 I.4.5]
   // https://github.com/gavofyork/graypaper/blob/v0.4.5/text/definitions.tex#L303
   // clang-format off
-  constexpr qtils::BytesN<15> X_T = {'j','a','m','_','t','i','c','k','e','t','_','s','e','a','l'};
+  constexpr qtils::ByteArr<15> X_T{'j','a','m','_','t','i','c','k','e','t','_','s','e','a','l'};
   // clang-format on
 
   // The maximum number of tickets which may be submitted in a single extrinsic.

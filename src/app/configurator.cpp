@@ -13,6 +13,7 @@
 #include <boost/program_options.hpp>
 #include <boost/program_options/value_semantic.hpp>
 #include <qtils/outcome.hpp>
+#include <qtils/shared_ref.hpp>
 
 #include "app/build_version.hpp"
 #include "app/configuration.hpp"
@@ -26,6 +27,8 @@ OUTCOME_CPP_DEFINE_CATEGORY(jam::app, Configurator::Error, e) {
       return "CLI Arguments parse failed";
     case E::ConfigFileParseFailed:
       return "Config file parse failed";
+    case E::InvalidValue:
+      return "Result config has invalid values";
   }
   BOOST_UNREACHABLE_RETURN("Unknown log::Error");
 }
@@ -83,23 +86,25 @@ namespace jam::app {
 
     po::options_description general_options("General options", 120, 100);
     general_options.add_options()
-        ("help,h", "show this help message")
-        ("version,v", "show version information")
-        ("name,n", po::value<std::string>(), "set name of node")
-        ("config,c", po::value<std::string>(),  "optional, filepath to load configuration from. Overrides default config values")
+        ("help,h", "Show this help message")
+        ("version,v", "Show version information")
+        ("base_path", po::value<std::string>(), "Set base path. All relative paths will be resolved based on this path.")
+        ("config,c", po::value<std::string>(),  "Optional. Filepath to load configuration from. Overrides default configuration values.")
+        ("name,n", po::value<std::string>(), "Set name of node")
         ("log,l", po::value<std::vector<std::string>>(),
           "Sets a custom logging filter.\n"
-          "Syntax is `<target>=<level>`, e.g. -llibp2p=off.\n"
-          "Log levels (most to least verbose) are trace, debug, verbose, info, warn, error, critical, off.\n"
-          "By default, all targets log `info`.\n"
-          "The global log level can be set with -l<level>.")
+          "Syntax: <target>=<level>, e.g., -llibp2p=off.\n"
+          "Log levels: trace, debug, verbose, info, warn, error, critical, off.\n"
+          "Default: all targets log at `info`.\n"
+          "Global log level can be set with: -l<level>.")
+        ("modules_dir", po::value<std::string>(), "Set path to modules directory.")
         ;
 
     po::options_description metrics_options("Metric options");
     metrics_options.add_options()
-    ("prometheus-disable", "set to disable OpenMetrics")
-    ("prometheus-host", po::value<std::string>(), "address for OpenMetrics over HTTP")
-    ("prometheus-port", po::value<uint16_t>(), "port for OpenMetrics over HTTP")
+    ("prometheus-disable", "Set to disable OpenMetrics")
+    ("prometheus-host", po::value<std::string>(), "Set address for OpenMetrics over HTTP")
+    ("prometheus-port", po::value<uint16_t>(), "Set port for OpenMetrics over HTTP")
         ;
 
     // clang-format on
@@ -191,7 +196,8 @@ namespace jam::app {
   }
 
   outcome::result<std::shared_ptr<Configuration>> Configurator::calculateConfig(
-      std::shared_ptr<soralog::Logger> logger) {
+      qtils::SharedRef<soralog::Logger> logger) {
+    logger_ = std::move(logger);
     OUTCOME_TRY(initGeneralConfig());
     OUTCOME_TRY(initOpenMetricsConfig());
 
@@ -214,13 +220,49 @@ namespace jam::app {
               file_has_error_ = true;
             }
           }
+          auto base_path = section["base_path"];
+          if (base_path.IsDefined()) {
+            if (base_path.IsScalar()) {
+              auto value = base_path.as<std::string>();
+              config_->base_path_ = value;
+            } else {
+              file_errors_ << "E: Value 'general.base_path' must be scalar\n";
+              file_has_error_ = true;
+            }
+          }
+          auto modules_dir = section["modules_dir"];
+          if (modules_dir.IsDefined()) {
+            if (modules_dir.IsScalar()) {
+              auto value = modules_dir.as<std::string>();
+              config_->modules_dir_ = value;
+            } else {
+              file_errors_ << "E: Value 'general.modules_dir' must be scalar\n";
+              file_has_error_ = true;
+            }
+          }
         } else {
-          file_errors_ << "E: Section 'general' defined, but is not scalar\n";
+          file_errors_ << "E: Section 'general' defined, but is not map\n";
           file_has_error_ = true;
         }
       }
     }
 
+    if (file_has_error_) {
+      std::string path;
+      find_argument<std::string>(
+          cli_values_map_, "config", [&](const std::string &value) {
+            path = value;
+          });
+      SL_ERROR(logger_, "Config file `{}` has some problems:", path);
+      std::istringstream iss(file_errors_.str());
+      std::string line;
+      while (std::getline(iss, line)) {
+        SL_ERROR(logger_, "  {}", std::string_view(line).substr(3));
+      }
+      return Error::ConfigFileParseFailed;
+    }
+
+    // Adjust by CLI arguments
     bool fail;
 
     fail = false;
@@ -228,8 +270,45 @@ namespace jam::app {
         cli_values_map_, "name", [&](const std::string &value) {
           config_->name_ = value;
         });
+    find_argument<std::string>(
+        cli_values_map_, "base_path", [&](const std::string &value) {
+          config_->base_path_ = value;
+        });
+    find_argument<std::string>(
+        cli_values_map_, "modules_dir", [&](const std::string &value) {
+          config_->modules_dir_ = value;
+        });
     if (fail) {
       return Error::CliArgsParseFailed;
+    }
+
+    // Check values
+    if (not config_->base_path_.is_absolute()) {
+      SL_ERROR(logger_,
+               "The 'base_path' must be defined as absolute: {}",
+               config_->base_path_.c_str());
+      return Error::InvalidValue;
+    }
+    if (not is_directory(config_->base_path_)) {
+      SL_ERROR(logger_,
+               "The 'base_path' does not exist or is not a directory: {}",
+               config_->base_path_.c_str());
+      return Error::InvalidValue;
+    }
+    current_path(config_->base_path_);
+
+    auto make_absolute = [&](const std::filesystem::path &path) {
+      return weakly_canonical(config_->base_path_.is_absolute()
+                                  ? path
+                                  : (config_->base_path_ / path));
+    };
+
+    config_->modules_dir_ = make_absolute(config_->modules_dir_);
+    if (not is_directory(config_->modules_dir_)) {
+      SL_ERROR(logger_,
+               "The 'modules_dir' does not exist or is not a directory: {}",
+               config_->modules_dir_.c_str());
+      return Error::InvalidValue;
     }
 
     return outcome::success();
