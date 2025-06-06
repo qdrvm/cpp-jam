@@ -9,7 +9,7 @@
 #include <log/logger.hpp>
 #include <qtils/enum_error_code.hpp>
 #include <qtils/outcome.hpp>
-#include <qtils/strict_sptr.hpp>
+#include <qtils/shared_ref.hpp>
 #include <yaml-cpp/yaml.h>
 
 #include "injector/dont_inject.hpp"
@@ -52,7 +52,7 @@ namespace jam::app {
     outcome::result<YAML::Node> getLoggingConfig();
 
     outcome::result<std::shared_ptr<Configuration>> calculateConfig(
-        qtils::StrictSharedPtr<soralog::Logger> logger);
+        qtils::SharedRef<soralog::Logger> logger);
 
    private:
     outcome::result<void> initGeneralConfig();
