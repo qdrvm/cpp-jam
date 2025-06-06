@@ -37,6 +37,21 @@ namespace jam {
     ExampleRequest,
     /// Example response
     ExampleResponse,
+
+    // -- Networking
+
+    /// Networking module is loaded
+    NetworkingIsLoaded,
+    /// Networking module is unloaded
+    NetworkingIsUnloaded,
+    /// Peer connected
+    PeerConnected,
+    /// Peer disconnected
+    PeerDisconnected,
+    /// Data of block is requested
+    BlockRequest,
+    /// Data of block is respond
+    BlockResponse,
   };
 
   static constexpr uint32_t kThreadPoolSize = 3u;

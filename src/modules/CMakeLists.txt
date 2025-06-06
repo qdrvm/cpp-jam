@@ -91,3 +91,6 @@ target_link_libraries(modules
 
 # Example module
 add_subdirectory(example)
+
+# Networking module
+add_subdirectory(networking)
