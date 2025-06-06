@@ -14,6 +14,7 @@
 
 #include "common.hpp"
 #include "subscriber.hpp"
+#include "utils/ctor_limiters.hpp"
 
 namespace jam::se {
 
@@ -33,8 +34,8 @@ namespace jam::se {
       : public IDisposable,
         public std::enable_shared_from_this<
             SubscriptionEngine<EventKey, Dispatcher, Receiver>>,
-        utils::NoMove,
-        utils::NoCopy {
+        NonCopyable,
+        NonMovable {
    public:
     using EventKeyType = EventKey;
     using ReceiverType = Receiver;

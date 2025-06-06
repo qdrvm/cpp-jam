@@ -9,23 +9,28 @@
 #include <memory>
 
 #include "common.hpp"
+#include "utils/ctor_limiters.hpp"
+
 
 namespace jam::se {
 
   using SubscriptionSetId = uint32_t;
 
   /**
-   * Base class that determines the subscriber.
-   * @tparam EventKey type of listening event
+   * Base implementation of subscription system's subscriber.
+   * @tparam EventKey type to specify notified events
    * @tparam Dispatcher thread dispatcher to execute tasks
    * @tparam Arguments list of event arguments
    */
   template <typename EventKey, typename Dispatcher, typename... Arguments>
   class Subscriber : public std::enable_shared_from_this<
                          Subscriber<EventKey, Dispatcher, Arguments...>>,
-                     utils::NoMove,
-                     utils::NoCopy {
+                     NonCopyable,
+                     NonMovable {
    public:
+    // Default constructor
+    Subscriber() = default;
+
     using EventType = EventKey;
     virtual ~Subscriber() = default;
 

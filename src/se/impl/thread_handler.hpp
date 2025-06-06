@@ -9,6 +9,8 @@
 #include <assert.h>
 #include <thread>
 
+#include <soralog/util.hpp>
+#include <fmt/format.h>
 #include "scheduler_impl.hpp"
 
 namespace jam::se {
@@ -20,7 +22,12 @@ namespace jam::se {
    public:
     ThreadHandler() {
       worker_ = std::thread(
-          [](ThreadHandler *__this) { return __this->process(); }, this);
+          [](ThreadHandler *__this) {
+            static std::atomic_size_t counter = 0;
+            auto tname = fmt::format("worker.{}", ++counter);
+            soralog::util::setThreadName(tname);
+            return __this->process();
+          }, this);
     }
 
     void dispose(bool wait_for_release = true) {

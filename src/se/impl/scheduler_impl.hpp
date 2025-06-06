@@ -18,10 +18,11 @@
 
 #include "common.hpp"
 #include "scheduler.hpp"
+#include "utils/ctor_limiters.hpp"
 
 namespace jam::se {
 
-  class SchedulerBase : public IScheduler, utils::NoCopy, utils::NoMove {
+  class SchedulerBase : public IScheduler, NonCopyable, NonMovable {
    private:
     using Time = std::chrono::high_resolution_clock;
     using Timepoint = std::chrono::time_point<Time>;

@@ -9,13 +9,12 @@
 #include "common.hpp"
 #include "dispatcher.hpp"
 #include "thread_handler.hpp"
+#include "utils/ctor_limiters.hpp"
 
 namespace jam::se {
 
   template <uint32_t kCount, uint32_t kPoolSize>
-  class AsyncDispatcher final : public IDispatcher,
-                                utils::NoCopy,
-                                utils::NoMove {
+  class AsyncDispatcher final : public IDispatcher, NonCopyable, NonMovable {
    public:
     static constexpr uint32_t kHandlersCount = kCount;
     static constexpr uint32_t kPoolThreadsCount = kPoolSize;

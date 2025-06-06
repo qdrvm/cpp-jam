@@ -6,19 +6,21 @@
 
 #pragma once
 
+#include <memory>
 #include "common.hpp"
 #include "dispatcher.hpp"
+#include "utils/ctor_limiters.hpp"
 
 namespace jam::se {
 
   template <uint32_t kCount, uint32_t kPoolSize>
-  class SyncDispatcher final : public IDispatcher,
-                               utils::NoCopy,
-                               utils::NoMove {
+  class SyncDispatcher final : public IDispatcher, NonCopyable, NonMovable {
    private:
     using Parent = IDispatcher;
 
    public:
+    static constexpr uint32_t kHandlersCount = kCount;
+
     SyncDispatcher() = default;
 
     void dispose() override {}

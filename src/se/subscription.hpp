@@ -15,23 +15,16 @@
 
 namespace jam::se {
   std::shared_ptr<Dispatcher> getDispatcher();
-  std::shared_ptr<Subscription> getSubscription();
-
-  template <typename... T>
-  constexpr void notifyEngine(std::tuple<T...> &&data) {
-    std::apply(
-        [](auto &...x) { (..., getSubscription()->notify(x.first, x.second)); },
-        data);
-  }
 
   template <typename ObjectType, typename... EventData>
   struct SubscriberCreator {
     template <EventTypes key, typename F, typename... Args>
-    static auto create(SubscriptionEngineHandlers tid,
+    static auto create(Subscription &se,
+                       SubscriptionEngineHandlers tid,
                        F &&callback,
                        Args &&...args) {
       auto subscriber = BaseSubscriber<ObjectType, EventData...>::create(
-          getSubscription()->getEngine<EventTypes, EventData...>(),
+          se.getEngine<EventTypes, EventData...>(),
           std::forward<Args>(args)...);
       subscriber->setCallback(
           [f{std::forward<F>(callback)}](auto /*set_id*/,
@@ -41,7 +34,7 @@ namespace jam::se {
             assert(key == event_key);
             std::forward<F>(f)(object, std::move(args)...);
           });
-      subscriber->subscribe(0, key, tid);
+      subscriber->subscribe(0, key, static_cast<Dispatcher::Tid>(tid));
       return subscriber;
     }
   };

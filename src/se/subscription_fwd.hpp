@@ -9,13 +9,16 @@
 #include <memory>
 
 namespace jam {
-  enum SubscriptionEngineHandlers {
+  enum class SubscriptionEngineHandlers {
     kTest = 0,
     //---------------
     kTotalCount
   };
 
-  enum EventTypes {
+  static constexpr uint32_t kHandlersCount =
+      static_cast<uint32_t>(SubscriptionEngineHandlers::kTotalCount);
+
+  enum class EventTypes {
     // TEST
     kOnTestOperationComplete
   };
@@ -36,9 +39,7 @@ namespace jam {
   }  // namespace se
 
   using Dispatcher = se::IDispatcher;
-  using Subscription =
-      se::SubscriptionManager<SubscriptionEngineHandlers::kTotalCount,
-                              kThreadPoolSize>;
+  using Subscription = se::SubscriptionManager<kHandlersCount, kThreadPoolSize>;
   template <typename ObjectType, typename... EventData>
   using BaseSubscriber =
       se::SubscriberImpl<EventTypes, Dispatcher, ObjectType, EventData...>;
