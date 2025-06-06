@@ -52,6 +52,17 @@ namespace jam {
     BlockRequest,
     /// Data of block is respond
     BlockResponse,
+
+    // -- Synchronizer
+
+    /// Synchronizer module is loaded
+    SynchronizerIsLoaded,
+    /// Synchronizer module is unloaded
+    SynchronizerIsUnloaded,
+    /// Block announce received
+    BlockAnnounceReceived,
+    /// New block index discovered
+    BlockIndexDiscovered,
   };
 
   static constexpr uint32_t kThreadPoolSize = 3u;
