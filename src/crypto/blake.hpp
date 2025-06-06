@@ -8,10 +8,11 @@
 
 #include <blake2.h>
 #include <qtils/bytes.hpp>
+#include <qtils/byte_arr.hpp>
 
 namespace jam::crypto {
   struct Blake {
-    using Hash = qtils::BytesN<32>;
+    using Hash = qtils::ByteArr<32>;
     blake2b_state state;
     Blake() {
       blake2b_init(&state, sizeof(Hash));

@@ -27,12 +27,12 @@ namespace jam::app {
   }
 
   ApplicationImpl::ApplicationImpl(
-      std::shared_ptr<log::LoggingSystem> logsys,
-      std::shared_ptr<Configuration> config,
-      std::shared_ptr<StateManager> state_manager,
-      std::shared_ptr<Watchdog> watchdog,
-      std::shared_ptr<metrics::Exposer> metrics_exposer,
-      std::shared_ptr<clock::SystemClock> system_clock,
+      qtils::SharedRef<log::LoggingSystem> logsys,
+      qtils::SharedRef<Configuration> config,
+      qtils::SharedRef<StateManager> state_manager,
+      qtils::SharedRef<Watchdog> watchdog,
+      qtils::SharedRef<metrics::Exposer> metrics_exposer,
+      qtils::SharedRef<clock::SystemClock> system_clock,
       std::shared_ptr<SeHolder>)
       : logger_(logsys->getLogger("Application", "application")),
         app_config_(std::move(config)),
@@ -42,15 +42,13 @@ namespace jam::app {
         system_clock_(std::move(system_clock)),
         metrics_registry_(metrics::createRegistry()) {
     // Metric for exposing name and version of node
-    constexpr auto buildInfoMetricName = "jam_build_info";
-    metrics_registry_->registerGaugeFamily(
-        buildInfoMetricName,
-        "A metric with a constant '1' value labeled by name, version");
-    auto metric_build_info = metrics_registry_->registerGaugeMetric(
-        buildInfoMetricName,
-        {{"name", app_config_->nodeName()},
-         {"version", app_config_->nodeVersion()}});
-    metric_build_info->set(1);
+    metrics::GaugeHelper(
+        "jam_build_info",
+        "A metric with a constant '1' value labeled by name, version",
+        std::map<std::string, std::string>{
+            {"name", app_config_->nodeName()},
+            {"version", app_config_->nodeVersion()}})
+        ->set(1);
   }
 
   void ApplicationImpl::run() {

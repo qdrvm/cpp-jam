@@ -42,6 +42,7 @@ target_link_libraries(app_configurator
 
 add_library(app_state_manager SHARED impl/state_manager_impl.cpp)
 target_link_libraries(app_state_manager
+    qtils::qtils
     logger
 )
 
