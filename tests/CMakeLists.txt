@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+if (NOT TARGET all_tests)
+  add_custom_target(all_tests)
+endif ()
+
 function(addtest test_name)
   add_executable(${test_name} ${ARGN})
   addtest_part(${test_name} ${ARGN})
@@ -22,6 +26,8 @@ function(addtest test_name)
       ARCHIVE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/test_lib
       LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/test_lib
   )
+
+  add_dependencies(all_tests ${test_name})
 endfunction()
 
 function(addtest_part test_name)
