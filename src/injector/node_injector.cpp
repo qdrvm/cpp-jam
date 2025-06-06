@@ -13,6 +13,7 @@
 #include <boost/di/extension/scopes/shared.hpp>
 #include <loaders/impl/example_loader.hpp>
 #include <loaders/impl/networking_loader.hpp>
+#include <loaders/impl/synchronizer_loader.hpp>
 
 #include "app/configuration.hpp"
 #include "app/impl/application_impl.hpp"
@@ -120,6 +121,9 @@ namespace jam::injector {
     } else if ("NetworkingLoader" == module->get_loader_id()) {
       loader = pimpl_->injector_
                    .create<std::unique_ptr<jam::loaders::NetworkingLoader>>();
+    } else if ("SynchronizerLoader" == module->get_loader_id()) {
+      loader = pimpl_->injector_
+                   .create<std::unique_ptr<jam::loaders::SynchronizerLoader>>();
     } else {
       SL_CRITICAL(logger,
                   "> No loader found for: {} [{}]",
