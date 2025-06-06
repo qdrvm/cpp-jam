@@ -21,7 +21,6 @@ namespace jam::app {
 
 namespace jam::loaders {
   class Loader;
-  class ExampleLoader;
 }  // namespace jam::loaders
 
 namespace jam::modules {

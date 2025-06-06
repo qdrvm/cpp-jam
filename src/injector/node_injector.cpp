@@ -30,7 +30,7 @@
 #include "metrics/impl/prometheus/handler_impl.hpp"
 #include "modules/module.hpp"
 #include "se/impl/async_dispatcher_impl.hpp"
-#include "se/subscription_fwd.hpp"
+#include "se/subscription.hpp"
 
 namespace {
   namespace di = boost::di;
@@ -116,27 +116,29 @@ namespace jam::injector {
                       .template create<std::shared_ptr<log::LoggingSystem>>();
     auto logger = logsys->getLogger("Modules", "jam");
 
-    if ("ExampleLoader" == module->get_loader_id()) {
-      auto loader =
-          pimpl_->injector_
-              .template create<std::unique_ptr<jam::loaders::ExampleLoader>>();
-      loader->start(module);
+    std::unique_ptr<jam::loaders::Loader> loader{};
 
-      if (auto info = loader->module_info()) {
-        SL_INFO(logger, "> Module: {} [{}]", *info, module->get_path());
-      } else {
-        SL_ERROR(logger,
-                 "> No module info for: {} [{}]",
-                 module->get_loader_id(),
-                 module->get_path());
-      }
-      return std::unique_ptr<jam::loaders::Loader>(loader.release());
+    if ("ExampleLoader" == module->get_loader_id()) {
+      loader = pimpl_->injector_
+                   .create<std::unique_ptr<jam::loaders::ExampleLoader>>();
+    } else {
+      SL_CRITICAL(logger,
+                  "> No loader found for: {} [{}]",
+                  module->get_loader_id(),
+                  module->get_path());
+      return {};
     }
 
-    SL_CRITICAL(logger,
-                "> No loader found for: {} [{}]",
-                module->get_loader_id(),
-                module->get_path());
-    return {};
+    loader->start(module);
+
+    if (auto info = loader->module_info()) {
+      SL_INFO(logger, "> Module: {} [{}]", *info, module->get_path());
+    } else {
+      SL_ERROR(logger,
+               "> No module info for: {} [{}]",
+               module->get_loader_id(),
+               module->get_path());
+    }
+    return std::unique_ptr<jam::loaders::Loader>(loader.release());
   }
 }  // namespace jam::injector
