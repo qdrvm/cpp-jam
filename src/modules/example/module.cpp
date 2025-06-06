@@ -17,33 +17,23 @@ MODULE_C_API const char *module_info() {
   return "ExampleModule v1.0";
 }
 
-class ExampleModuleImpl final : public jam::modules::ExampleModule {
-  std::shared_ptr<jam::modules::ExampleModuleLoader> loader_;
-  std::shared_ptr<jam::log::LoggingSystem> logger_;
+static std::shared_ptr<jam::modules::ExampleModule> module_instance;
 
- public:
-  ExampleModuleImpl(std::shared_ptr<jam::modules::ExampleModuleLoader> loader,
-                    std::shared_ptr<jam::log::LoggingSystem> logger)
-      : loader_(std::move(loader)), logger_(std::move(logger)) {}
-
-  void on_loaded_success() override {
-    auto l = logger_->getLogger("ExampleModule", "jam");
-    SL_INFO(l, "Loaded success");
-  }
-};
-static std::shared_ptr<ExampleModuleImpl> exmpl_mod;
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type-c-linkage"
 
 MODULE_C_API std::weak_ptr<jam::modules::ExampleModule> query_module_instance(
-    std::shared_ptr<jam::modules::ExampleModuleLoader> loader,
+    jam::modules::ExampleModuleLoader& loader,
     std::shared_ptr<jam::log::LoggingSystem> logger) {
-  if (!exmpl_mod) {
-    exmpl_mod = std::make_shared<ExampleModuleImpl>(std::move(loader),
-                                                    std::move(logger));
+  if (!module_instance) {
+    module_instance = std::make_shared<jam::modules::ExampleModuleImpl>(
+        loader, std::move(logger));
   }
-  return exmpl_mod;
+  return module_instance;
 }
 
 MODULE_C_API void release_module_instance() {
-  exmpl_mod.reset();
+  module_instance.reset();
 }
+
+#pragma GCC diagnostic pop
