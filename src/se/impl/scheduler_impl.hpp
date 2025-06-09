@@ -51,7 +51,7 @@ namespace jam::se {
     std::thread::id id_;
 
    private:
-    inline void checkLocked() {
+    void checkLocked() {
       /// Need to check that we are locked in debug.
       assert(!tasks_cs_.try_lock());
     }
@@ -104,6 +104,7 @@ namespace jam::se {
 
         return std::chrono::microseconds(0ull);
       }
+      // Default timeout when no tasks are pending - prevents busy waiting
       return std::chrono::minutes(10ull);
     }
 
@@ -147,6 +148,7 @@ namespace jam::se {
               }
             }
           } catch (...) {
+            // Ignore exceptions during task execution to prevent scheduler crash
           }
         } else {
           event_.wait(untilFirst());

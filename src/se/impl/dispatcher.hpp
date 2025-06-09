@@ -13,14 +13,17 @@
 
 namespace jam::se {
 
-  struct IDispatcher {
+  /**
+   * Interface for task dispatchers that handle execution across different threads
+   */
+  struct Dispatcher {
     using Tid = uint32_t;
     using Task = IScheduler::Task;
     using Predicate = IScheduler::Predicate;
 
     static constexpr Tid kExecuteInPool = std::numeric_limits<Tid>::max();
 
-    virtual ~IDispatcher() = default;
+    virtual ~Dispatcher() = default;
 
     virtual std::optional<Tid> bind(std::shared_ptr<IScheduler> scheduler) = 0;
     virtual bool unbind(Tid tid) = 0;

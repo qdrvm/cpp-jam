@@ -17,6 +17,13 @@
 #include "subscriber.hpp"
 #include "subscription_engine.hpp"
 
+// Cross-platform function name macro for subscription hashing
+#ifdef _WIN32
+#define FUNCTION_NAME __FUNCSIG__
+#else
+#define FUNCTION_NAME __PRETTY_FUNCTION__
+#endif
+
 namespace jam::se {
 
   /**
@@ -38,7 +45,7 @@ namespace jam::se {
     SubscriptionManager(SubscriptionManager &&) = delete;
     SubscriptionManager &operator=(SubscriptionManager &&) = delete;
 
-    using Dispatcher = jam::se::IDispatcher;
+    using Dispatcher = jam::se::Dispatcher;
 
    private:
     using EngineHash = uint64_t;
@@ -56,11 +63,7 @@ namespace jam::se {
    private:
     template <typename... Args>
     static constexpr EngineHash getSubscriptionHash() {
-#ifdef _WIN32
-      constexpr EngineHash value = CT_MURMUR2(__FUNCSIG__);
-#else   //_WIN32
-      constexpr EngineHash value = CT_MURMUR2(__PRETTY_FUNCTION__);
-#endif  //_WIN32
+      constexpr EngineHash value = CT_MURMUR2(FUNCTION_NAME);
       return value;
     }
 

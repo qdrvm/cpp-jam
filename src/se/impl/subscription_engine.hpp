@@ -17,6 +17,9 @@
 
 namespace jam::se {
 
+  /**
+   * Interface for objects that can be disposed/cleaned up
+   */
   struct IDisposable {
     virtual void dispose() = 0;
   };

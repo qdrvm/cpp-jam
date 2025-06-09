@@ -13,7 +13,7 @@
 namespace jam::se {
 
   template <uint32_t kCount, uint32_t kPoolSize>
-  class AsyncDispatcher final : public IDispatcher {
+  class AsyncDispatcher final : public Dispatcher {
    public:
     // Disable copying
     AsyncDispatcher(const AsyncDispatcher &) = delete;
@@ -27,7 +27,7 @@ namespace jam::se {
     static constexpr uint32_t kPoolThreadsCount = kPoolSize;
 
    private:
-    using Parent = IDispatcher;
+    using Parent = Dispatcher;
 
     struct SchedulerContext {
       /// Scheduler to execute tasks

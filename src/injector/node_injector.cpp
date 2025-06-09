@@ -110,10 +110,6 @@ namespace jam::injector {
         .template create<std::shared_ptr<app::Application>>();
   }
 
-  std::shared_ptr<Subscription> NodeInjector::getSE() {
-    return pimpl_->injector_.template create<std::shared_ptr<Subscription>>();
-  }
-
   std::unique_ptr<jam::loaders::Loader> NodeInjector::register_loader(
       std::shared_ptr<modules::Module> module) {
     auto logsys = pimpl_->injector_

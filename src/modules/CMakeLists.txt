@@ -70,7 +70,7 @@ function(add_jam_module NAME)
 
   # Set C++ standard
   target_compile_features(${MODULE} PRIVATE
-      cxx_std_20
+      cxx_std_23
   )
 
   add_dependencies(all_modules ${MODULE})

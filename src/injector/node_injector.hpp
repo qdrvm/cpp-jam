@@ -40,7 +40,6 @@ namespace jam::injector {
                           std::shared_ptr<app::Configuration> configuration);
 
     std::shared_ptr<app::Application> injectApplication();
-    std::shared_ptr<Subscription> getSE();
     std::unique_ptr<loaders::Loader> register_loader(
         std::shared_ptr<modules::Module> module);
 

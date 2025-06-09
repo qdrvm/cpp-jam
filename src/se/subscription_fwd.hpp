@@ -24,7 +24,7 @@ namespace jam {
   static constexpr uint32_t kThreadPoolSize = 3u;
 
   namespace se {
-    struct IDispatcher;
+    struct Dispatcher;
 
     template <uint32_t kHandlersCount, uint32_t kPoolSize>
     class SubscriptionManager;
@@ -36,7 +36,7 @@ namespace jam {
     class SubscriberImpl;
   }  // namespace se
 
-  using Dispatcher = se::IDispatcher;
+  using Dispatcher = se::Dispatcher;
   using Subscription =
       se::SubscriptionManager<SubscriptionEngineHandlers::kTotalCount,
                               kThreadPoolSize>;

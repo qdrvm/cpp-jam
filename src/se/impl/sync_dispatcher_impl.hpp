@@ -12,9 +12,9 @@
 namespace jam::se {
 
   template <uint32_t kCount, uint32_t kPoolSize>
-  class SyncDispatcher final : public IDispatcher {
+  class SyncDispatcher final : public Dispatcher {
    private:
-    using Parent = IDispatcher;
+    using Parent = Dispatcher;
 
    public:
     // Disable copying
