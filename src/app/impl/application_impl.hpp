@@ -42,11 +42,34 @@ namespace jam::metrics {
 
 namespace jam::app {
 
+  /**
+   * @brief RAII holder for subscription engine management
+   *
+   * SeHolder is responsible for managing the lifetime of subscription engine
+   * components. It ensures proper initialization and cleanup of the
+   * subscription system during application lifecycle.
+   */
   struct SeHolder final {
-    using se_ptr = std::shared_ptr<Subscription>;
-    se_ptr se_;
+    using SePtr = std::shared_ptr<Subscription>;
+    SePtr se_;
 
-    SeHolder(se_ptr se);
+    // Disable copying - subscription engine should not be copied
+    SeHolder(const SeHolder &) = delete;
+    SeHolder &operator=(const SeHolder &) = delete;
+
+    // Disable moving - subscription engine should not be moved
+    SeHolder(SeHolder &&) = delete;
+    SeHolder &operator=(SeHolder &&) = delete;
+
+    /**
+     * @brief Constructs SeHolder with subscription engine instance
+     * @param se Shared pointer to subscription engine
+     */
+    SeHolder(SePtr se);
+
+    /**
+     * @brief Destructor ensures proper cleanup of subscription engine
+     */
     ~SeHolder();
   };
 

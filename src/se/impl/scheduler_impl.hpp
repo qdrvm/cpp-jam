@@ -12,6 +12,7 @@
 #include <chrono>
 #include <deque>
 #include <functional>
+#include <iostream>
 #include <mutex>
 #include <optional>
 #include <thread>
@@ -147,8 +148,11 @@ namespace jam::se {
                 add(std::move(task));
               }
             }
+          } catch (std::exception &e) {
+            std::cerr << "Exception during task execution: " << e.what()
+                      << std::endl;
           } catch (...) {
-            // Ignore exceptions during task execution to prevent scheduler crash
+            std::cerr << "Unknown exception during task execution\n";
           }
         } else {
           event_.wait(untilFirst());

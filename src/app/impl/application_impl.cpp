@@ -20,7 +20,7 @@
 
 namespace jam::app {
 
-  SeHolder::SeHolder(se_ptr se) : se_(std::move(se)) {}
+  SeHolder::SeHolder(SePtr se) : se_(std::move(se)) {}
 
   SeHolder::~SeHolder() {
     se_->dispose();
