@@ -9,6 +9,8 @@
 #include <cstddef>
 #include <stdexcept>
 
+#include <fmt/format.h>
+
 namespace jam {
 
   class NonCopyable {
@@ -42,14 +44,16 @@ namespace jam {
   };
 
   template <typename T>
-  class Singleton : public NonCopyable, public NonMovable {
+    requires std::same_as<T, std::decay_t<T>>
+  class Singleton : NonCopyable, NonMovable {
     using BaseType = T;
 
    public:
     Singleton() {
       if (exists.test_and_set(std::memory_order_acquire)) {
         throw std::logic_error(
-            "Attempt to create one more instance of singleton");
+            fmt::format("Attempt to create one more instance of singleton '{}'",
+                        typeid(BaseType).name()));
       }
     }
     ~Singleton() {

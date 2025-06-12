@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <string>
 
 #include <boost/asio/ip/tcp.hpp>
@@ -22,6 +23,7 @@ namespace jam::app {
 
     [[nodiscard]] std::string nodeVersion() const;
     [[nodiscard]] std::string nodeName() const;
+
     [[nodiscard]] std::optional<Endpoint> metricsEndpoint() const;
 
    private:

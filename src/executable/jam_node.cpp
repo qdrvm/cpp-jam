@@ -4,18 +4,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <chrono>
 #include <iostream>
-
-#include <soralog/impl/configurator_from_yaml.hpp>
-#include <soralog/logging_system.hpp>
+#include <memory>
+#include <optional>
+#include <variant>
 
 #include <qtils/final_action.hpp>
+#include <soralog/impl/configurator_from_yaml.hpp>
+#include <soralog/logging_system.hpp>
 
 #include "app/application.hpp"
 #include "app/configuration.hpp"
 #include "app/configurator.hpp"
 #include "injector/node_injector.hpp"
+#include "loaders/impl/example_loader.hpp"
 #include "log/logger.hpp"
+#include "modules/module_loader.hpp"
+#include "se/subscription.hpp"
 
 using std::string_view_literals::operator""sv;
 
@@ -35,11 +41,29 @@ namespace {
   int run_node(std::shared_ptr<LoggingSystem> logsys,
                std::shared_ptr<Configuration> appcfg) {
     auto injector = std::make_unique<NodeInjector>(logsys, appcfg);
+    // Load modules
+    std::deque<std::unique_ptr<jam::loaders::Loader>> loaders;
+    {
+      auto logger = logsys->getLogger("Modules", "jam");
+      const std::string path("modules");
+
+      jam::modules::ModuleLoader module_loader(path);
+      auto modules = module_loader.get_modules();
+      if (modules.has_error()) {
+        SL_CRITICAL(logger, "Failed to load modules from path: {}", path);
+        return EXIT_FAILURE;
+      }
+
+      for (const auto &module : modules.value()) {
+        auto loader = injector->register_loader(module);
+        if (loader) {
+          loaders.emplace_back(std::move(loader));
+        }
+      }
+    }
 
     auto logger = logsys->getLogger("Main", jam::log::defaultGroupName);
-
     auto app = injector->injectApplication();
-
     SL_INFO(logger, "Node started. Version: {} ", appcfg->nodeVersion());
 
     app->run();

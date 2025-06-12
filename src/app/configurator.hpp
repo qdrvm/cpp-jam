@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <boost/program_options.hpp>
 #include <qtils/enum_error_code.hpp>
 #include <qtils/outcome.hpp>

@@ -9,8 +9,14 @@
 
 #include "injector/node_injector.hpp"
 
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
 #include <boost/di.hpp>
 #include <boost/di/extension/scopes/shared.hpp>
+#include <loaders/impl/example_loader.hpp>
 
 #include "app/configuration.hpp"
 #include "app/impl/application_impl.hpp"
@@ -18,9 +24,13 @@
 #include "app/impl/watchdog.hpp"
 #include "clock/impl/clock_impl.hpp"
 #include "injector/bind_by_lambda.hpp"
+#include "loaders/loader.hpp"
 #include "log/logger.hpp"
 #include "metrics/impl/exposer_impl.hpp"
 #include "metrics/impl/prometheus/handler_impl.hpp"
+#include "modules/module.hpp"
+#include "se/impl/async_dispatcher_impl.hpp"
+#include "se/subscription_fwd.hpp"
 
 namespace {
   namespace di = boost::di;
@@ -29,7 +39,7 @@ namespace {
 
   template <typename C>
   auto useConfig(C c) {
-    return boost::di::bind<std::decay_t<C> >().to(
+    return boost::di::bind<std::decay_t<C>>().to(
         std::move(c))[boost::di::override];
   }
 
@@ -50,6 +60,7 @@ namespace {
         di::bind<log::LoggingSystem>.to(logsys),
         di::bind<metrics::Handler>.to<metrics::PrometheusHandler>(),
         di::bind<metrics::Exposer>.to<metrics::ExposerImpl>(),
+        di::bind<Dispatcher>.to<se::AsyncDispatcher<SubscriptionEngineHandlers::kTotalCount, kThreadPoolSize>>(),
         di::bind<metrics::Exposer::Configuration>.to([](const auto &injector) {
           return metrics::Exposer::Configuration{
               {boost::asio::ip::address_v4::from_string("127.0.0.1"), 7777}
@@ -92,10 +103,40 @@ namespace jam::injector {
   NodeInjector::NodeInjector(std::shared_ptr<log::LoggingSystem> logsys,
                              std::shared_ptr<app::Configuration> config)
       : pimpl_{std::make_unique<NodeInjectorImpl>(
-          makeNodeInjector(std::move(logsys), std::move(config)))} {}
+            makeNodeInjector(std::move(logsys), std::move(config)))} {}
 
   std::shared_ptr<app::Application> NodeInjector::injectApplication() {
     return pimpl_->injector_
-        .template create<std::shared_ptr<app::Application> >();
+        .template create<std::shared_ptr<app::Application>>();
+  }
+
+  std::unique_ptr<jam::loaders::Loader> NodeInjector::register_loader(
+      std::shared_ptr<modules::Module> module) {
+    auto logsys = pimpl_->injector_
+                      .template create<std::shared_ptr<log::LoggingSystem>>();
+    auto logger = logsys->getLogger("Modules", "jam");
+
+    if ("ExampleLoader" == module->get_loader_id()) {
+      auto loader =
+          pimpl_->injector_
+              .template create<std::unique_ptr<jam::loaders::ExampleLoader>>();
+      loader->start(module);
+
+      if (auto info = loader->module_info()) {
+        SL_INFO(logger, "> Module: {} [{}]", *info, module->get_path());
+      } else {
+        SL_ERROR(logger,
+                 "> No module info for: {} [{}]",
+                 module->get_loader_id(),
+                 module->get_path());
+      }
+      return std::unique_ptr<jam::loaders::Loader>(loader.release());
+    }
+
+    SL_CRITICAL(logger,
+                "> No loader found for: {} [{}]",
+                module->get_loader_id(),
+                module->get_path());
+    return {};
   }
 }  // namespace jam::injector

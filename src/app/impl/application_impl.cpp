@@ -16,8 +16,15 @@
 #include "log/logger.hpp"
 #include "metrics/histogram_timer.hpp"
 #include "metrics/metrics.hpp"
+#include "se/impl/subscription_manager.hpp"
 
 namespace jam::app {
+
+  SeHolder::SeHolder(SePtr se) : se_(std::move(se)) {}
+
+  SeHolder::~SeHolder() {
+    se_->dispose();
+  }
 
   ApplicationImpl::ApplicationImpl(
       std::shared_ptr<log::LoggingSystem> logsys,
@@ -25,7 +32,8 @@ namespace jam::app {
       std::shared_ptr<StateManager> state_manager,
       std::shared_ptr<Watchdog> watchdog,
       std::shared_ptr<metrics::Exposer> metrics_exposer,
-      std::shared_ptr<clock::SystemClock> system_clock)
+      std::shared_ptr<clock::SystemClock> system_clock,
+      std::shared_ptr<SeHolder>)
       : logger_(logsys->getLogger("Application", "application")),
         app_config_(std::move(config)),
         state_manager_(std::move(state_manager)),

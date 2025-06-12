@@ -35,9 +35,11 @@
 .idea
 
 /build
+/build-ex
 /cmake-build-*
 
 /.build
 /.venv
 /.vcpkg
 /.build*
+/vcpkg_installed

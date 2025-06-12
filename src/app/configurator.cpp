@@ -3,20 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "app/configuration.hpp"
+#include "app/configurator.hpp"
 
 #include <filesystem>
 #include <iostream>
 
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/beast/core/error.hpp>
 #include <boost/program_options.hpp>
 #include <boost/program_options/value_semantic.hpp>
 #include <qtils/outcome.hpp>
 
 #include "app/build_version.hpp"
-#include "app/configurator.hpp"
-
-#include <boost/beast/core/error.hpp>
+#include "app/configuration.hpp"
 
 using Endpoint = boost::asio::ip::tcp::endpoint;
 
@@ -110,7 +109,7 @@ namespace jam::app {
         .add(metrics_options);
   }
 
-  outcome::result<bool> Configurator::step1() {
+  outcome::result<bool> Configurator::step1() {  // read min cli-args and config
     namespace po = boost::program_options;
     namespace fs = std::filesystem;
 
@@ -120,7 +119,7 @@ namespace jam::app {
 
     po::variables_map vm;
 
-    // first-run parse to read only general options and to lookup for "help",
+    // first-run parse to read-only general options and to lookup for "help",
     // "config" and "version". all the rest options are ignored
     try {
       po::parsed_options parsed = po::command_line_parser(argc_, argv_)
@@ -200,6 +199,7 @@ namespace jam::app {
   }
 
   outcome::result<void> Configurator::initGeneralConfig() {
+    // Init by config-file
     if (config_file_.has_value()) {
       auto section = (*config_file_)["general"];
       if (section.IsDefined()) {
