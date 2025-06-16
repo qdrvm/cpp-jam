@@ -41,28 +41,8 @@ namespace jam {
     DESCENDING = 1
   };
 
-  /// Masks of bits, combination of which shows, which fields are to be
-  /// presented in the BlockResponse
-  enum class BlockAttribute : uint8_t {
-    /// Include block header.
-    HEADER = 1u << 0u,
-    /// Include block body.
-    BODY = 1u << 1u,
-    _MASK = 0b11111,
-  };
-  inline constexpr auto operator|(BlockAttribute lhs, BlockAttribute rhs) {
-    return static_cast<BlockAttribute>(static_cast<uint8_t>(lhs)
-                                       | static_cast<uint8_t>(rhs));
-  }
-  inline constexpr auto operator&(BlockAttribute lhs, BlockAttribute rhs) {
-    return static_cast<BlockAttribute>(static_cast<uint8_t>(lhs)
-                                       & static_cast<uint8_t>(rhs));
-  }
-
   /// Request for blocks to another peer
   struct BlocksRequest {
-    /// bits, showing, which parts of BlockData to return
-    BlockAttribute fields{};
     /// start from this block
     BlockIndex from{};
     /// sequence direction
@@ -71,10 +51,6 @@ namespace jam {
     /// used when unspecified
     std::optional<uint32_t> max{};
     bool multiple_justifications = true;
-
-    /// includes HEADER, BODY
-    static constexpr BlockAttribute kBasicAttributes =
-        BlockAttribute::HEADER | BlockAttribute::BODY;
   };
 
   struct BlockAnnounce {
