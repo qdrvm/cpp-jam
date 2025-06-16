@@ -77,6 +77,11 @@ namespace jam::app {
 
     config_->version_ = buildVersion();
     config_->name_ = "noname";
+
+    config_->database_.directory = "db";
+    config_->database_.cache_size = 512;
+    config_->database_.migration_enabled = false;
+
     config_->metrics_.endpoint = {boost::asio::ip::address_v4::any(), 9615};
     config_->metrics_.enabled = std::nullopt;
 
@@ -100,6 +105,14 @@ namespace jam::app {
           "Global log level can be set with: -l<level>.")
         ;
 
+    po::options_description storage_options("Storage options");
+    storage_options.add_options()
+        ("db_path", po::value<std::string>()->default_value(config_->database_.directory), "Path to DB directory. Can be relative on base path.")
+        // ("db-tmp", "Use temporary storage path.")
+        ("db_cache_size", po::value<uint32_t>()->default_value(config_->database_.cache_size), "Limit the memory the database cache can use <MiB>.")
+        ("db_enable_migration", po::bool_switch(), "Enable automatic db migration.")
+        ;
+
     po::options_description metrics_options("Metric options");
     metrics_options.add_options()
         ("prometheus_disable", "Set to disable OpenMetrics.")
@@ -111,6 +124,7 @@ namespace jam::app {
 
     cli_options_
         .add(general_options)  //
+        .add(storage_options)
         .add(metrics_options);
   }
 
@@ -199,6 +213,7 @@ namespace jam::app {
       qtils::SharedRef<soralog::Logger> logger) {
     logger_ = std::move(logger);
     OUTCOME_TRY(initGeneralConfig());
+    OUTCOME_TRY(initDatabaseConfig());
     OUTCOME_TRY(initOpenMetricsConfig());
 
     return config_;
@@ -310,6 +325,86 @@ namespace jam::app {
                config_->modules_dir_.c_str());
       return Error::InvalidValue;
     }
+
+    return outcome::success();
+  }
+
+  outcome::result<void> Configurator::initDatabaseConfig() {
+    // Init by config-file
+    if (config_file_.has_value()) {
+      auto section = (*config_file_)["database"];
+      if (section.IsDefined()) {
+        if (section.IsMap()) {
+          auto path = section["path"];
+          if (path.IsDefined()) {
+            if (path.IsScalar()) {
+              auto value = path.as<std::string>();
+              config_->database_.directory = value;
+            } else {
+              file_errors_ << "E: Value 'database.path' must be scalar\n";
+              file_has_error_ = true;
+            }
+          }
+          auto spec_file = section["cache_size"];
+          if (spec_file.IsDefined()) {
+            if (spec_file.IsScalar()) {
+              auto value = spec_file.as<size_t>();
+              config_->database_.cache_size = value;
+            } else {
+              file_errors_
+                  << "E: Value 'database.cache_size_mb' must be scalar\n";
+              file_has_error_ = true;
+            }
+          }
+        } else {
+          file_errors_ << "E: Section 'database' defined, but is not map\n";
+          file_has_error_ = true;
+        }
+      }
+    }
+
+    if (file_has_error_) {
+      std::string path;
+      find_argument<std::string>(
+          cli_values_map_, "config", [&](const std::string &value) {
+            path = value;
+          });
+      SL_ERROR(logger_, "Config file `{}` has some problems:", path);
+      std::istringstream iss(file_errors_.str());
+      std::string line;
+      while (std::getline(iss, line)) {
+        SL_ERROR(logger_, "  {}", std::string_view(line).substr(3));
+      }
+      return Error::ConfigFileParseFailed;
+    }
+
+    // Adjust by CLI arguments
+    bool fail;
+
+    fail = false;
+    find_argument<std::string>(
+        cli_values_map_, "db_path", [&](const std::string &value) {
+          config_->database_.directory = value;
+        });
+    find_argument<uint32_t>(
+        cli_values_map_, "db_cache_size", [&](const uint32_t &value) {
+          config_->database_.cache_size = value;
+        });
+    if (find_argument(cli_values_map_, "db_migration_enabled")) {
+      config_->database_.migration_enabled = true;
+    }
+    if (fail) {
+      return Error::CliArgsParseFailed;
+    }
+
+    // Check values
+    auto make_absolute = [&](const std::filesystem::path &path) {
+      return weakly_canonical(config_->base_path_.is_absolute()
+                                  ? path
+                                  : (config_->base_path_ / path));
+    };
+
+    config_->database_.directory = make_absolute(config_->database_.directory);
 
     return outcome::success();
   }

@@ -10,6 +10,10 @@ namespace jam::app {
   Configuration::Configuration()
       : version_("undefined"),
         name_("unnamed"),
+        database_{
+            .directory = "db",
+            .cache_size = 1 << 30,
+        },
         metrics_{
             .endpoint{},
             .enabled{},
@@ -29,6 +33,10 @@ namespace jam::app {
 
   const std::filesystem::path &Configuration::modulesDir() const {
     return modules_dir_;
+  }
+
+  const Configuration::DatabaseConfig &Configuration::database() const {
+    return database_;
   }
 
   const Configuration::MetricsConfig &Configuration::metrics() const {

@@ -3,6 +3,10 @@ general:
   base_path: /tmp/jam_node
   modules_dir: modules
 
+database:
+  directory: db
+  cache_size: 1G
+
 metrics:
   enabled: true
   host: 127.0.0.1
@@ -34,3 +38,4 @@ logging:
             - name: rpc
             - name: metrics
             - name: threads
+            - name: storage
