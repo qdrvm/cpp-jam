@@ -34,3 +34,6 @@ add_subdirectory(modules)
 
 # Storage
 add_subdirectory(storage)
+
+# Utilities
+add_subdirectory(utils)
