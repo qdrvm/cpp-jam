@@ -29,8 +29,12 @@ namespace jam::storage {
    */
   enum class Space : uint8_t {
     Default = 0,  ///< Default space used for general-purpose storage
+    LookupKey,    ///< Space used for mapping lookup keys
 
     // application-defined spaces
+    Header,
+    Extrinsic,
+    Justification,
     // ... append here
 
     Total  ///< Total number of defined spaces (must be last)

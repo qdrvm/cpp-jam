@@ -16,9 +16,12 @@
 
 namespace jam::storage {
 
+  // Names of non-default space
   static constexpr std::string_view kNamesArr[] = {
-      ""
-      // Add here names of non-default space
+    "lookup_key",
+    "header",
+    "extrinsic",
+    "justification",
   };
   constexpr std::span<const std::string_view> kNames = kNamesArr;
 
