@@ -17,6 +17,8 @@
 #include <boost/di.hpp>
 #include <boost/di/extension/scopes/shared.hpp>
 #include <loaders/impl/example_loader.hpp>
+#include <loaders/impl/networking_loader.hpp>
+#include <loaders/impl/synchronizer_loader.hpp>
 
 #include "app/configuration.hpp"
 #include "app/impl/application_impl.hpp"
@@ -30,7 +32,7 @@
 #include "metrics/impl/prometheus/handler_impl.hpp"
 #include "modules/module.hpp"
 #include "se/impl/async_dispatcher_impl.hpp"
-#include "se/subscription_fwd.hpp"
+#include "se/subscription.hpp"
 
 namespace {
   namespace di = boost::di;
@@ -60,7 +62,7 @@ namespace {
         di::bind<log::LoggingSystem>.to(logsys),
         di::bind<metrics::Handler>.to<metrics::PrometheusHandler>(),
         di::bind<metrics::Exposer>.to<metrics::ExposerImpl>(),
-        di::bind<Dispatcher>.to<se::AsyncDispatcher<SubscriptionEngineHandlers::kTotalCount, kThreadPoolSize>>(),
+        di::bind<Dispatcher>.to<se::AsyncDispatcher<kHandlersCount, kThreadPoolSize>>(),
         di::bind<metrics::Exposer::Configuration>.to([](const auto &injector) {
           return metrics::Exposer::Configuration{
               {boost::asio::ip::address_v4::from_string("127.0.0.1"), 7777}
@@ -116,27 +118,35 @@ namespace jam::injector {
                       .template create<std::shared_ptr<log::LoggingSystem>>();
     auto logger = logsys->getLogger("Modules", "jam");
 
-    if ("ExampleLoader" == module->get_loader_id()) {
-      auto loader =
-          pimpl_->injector_
-              .template create<std::unique_ptr<jam::loaders::ExampleLoader>>();
-      loader->start(module);
+    std::unique_ptr<jam::loaders::Loader> loader{};
 
-      if (auto info = loader->module_info()) {
-        SL_INFO(logger, "> Module: {} [{}]", *info, module->get_path());
-      } else {
-        SL_ERROR(logger,
-                 "> No module info for: {} [{}]",
-                 module->get_loader_id(),
-                 module->get_path());
-      }
-      return std::unique_ptr<jam::loaders::Loader>(loader.release());
+    if ("ExampleLoader" == module->get_loader_id()) {
+      loader = pimpl_->injector_
+                   .create<std::unique_ptr<jam::loaders::ExampleLoader>>();
+    } else if ("NetworkingLoader" == module->get_loader_id()) {
+      loader = pimpl_->injector_
+                   .create<std::unique_ptr<jam::loaders::NetworkingLoader>>();
+    } else if ("SynchronizerLoader" == module->get_loader_id()) {
+      loader = pimpl_->injector_
+                   .create<std::unique_ptr<jam::loaders::SynchronizerLoader>>();
+    } else {
+      SL_CRITICAL(logger,
+                  "> No loader found for: {} [{}]",
+                  module->get_loader_id(),
+                  module->get_path());
+      return {};
     }
 
-    SL_CRITICAL(logger,
-                "> No loader found for: {} [{}]",
-                module->get_loader_id(),
-                module->get_path());
-    return {};
+    loader->start(module);
+
+    if (auto info = loader->module_info()) {
+      SL_INFO(logger, "> Module: {} [{}]", *info, module->get_path());
+    } else {
+      SL_ERROR(logger,
+               "> No module info for: {} [{}]",
+               module->get_loader_id(),
+               module->get_path());
+    }
+    return std::unique_ptr<jam::loaders::Loader>(loader.release());
   }
 }  // namespace jam::injector

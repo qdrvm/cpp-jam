@@ -9,20 +9,13 @@
 #include "common.hpp"
 #include "dispatcher.hpp"
 #include "thread_handler.hpp"
+#include "utils/ctor_limiters.hpp"
 
 namespace jam::se {
 
   template <uint32_t kCount, uint32_t kPoolSize>
-  class AsyncDispatcher final : public Dispatcher {
+  class AsyncDispatcher final : public Dispatcher, NonCopyable, NonMovable {
    public:
-    // Disable copying
-    AsyncDispatcher(const AsyncDispatcher &) = delete;
-    AsyncDispatcher &operator=(const AsyncDispatcher &) = delete;
-
-    // Disable moving
-    AsyncDispatcher(AsyncDispatcher &&) = delete;
-    AsyncDispatcher &operator=(AsyncDispatcher &&) = delete;
-
     static constexpr uint32_t kHandlersCount = kCount;
     static constexpr uint32_t kPoolThreadsCount = kPoolSize;
 

@@ -8,23 +8,16 @@
 
 #include "common.hpp"
 #include "dispatcher.hpp"
+#include "utils/ctor_limiters.hpp"
 
 namespace jam::se {
 
   template <uint32_t kCount, uint32_t kPoolSize>
-  class SyncDispatcher final : public Dispatcher {
+  class SyncDispatcher final : public Dispatcher, NonCopyable, NonMovable {
    private:
     using Parent = Dispatcher;
 
    public:
-    // Disable copying
-    SyncDispatcher(const SyncDispatcher &) = delete;
-    SyncDispatcher &operator=(const SyncDispatcher &) = delete;
-
-    // Disable moving
-    SyncDispatcher(SyncDispatcher &&) = delete;
-    SyncDispatcher &operator=(SyncDispatcher &&) = delete;
-
     static constexpr uint32_t kHandlersCount = kCount;
 
     SyncDispatcher() = default;

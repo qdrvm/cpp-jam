@@ -7,8 +7,6 @@
 #include <chrono>
 #include <iostream>
 #include <memory>
-#include <optional>
-#include <variant>
 
 #include <qtils/final_action.hpp>
 #include <soralog/impl/configurator_from_yaml.hpp>
@@ -18,8 +16,8 @@
 #include "app/configuration.hpp"
 #include "app/configurator.hpp"
 #include "injector/node_injector.hpp"
-#include "loaders/impl/example_loader.hpp"
 #include "log/logger.hpp"
+#include "loaders/loader.hpp"
 #include "modules/module_loader.hpp"
 #include "se/subscription.hpp"
 
@@ -41,25 +39,48 @@ namespace {
   int run_node(std::shared_ptr<LoggingSystem> logsys,
                std::shared_ptr<Configuration> appcfg) {
     auto injector = std::make_unique<NodeInjector>(logsys, appcfg);
+
     // Load modules
     std::deque<std::unique_ptr<jam::loaders::Loader>> loaders;
     {
       auto logger = logsys->getLogger("Modules", "jam");
-      const std::string path("modules");
+      const std::string path(appcfg->modulesDir());
 
       jam::modules::ModuleLoader module_loader(path);
-      auto modules = module_loader.get_modules();
-      if (modules.has_error()) {
+      auto modules_res = module_loader.get_modules();
+      if (modules_res.has_error()) {
         SL_CRITICAL(logger, "Failed to load modules from path: {}", path);
         return EXIT_FAILURE;
       }
+      auto &modules = modules_res.value();
 
-      for (const auto &module : modules.value()) {
+      for (const auto &module : modules) {
+        SL_INFO(logger,
+                "Found module '{}', path: {}",
+                module->get_module_info(),
+                module->get_path());
+
         auto loader = injector->register_loader(module);
-        if (loader) {
-          loaders.emplace_back(std::move(loader));
+
+        // Skip unsupported
+        if (not loader) {
+          SL_WARN(logger,
+                  "Module '{}' has unsupported loader '{}'; Skipped",
+                  module->get_module_info(),
+                  module->get_loader_id());
+          continue;
         }
+
+        // Init module
+        SL_INFO(logger,
+                "Module '{}' loaded by '{}'",
+                module->get_module_info(),
+                module->get_loader_id());
+        loaders.emplace_back(std::move(loader));
       }
+
+      // Notify about all modules are loaded
+      // se_manager->notify(jam::EventTypes::LoadingIsFinished);
     }
 
     auto logger = logsys->getLogger("Main", jam::log::defaultGroupName);
@@ -134,7 +155,7 @@ int main(int argc, const char **argv, const char **env) {
     std::make_shared<jam::log::LoggingSystem>(std::move(logging_system));
   });
 
-  // Parse CLI args for help, version and config
+  // Parse remaining args
   if (auto res = app_configurator->step2(); res.has_value()) {
     if (res.value()) {
       return EXIT_SUCCESS;

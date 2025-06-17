@@ -12,9 +12,7 @@
 namespace jam::se {
 
   std::shared_ptr<Dispatcher> getDispatcher() {
-    return std::make_shared<
-        AsyncDispatcher<SubscriptionEngineHandlers::kTotalCount,
-                        kThreadPoolSize>>();
+    return std::make_shared<AsyncDispatcher<kHandlersCount, kThreadPoolSize>>();
   }
 
 }  // namespace jam::se

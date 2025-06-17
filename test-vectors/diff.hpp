@@ -10,13 +10,12 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <variant>
 
+#include <qtils/bytes.hpp>
 #include <qtils/empty.hpp>
 #include <qtils/hex.hpp>
 #include <qtils/tagged.hpp>
-#include <test-vectors/config-types.hpp>
 
 /**
  * Print colorful diff for objects.
@@ -160,7 +159,7 @@ void diff_v_i(Indent indent,
               const std::variant<Ts...> &v2,
               const size_t index) {
   if (index == I) {
-  using T = std::tuple_element_t<I, std::tuple<Ts...>>;
+    using T = std::tuple_element_t<I, std::tuple<Ts...>>;
     diff(~indent, std::get<T>(v1), std::get<T>(v2));
     return;
   }

@@ -10,6 +10,8 @@
 #include <optional>
 #include <stdexcept>
 
+#include <qtils/shared_ref.hpp>
+
 #include "modules/module.hpp"
 #include "se/subscription_fwd.hpp"
 
@@ -61,13 +63,11 @@ namespace jam::loaders {
       module_ = module;
     }
 
-    std::shared_ptr<Subscription> get_se_manager() {
-      return se_manager_;
-    }
+   protected:
+    qtils::SharedRef<log::LoggingSystem> logsys_;
+    qtils::SharedRef<Subscription> se_manager_;
 
    private:
     std::shared_ptr<modules::Module> module_;
-    std::shared_ptr<log::LoggingSystem> logsys_;
-    std::shared_ptr<Subscription> se_manager_;
   };
 }  // namespace jam::loaders

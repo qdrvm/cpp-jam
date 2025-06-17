@@ -16,6 +16,14 @@
 #include "dispatcher.hpp"
 #include "subscriber.hpp"
 #include "subscription_engine.hpp"
+#include "utils/ctor_limiters.hpp"
+
+// Cross-platform function name macro for subscription hashing
+#ifdef _WIN32
+#define FUNCTION_NAME __FUNCSIG__
+#else
+#define FUNCTION_NAME __PRETTY_FUNCTION__
+#endif
 
 // Cross-platform function name macro for subscription hashing
 #ifdef _WIN32
@@ -35,16 +43,10 @@ namespace jam::se {
   template <uint32_t kHandlersCount, uint32_t kPoolSize>
   class SubscriptionManager final
       : public std::enable_shared_from_this<
-            SubscriptionManager<kHandlersCount, kPoolSize>> {
+            SubscriptionManager<kHandlersCount, kPoolSize>>,
+        NonCopyable,
+        NonMovable {
    public:
-    // Disable copying
-    SubscriptionManager(const SubscriptionManager &) = delete;
-    SubscriptionManager &operator=(const SubscriptionManager &) = delete;
-
-    // Disable moving
-    SubscriptionManager(SubscriptionManager &&) = delete;
-    SubscriptionManager &operator=(SubscriptionManager &&) = delete;
-
     using Dispatcher = jam::se::Dispatcher;
 
    private:

@@ -11,6 +11,8 @@
 #include <mutex>
 #include <shared_mutex>
 
+#include "utils/ctor_limiters.hpp"
+
 namespace jam::se::utils {
 
   /**
@@ -141,7 +143,7 @@ namespace jam::se::utils {
    * between threads. It's similar to a manual reset event, where one thread
    * can wait until another thread signals the event.
    */
-  class WaitForSingleObject final {
+  class WaitForSingleObject final : NonCopyable, NonMovable {
     std::condition_variable wait_cv_;  ///< Condition variable for waiting
     std::mutex wait_m_;                ///< Mutex for synchronization
     bool flag_;  ///< Flag that represents the state (true = not signaled, false
@@ -152,12 +154,6 @@ namespace jam::se::utils {
      * @brief Constructor that initializes the object in the not signaled state
      */
     WaitForSingleObject() : flag_{true} {}
-
-    // Deleted copy and move operations to prevent improper synchronization
-    WaitForSingleObject(WaitForSingleObject &&) = delete;
-    WaitForSingleObject(const WaitForSingleObject &) = delete;
-    WaitForSingleObject &operator=(WaitForSingleObject &&) = delete;
-    WaitForSingleObject &operator=(const WaitForSingleObject &) = delete;
 
     /**
      * @brief Waits for the object to be signaled with a timeout
