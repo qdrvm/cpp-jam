@@ -18,7 +18,7 @@ namespace jam::test_vectors::disputes {
     explicit Vectors(bool is_full)
         : VectorsT{is_full ? config::full : config::tiny},
           type{is_full ? "full" : "tiny"} {
-      this->list(std::filesystem::path{"disputes"} / type);
+      this->list(std::filesystem::path{"stf/disputes"} / type);
     }
 
     static std::vector<std::shared_ptr<Vectors>> vectors() {

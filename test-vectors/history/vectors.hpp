@@ -6,18 +6,26 @@
 
 #pragma once
 
-#include <jam_types/config.hpp>
+#include <jam_types/config-full.hpp>
+#include <jam_types/config-tiny.hpp>
 #include <jam_types/history-types.hpp>
 #include <test-vectors/vectors.hpp>
 
 namespace jam::test_vectors::history {
   struct Vectors : test_vectors::VectorsT<TestCase, Config> {
-    Vectors() : VectorsT{Config{}} {
-      this->list(std::filesystem::path{"history/data"});
+    std::string_view type;
+
+    explicit Vectors(bool is_full)
+        : VectorsT{is_full ? config::full : config::tiny},
+          type{is_full ? "full" : "tiny"} {
+      this->list(std::filesystem::path{"stf/history"} / type);
     }
 
     static std::vector<std::shared_ptr<Vectors>> vectors() {
-      return {std::make_shared<Vectors>()};
+      return {
+          std::make_shared<Vectors>(false),
+          std::make_shared<Vectors>(true),
+      };
     }
   };
 }  // namespace jam::test_vectors_history

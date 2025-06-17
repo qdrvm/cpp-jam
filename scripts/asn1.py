@@ -500,7 +500,7 @@ class GenSpecialTypes:
 def constants():
     g = GenConstants(
         "jam::test_vectors",
-        "jam-types-asn",
+        "lib",
     )
     g.write()
 
@@ -508,7 +508,7 @@ def constants():
 def types():
     g = GenCommonTypes(
         "jam::test_vectors",
-        "jam-types-asn",
+        "lib",
     )
     g.write()
 
@@ -517,7 +517,7 @@ def history():
     g = GenSpecialTypes(
         "jam::test_vectors",
         "history",
-        "history/history",
+        "stf/history/history",
         "HistoryModule",
     )
     g.write("history")
@@ -527,7 +527,7 @@ def safrole():
     g = GenSpecialTypes(
         "jam::test_vectors",
         "safrole",
-        "safrole/safrole",
+        "stf/safrole/safrole",
         "SafroleModule",
     )
     g.write("safrole")
@@ -537,7 +537,7 @@ def disputes():
     g = GenSpecialTypes(
         "jam::test_vectors",
         "disputes",
-        "disputes/disputes",
+        "stf/disputes/disputes",
         "DisputesModule",
     )
     g.write("disputes")
@@ -547,7 +547,7 @@ def authorizations():
     g = GenSpecialTypes(
         "jam::test_vectors",
         "authorizations",
-        "authorizations/authorizations",
+        "stf/authorizations/authorizations",
         "AuthorizationsModule",
     )
     g.write("authorizations")

@@ -18,7 +18,7 @@ namespace jam::test_vectors::safrole {
     explicit Vectors(bool is_full)
         : VectorsT{is_full ? config::full : config::tiny},
           type{is_full ? "full" : "tiny"} {
-      this->list(std::filesystem::path{"safrole"} / type);
+      this->list(std::filesystem::path{"stf/safrole"} / type);
     }
 
     static std::vector<std::shared_ptr<Vectors>> vectors() {
