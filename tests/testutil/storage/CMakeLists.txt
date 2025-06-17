@@ -11,6 +11,7 @@ add_library(base_fs_test
 target_link_libraries(base_fs_test
     GTest::gtest
     app_configuration
+    logger_for_tests
 )
 
 add_library(base_rocksdb_test
@@ -19,6 +20,7 @@ add_library(base_rocksdb_test
     )
 target_link_libraries(base_rocksdb_test
     base_fs_test
+    storage
     )
 
 add_library(std_list_adapter INTERFACE)

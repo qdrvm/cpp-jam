@@ -26,13 +26,17 @@ add_library(build_version
     ${CMAKE_BINARY_DIR}/generated/app/build_version.cpp
 )
 
-add_library(app_configuration SHARED configuration.cpp)
+add_library(app_configuration SHARED
+    configuration.cpp
+)
 target_link_libraries(app_configuration
     Boost::boost
     fmt::fmt
 )
 
-add_library(app_configurator SHARED configurator.cpp)
+add_library(app_configurator SHARED
+    configurator.cpp
+)
 target_link_libraries(app_configurator
     app_configuration
     yaml-cpp::yaml-cpp
@@ -40,20 +44,29 @@ target_link_libraries(app_configurator
     build_version
 )
 
-add_library(app_state_manager SHARED impl/state_manager_impl.cpp)
+add_library(app_state_manager SHARED
+    impl/state_manager_impl.cpp
+)
 target_link_libraries(app_state_manager
     qtils::qtils
     logger
 )
 
-add_library(chain_spec SHARED impl/chain_spec_impl.cpp)
+add_library(chain_spec SHARED
+    impl/chain_spec_impl.cpp
+)
 target_link_libraries(chain_spec
     logger
     Boost::property_tree
     app_configuration
 )
+add_dependencies(chain_spec
+    generate_common_types
+)
 
-add_library(application SHARED impl/application_impl.cpp)
+add_library(application SHARED
+    impl/application_impl.cpp
+)
 target_link_libraries(application
     qtils::qtils
     app_configuration

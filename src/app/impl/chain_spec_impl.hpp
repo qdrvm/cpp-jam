@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <filesystem>
+
 #include <boost/property_tree/json_parser.hpp>
 #include <qtils/enum_error_code.hpp>
 
