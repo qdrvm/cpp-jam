@@ -27,18 +27,21 @@ namespace jam::metrics {
         context_{std::make_shared<Context>()},
         config_{std::move(config)},
         session_config_{session_config} {
-    auto registry = metrics::createRegistry();
-    registry->setHandler(*handler.get());
-    setHandler(handler);
+    if (config_->metrics().enabled == true) {
+      auto registry = metrics::createRegistry();
+      registry->setHandler(*handler.get());
+      setHandler(handler);
 
-    state_manager->takeControl(*this);
+      state_manager->takeControl(*this);
+    }
   }
 
   bool ExposerImpl::prepare() {
+    BOOST_ASSERT(config_->metrics().enabled == true);
     try {
       acceptor_ = jam::api::acceptOnFreePort(
           context_,
-          config_->metricsEndpoint().value_or(Endpoint{}),
+          config_->metrics().endpoint,
           jam::api::kDefaultPortTolerance,
           logger_);
     } catch (const boost::wrapexcept<boost::system::system_error> &exception) {
@@ -61,6 +64,7 @@ namespace jam::metrics {
   }
 
   bool ExposerImpl::start() {
+    BOOST_ASSERT(config_->metrics().enabled == true);
     BOOST_ASSERT(acceptor_);
 
     if (!acceptor_->is_open()) {
@@ -70,7 +74,7 @@ namespace jam::metrics {
 
     logger_->info(
         "Listening for new connections on {}:{}",
-        config_->metricsEndpoint().value_or(Endpoint{}).address().to_string(),
+        config_->metrics().endpoint.address().to_string(),
         acceptor_->local_endpoint().port());
     acceptOnce();
 

@@ -77,8 +77,8 @@ namespace jam::app {
 
     config_->version_ = buildVersion();
     config_->name_ = "noname";
-    config_->metrics_endpoint_ = {boost::asio::ip::address_v4::any(), 9615};
-    config_->metrics_enabled_ = std::nullopt;
+    config_->metrics_.endpoint = {boost::asio::ip::address_v4::any(), 9615};
+    config_->metrics_.enabled = std::nullopt;
 
     namespace po = boost::program_options;
 
@@ -86,25 +86,25 @@ namespace jam::app {
 
     po::options_description general_options("General options", 120, 100);
     general_options.add_options()
-        ("help,h", "Show this help message")
-        ("version,v", "Show version information")
+        ("help,h", "Show this help message.")
+        ("version,v", "Show version information.")
         ("base_path", po::value<std::string>(), "Set base path. All relative paths will be resolved based on this path.")
         ("config,c", po::value<std::string>(),  "Optional. Filepath to load configuration from. Overrides default configuration values.")
-        ("name,n", po::value<std::string>(), "Set name of node")
+        ("modules_dir", po::value<std::string>(), "Set path to directory containing modules.")
+        ("name,n", po::value<std::string>(), "Set name of node.")
         ("log,l", po::value<std::vector<std::string>>(),
           "Sets a custom logging filter.\n"
           "Syntax: <target>=<level>, e.g., -llibp2p=off.\n"
           "Log levels: trace, debug, verbose, info, warn, error, critical, off.\n"
           "Default: all targets log at `info`.\n"
           "Global log level can be set with: -l<level>.")
-        ("modules_dir", po::value<std::string>(), "Set path to modules directory.")
         ;
 
     po::options_description metrics_options("Metric options");
     metrics_options.add_options()
-    ("prometheus-disable", "Set to disable OpenMetrics")
-    ("prometheus-host", po::value<std::string>(), "Set address for OpenMetrics over HTTP")
-    ("prometheus-port", po::value<uint16_t>(), "Set port for OpenMetrics over HTTP")
+        ("prometheus_disable", "Set to disable OpenMetrics.")
+        ("prometheus_host", po::value<std::string>(), "Set address for OpenMetrics over HTTP.")
+        ("prometheus_port", po::value<uint16_t>(), "Set port for OpenMetrics over HTTP.")
         ;
 
     // clang-format on
@@ -324,9 +324,9 @@ namespace jam::app {
             if (enabled.IsScalar()) {
               auto value = enabled.as<std::string>();
               if (value == "true") {
-                config_->metrics_enabled_ = true;
+                config_->metrics_.enabled = true;
               } else if (value == "false") {
-                config_->metrics_enabled_ = false;
+                config_->metrics_.enabled = false;
               } else {
                 file_errors_
                     << "E: Value 'network.metrics.enabled' has wrong value. "
@@ -346,10 +346,10 @@ namespace jam::app {
               boost::beast::error_code ec;
               auto address = boost::asio::ip::address::from_string(value, ec);
               if (!ec) {
-                config_->metrics_endpoint_ = {
-                    address, config_->metrics_endpoint_.port()};
-                if (not config_->metrics_enabled_.has_value()) {
-                  config_->metrics_enabled_ = true;
+                config_->metrics_.endpoint = {
+                    address, config_->metrics_.endpoint.port()};
+                if (not config_->metrics_.enabled.has_value()) {
+                  config_->metrics_.enabled = true;
                 }
               } else {
                 file_errors_ << "E: Value 'network.metrics.host' defined, "
@@ -367,11 +367,11 @@ namespace jam::app {
             if (port.IsScalar()) {
               auto value = port.as<ssize_t>();
               if (value > 0 and value <= 65535) {
-                config_->metrics_endpoint_ = {
-                    config_->metrics_endpoint_.address(),
+                config_->metrics_.endpoint = {
+                    config_->metrics_.endpoint.address(),
                     static_cast<uint16_t>(value)};
-                if (not config_->metrics_enabled_.has_value()) {
-                  config_->metrics_enabled_ = true;
+                if (not config_->metrics_.enabled.has_value()) {
+                  config_->metrics_.enabled = true;
                 }
               } else {
                 file_errors_ << "E: Value 'network.metrics.port' defined, "
@@ -396,17 +396,17 @@ namespace jam::app {
 
     fail = false;
     find_argument<std::string>(
-        cli_values_map_, "prometheus-host", [&](const std::string &value) {
+        cli_values_map_, "prometheus_host", [&](const std::string &value) {
           boost::beast::error_code ec;
           auto address = boost::asio::ip::address::from_string(value, ec);
           if (!ec) {
-            config_->metrics_endpoint_ = {address,
-                                          config_->metrics_endpoint_.port()};
-            if (not config_->metrics_enabled_.has_value()) {
-              config_->metrics_enabled_ = true;
+            config_->metrics_.endpoint = {address,
+                                          config_->metrics_.endpoint.port()};
+            if (not config_->metrics_.enabled.has_value()) {
+              config_->metrics_.enabled = true;
             }
           } else {
-            std::cerr << "Option --prometheus-host has invalid value\n"
+            std::cerr << "Option --prometheus_host has invalid value\n"
                       << "Try run with option '--help' for more information\n";
             fail = true;
           }
@@ -417,15 +417,15 @@ namespace jam::app {
 
     fail = false;
     find_argument<uint16_t>(
-        cli_values_map_, "prometheus-port", [&](const uint16_t &value) {
+        cli_values_map_, "prometheus_port", [&](const uint16_t &value) {
           if (value > 0 and value <= 65535) {
-            config_->metrics_endpoint_ = {config_->metrics_endpoint_.address(),
+            config_->metrics_.endpoint = {config_->metrics_.endpoint.address(),
                                           static_cast<uint16_t>(value)};
-            if (not config_->metrics_enabled_.has_value()) {
-              config_->metrics_enabled_ = true;
+            if (not config_->metrics_.enabled.has_value()) {
+              config_->metrics_.enabled = true;
             }
           } else {
-            std::cerr << "Option --prometheus-port has invalid value\n"
+            std::cerr << "Option --prometheus_port has invalid value\n"
                       << "Try run with option '--help' for more information\n";
             fail = true;
           }
@@ -434,11 +434,11 @@ namespace jam::app {
       return Error::CliArgsParseFailed;
     }
 
-    if (find_argument(cli_values_map_, "prometheus-disabled")) {
-      config_->metrics_enabled_ = false;
+    if (find_argument(cli_values_map_, "prometheus_disabled")) {
+      config_->metrics_.enabled = false;
     };
-    if (not config_->metrics_enabled_.has_value()) {
-      config_->metrics_enabled_ = false;
+    if (not config_->metrics_.enabled.has_value()) {
+      config_->metrics_.enabled = false;
     }
 
     return outcome::success();
