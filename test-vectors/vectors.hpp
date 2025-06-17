@@ -146,7 +146,8 @@ namespace jam::test_vectors {
       auto ext_bin = ".bin", ext_json = ".json", ext_scale = ".scale";
       auto use_ext = ext_bin;
       std::map<std::filesystem::path, bool> path_ok;
-      for (auto &file : std::filesystem::directory_iterator{dir / relative}) {
+      auto abs_path = dir / relative;
+      for (auto &file : std::filesystem::directory_iterator{abs_path}) {
         auto path = file.path(), ext = path.extension();
         if (ext != ext_bin and ext != ext_json and ext != ext_scale) {
           continue;
