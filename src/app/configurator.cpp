@@ -5,8 +5,14 @@
 
 #include "app/configurator.hpp"
 
+#include <algorithm>
+#include <charconv>
+#include <cstdint>
 #include <filesystem>
 #include <iostream>
+#include <optional>
+#include <string>
+#include <string_view>
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/beast/core/error.hpp>
@@ -67,6 +73,161 @@ namespace {
     }
     return false;
   }
+
+  std::optional<uint64_t> parse_byte_size(std::string_view input) {
+    // Trim whitespace
+    auto first = input.find_first_not_of(" \t\n\r");
+    if (first == std::string_view::npos) {
+      return std::nullopt;
+    }
+    auto last = input.find_last_not_of(" \t\n\r");
+    input = input.substr(first, last - first + 1);
+
+    // Parse number
+    size_t i = 0;
+    while (i < input.size() && std::isdigit(input[i])) {
+      ++i;
+    }
+    if (i == 0) {
+      return std::nullopt;
+    }
+
+    std::string_view number_part = input.substr(0, i);
+    while (i < input.size()
+           && std::isspace(static_cast<unsigned char>(input[i]))) {
+      ++i;
+    }
+    std::string_view suffix = input.substr(i);
+
+    uint64_t number = 0;
+    auto result =
+        std::from_chars(number_part.begin(), number_part.end(), number);
+    if (result.ec != std::errc()) {
+      return std::nullopt;
+    }
+
+    if (suffix.empty()) {
+      return number;
+    }
+
+    // Case-insensitive comparison
+    auto iequals = [](std::string_view a, std::string_view b) -> bool {
+      if (a.size() != b.size()) {
+        return false;
+      }
+      for (size_t i = 0; i < a.size(); ++i) {
+        if (std::tolower(static_cast<unsigned char>(a[i]))
+            != std::tolower(static_cast<unsigned char>(b[i]))) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    struct SuffixDef {
+      std::string_view suffix;
+      uint64_t multiplier;
+    };
+
+    // Suffixes: IEC (base 1024) and SI (base 1000)
+    static constexpr SuffixDef units[] = {
+        // clang-format off
+      {"b", 1},
+      {"k", 1ull << 10}, {"kib", 1ull << 10}, {"kb", 1000ull},
+      {"m", 1ull << 20}, {"mib", 1ull << 20}, {"mb", 1000ull * 1000ull},
+      {"g", 1ull << 30}, {"gib", 1ull << 30}, {"gb", 1000ull * 1000ull * 1000ull},
+      {"t", 1ull << 40}, {"tib", 1ull << 40}, {"tb", 1000ull * 1000ull * 1000ull * 1000ull},
+        // clang-format on
+    };
+
+    for (const auto &unit : units) {
+      if (iequals(suffix, unit.suffix)) {
+        if (number > UINT64_MAX / unit.multiplier) {
+          return std::nullopt;
+        }
+        return number * unit.multiplier;
+      }
+    }
+
+    return std::nullopt;
+  }
+
+  std::optional<uint64_t> parse_duration(std::string_view input) {
+    // Trim whitespace
+    auto first = input.find_first_not_of(" \t\n\r");
+    if (first == std::string_view::npos) {
+      return std::nullopt;
+    }
+    auto last = input.find_last_not_of(" \t\n\r");
+    input = input.substr(first, last - first + 1);
+
+    // Parse number
+    size_t i = 0;
+    while (i < input.size() && std::isdigit(input[i])) {
+      ++i;
+    }
+    if (i == 0) {
+      return std::nullopt;
+    }
+
+    std::string_view number_part = input.substr(0, i);
+    while (i < input.size() && std::isspace(static_cast<unsigned char>(input[i]))) {
+      ++i;
+    }
+    std::string_view suffix = input.substr(i);
+
+    uint64_t number = 0;
+    auto result =
+        std::from_chars(number_part.begin(), number_part.end(), number);
+    if (result.ec != std::errc()) {
+      return std::nullopt;
+    }
+
+    if (suffix.empty()) {
+      return number;
+    }
+
+    // Lambda: case-insensitive string_view equal
+    auto iequals = [](std::string_view a, std::string_view b) -> bool {
+      if (a.size() != b.size()) {
+        return false;
+      }
+      for (size_t i = 0; i < a.size(); ++i) {
+        if (std::tolower(static_cast<unsigned char>(a[i]))
+            != std::tolower(static_cast<unsigned char>(b[i]))) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    // Suffix table: each entry maps one or more suffix variants to multiplier
+    struct Entry {
+      std::string_view suffix;
+      uint64_t multiplier;
+    };
+    static constexpr Entry suffixes[] = {
+        // clang-format off
+      {"s", 1}, {"sec", 1}, {"secs", 1}, {"second", 1}, {"seconds", 1},
+      {"m", 60}, {"min", 60}, {"mins", 60}, {"minute", 60}, {"minutes", 60},
+      {"h", 3600}, {"hr", 3600}, {"hrs", 3600}, {"hour", 3600}, {"hours", 3600},
+      {"d", 86400}, {"day", 86400}, {"days", 86400},
+      {"w", 604800}, {"week", 604800}, {"weeks", 604800},
+        // clang-format on
+    };
+
+    for (const auto &e : suffixes) {
+      if (iequals(suffix, e.suffix)) {
+        if (number > UINT64_MAX / e.multiplier) {
+          return std::nullopt;
+        }
+        return number * e.multiplier;
+      }
+    }
+
+    return std::nullopt;
+  }
+
 }  // namespace
 
 namespace jam::app {
@@ -79,7 +240,7 @@ namespace jam::app {
     config_->name_ = "noname";
 
     config_->database_.directory = "db";
-    config_->database_.cache_size = 512;
+    config_->database_.cache_size = 512 << 20;  // 512Mb
     config_->database_.migration_enabled = false;
 
     config_->metrics_.endpoint = {boost::asio::ip::address_v4::any(), 9615};
@@ -371,11 +532,15 @@ namespace jam::app {
           auto spec_file = section["cache_size"];
           if (spec_file.IsDefined()) {
             if (spec_file.IsScalar()) {
-              auto value = spec_file.as<size_t>();
-              config_->database_.cache_size = value;
+              auto value = parse_byte_size(spec_file.as<std::string>());
+              if (value.has_value()) {
+                config_->database_.cache_size = value.value();
+              } else {
+                file_errors_ << "E: Bad 'cache_size' value; "
+                                "Expected: 4096, 512Mb, 1G, etc.\n";
+              }
             } else {
-              file_errors_
-                  << "E: Value 'database.cache_size_mb' must be scalar\n";
+              file_errors_ << "E: Value 'database.cache_size' must be scalar\n";
               file_has_error_ = true;
             }
           }
