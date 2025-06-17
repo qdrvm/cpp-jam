@@ -83,4 +83,3 @@ struct fmt::formatter<jam::Stub> {
 
 template <typename T, typename U>
 struct fmt::formatter<qtils::Tagged<T, U>> : formatter<T> {};
-

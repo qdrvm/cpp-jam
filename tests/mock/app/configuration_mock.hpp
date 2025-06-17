@@ -15,6 +15,7 @@ namespace jam::app {
 
   class ConfigurationMock : public Configuration {
    public:
+    // clang-format off
     MOCK_METHOD(const std::string&, nodeVersion, (), (const, override));
     MOCK_METHOD(const std::string&, nodeName, (), (const, override));
     MOCK_METHOD(const std::filesystem::path&, basePath, (), (const, override));
@@ -24,6 +25,7 @@ namespace jam::app {
     MOCK_METHOD(const DatabaseConfig &, database, (), (const, override));
 
     MOCK_METHOD(const MetricsConfig &, metrics, (), (const, override));
+    // clang-format on
   };
 
 }  // namespace jam::app

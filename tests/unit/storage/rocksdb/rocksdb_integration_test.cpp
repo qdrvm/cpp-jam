@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "testutil/storage/base_rocksdb_test.hpp"
-
 #include <gtest/gtest.h>
 
 #include <array>
@@ -13,10 +11,10 @@
 
 #include <qtils/test/outcome.hpp>
 
-// #include "filesystem/common.hpp"
-#include "storage/storage_error.hpp"
+#include "testutil/storage/base_rocksdb_test.hpp"
+
 #include "storage/rocksdb/rocksdb.hpp"
-// #include "testutil/prepare_loggers.hpp"
+#include "storage/storage_error.hpp"
 
 using namespace jam::storage;
 namespace fs = std::filesystem;

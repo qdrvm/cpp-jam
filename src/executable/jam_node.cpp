@@ -16,8 +16,8 @@
 #include "app/configuration.hpp"
 #include "app/configurator.hpp"
 #include "injector/node_injector.hpp"
-#include "log/logger.hpp"
 #include "loaders/loader.hpp"
+#include "log/logger.hpp"
 #include "modules/module_loader.hpp"
 #include "se/subscription.hpp"
 
