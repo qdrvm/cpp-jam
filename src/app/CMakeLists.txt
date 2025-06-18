@@ -27,7 +27,9 @@ add_library(build_version
 
 add_library(app_configuration SHARED configuration.cpp)
 target_link_libraries(app_configuration
-    Boost::boost)
+    Boost::boost
+    fmt::fmt
+)
 
 add_library(app_configurator SHARED configurator.cpp)
 target_link_libraries(app_configurator
@@ -39,6 +41,7 @@ target_link_libraries(app_configurator
 
 add_library(app_state_manager SHARED impl/state_manager_impl.cpp)
 target_link_libraries(app_state_manager
+    qtils::qtils
     logger
 )
 

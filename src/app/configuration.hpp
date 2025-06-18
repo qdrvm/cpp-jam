@@ -5,8 +5,10 @@
 
 #pragma once
 
+#include <filesystem>
 #include <string>
 
+#include <filesystem>
 #include <boost/asio/ip/tcp.hpp>
 #include <utils/ctor_limiters.hpp>
 
@@ -15,23 +17,32 @@ namespace morum::app {
    public:
     using Endpoint = boost::asio::ip::tcp::endpoint;
 
+    struct MetricsConfig {
+      Endpoint endpoint;
+      std::optional<bool> enabled;
+    };
+
     Configuration();
 
     // /// Generate yaml-file with actual config
     // virtual void generateConfigFile() const = 0;
 
-    [[nodiscard]] std::string nodeVersion() const;
-    [[nodiscard]] std::string nodeName() const;
-    [[nodiscard]] std::optional<Endpoint> metricsEndpoint() const;
+    [[nodiscard]] virtual const std::string &nodeVersion() const;
+    [[nodiscard]] virtual const std::string &nodeName() const;
+    [[nodiscard]] virtual const std::filesystem::path &basePath() const;
+    [[nodiscard]] virtual const std::filesystem::path &modulesDir() const;
+
+    [[nodiscard]] virtual const MetricsConfig &metrics() const;
 
    private:
     friend class Configurator;  // for external configure
 
     std::string version_;
     std::string name_;
+    std::filesystem::path base_path_;
+    std::filesystem::path modules_dir_;
 
-    Endpoint metrics_endpoint_;
-    std::optional<bool> metrics_enabled_;
+    MetricsConfig metrics_;
   };
 
 }  // namespace morum::app

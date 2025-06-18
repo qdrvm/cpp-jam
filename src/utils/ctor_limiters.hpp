@@ -9,22 +9,30 @@
 #include <cstddef>
 #include <stdexcept>
 
+#include <fmt/format.h>
+
 namespace morum {
 
   class NonCopyable {
    public:
     // To prevent copy of instance
     NonCopyable() = default;
+    ~NonCopyable() = default;
     NonCopyable(const NonCopyable &) = delete;
     NonCopyable &operator=(const NonCopyable &) = delete;
+    NonCopyable(NonCopyable &&) = default;
+    NonCopyable &operator=(NonCopyable &&) = default;
   };
 
   class NonMovable {
    public:
     // To prevent movement of instance
     NonMovable() = default;
+    ~NonMovable() = default;
     NonMovable(NonMovable &&) = delete;
     NonMovable &operator=(NonMovable &&) = delete;
+    NonMovable(const NonMovable &) = default;
+    NonMovable &operator=(const NonMovable &) = default;
   };
 
   class StackOnly {
@@ -42,14 +50,16 @@ namespace morum {
   };
 
   template <typename T>
-  class Singleton : public NonCopyable, public NonMovable {
+    requires std::same_as<T, std::decay_t<T>>
+  class Singleton : NonCopyable, NonMovable {
     using BaseType = T;
 
    public:
     Singleton() {
       if (exists.test_and_set(std::memory_order_acquire)) {
         throw std::logic_error(
-            "Attempt to create one more instance of singleton");
+            fmt::format("Attempt to create one more instance of singleton '{}'",
+                        typeid(BaseType).name()));
       }
     }
     ~Singleton() {

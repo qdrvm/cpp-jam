@@ -30,7 +30,8 @@
 # IDE auxiliaries
 .idea
 
-/build*
+/build
+/build-ex
 /cmake-build-*
 /.build
 /.venv
@@ -38,3 +39,4 @@
 /.build*
 
 CMakeUserPresets.json
+/vcpkg_installed

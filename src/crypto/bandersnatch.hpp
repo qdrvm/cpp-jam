@@ -10,13 +10,13 @@
 #include <optional>
 
 #include <ark_vrf/ark_vrf.h>
-#include <qtils/bytes.hpp>
+#include <qtils/byte_arr.hpp>
 
 namespace morum::crypto::bandersnatch {
-  using Output = qtils::BytesN<JAM_BANDERSNATCH_OUTPUT>;
-  using Public = qtils::BytesN<JAM_BANDERSNATCH_PUBLIC>;
-  using RingCommitment = qtils::BytesN<JAM_BANDERSNATCH_RING_COMMITMENT>;
-  using RingSignature = qtils::BytesN<JAM_BANDERSNATCH_RING_SIGNATURE>;
+  using Output = qtils::ByteArr<JAM_BANDERSNATCH_OUTPUT>;
+  using Public = qtils::ByteArr<JAM_BANDERSNATCH_PUBLIC>;
+  using RingCommitment = qtils::ByteArr<JAM_BANDERSNATCH_RING_COMMITMENT>;
+  using RingSignature = qtils::ByteArr<JAM_BANDERSNATCH_RING_SIGNATURE>;
 
   inline std::optional<Output> output(qtils::BytesIn signature) {
     Output output;

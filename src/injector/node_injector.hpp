@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#include "se/subscription.hpp"
+
 namespace morum::log {
   class LoggingSystem;
 }  // namespace morum::log
@@ -16,6 +18,14 @@ namespace morum::app {
   class Configuration;
   class Application;
 }  // namespace morum::app
+
+namespace morum::loaders {
+  class Loader;
+}  // namespace morum::loaders
+
+namespace morum::modules {
+  class Module;
+}  // namespace morum::modules
 
 namespace morum::injector {
 
@@ -29,6 +39,8 @@ namespace morum::injector {
                           std::shared_ptr<app::Configuration> configuration);
 
     std::shared_ptr<app::Application> injectApplication();
+    std::unique_ptr<loaders::Loader> register_loader(
+        std::shared_ptr<modules::Module> module);
 
    protected:
     std::shared_ptr<class NodeInjectorImpl> pimpl_;

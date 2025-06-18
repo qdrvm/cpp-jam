@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <qtils/bytes.hpp>
+#include <qtils/byte_arr.hpp>
 
 /**
  * Keccak hash
@@ -12,7 +12,7 @@
 
 namespace morum::crypto {
   struct Keccak {
-    using Hash32 = qtils::BytesN<32>;
+    using Hash32 = qtils::ByteArr<32>;
     uint64_t state[5][5] = {};
     size_t blockOff = 0;
     static constexpr size_t HASH_LEN = 32;

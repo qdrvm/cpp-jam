@@ -8,19 +8,31 @@
 namespace morum::app {
 
   Configuration::Configuration()
-      : version_("undefined"), name_("unnamed"), metrics_endpoint_() {}
+      : version_("undefined"),
+        name_("unnamed"),
+        metrics_{
+            .endpoint{},
+            .enabled{},
+        } {}
 
-  std::string Configuration::nodeVersion() const {
+  const std::string &Configuration::nodeVersion() const {
     return version_;
   }
 
-  std::string Configuration::nodeName() const {
+  const std::string &Configuration::nodeName() const {
     return name_;
   }
 
-  std::optional<Configuration::Endpoint> Configuration::metricsEndpoint()
-      const {
-    return metrics_endpoint_;
+  const std::filesystem::path &Configuration::basePath() const {
+    return base_path_;
+  }
+
+  const std::filesystem::path &Configuration::modulesDir() const {
+    return modules_dir_;
+  }
+
+  const Configuration::MetricsConfig &Configuration::metrics() const {
+    return metrics_;
   }
 
 }  // namespace morum::app

@@ -5,13 +5,13 @@
  */
 
 #include <schnorrkel/schnorrkel.h>
-#include <qtils/bytes.hpp>
+#include <qtils/byte_arr.hpp>
 
-namespace morum::crypto::ed25519 {
-  using Secret = qtils::BytesN<ED25519_SECRET_KEY_LENGTH>;
-  using Public = qtils::BytesN<ED25519_PUBLIC_KEY_LENGTH>;
-  using KeyPair = qtils::BytesN<ED25519_KEYPAIR_LENGTH>;
-  using Signature = qtils::BytesN<ED25519_SIGNATURE_LENGTH>;
+namespace jam::crypto::ed25519 {
+  using Secret = qtils::ByteArr<ED25519_SECRET_KEY_LENGTH>;
+  using Public = qtils::ByteArr<ED25519_PUBLIC_KEY_LENGTH>;
+  using KeyPair = qtils::ByteArr<ED25519_KEYPAIR_LENGTH>;
+  using Signature = qtils::ByteArr<ED25519_SIGNATURE_LENGTH>;
   using Message = qtils::BytesIn;
 
   inline std::optional<Signature> sign(const KeyPair &keypair,

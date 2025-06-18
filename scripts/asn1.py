@@ -185,7 +185,7 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
         if T == "U8":
             if fixed:
                 if type(size) is int:
-                    return "qtils::BytesN<%u>" % size
+                    return "qtils::ByteArr<%u>" % size
                 else:
                     return "::morum::ConfigVec<uint8_t, Config::Field::%s>" % c_dash(size)
             return "qtils::Bytes"
@@ -412,7 +412,8 @@ class GenCommonTypes:
             "#include <string_view>",
             "#include <variant>",
             "",
-            "#include <qtils/bytes.hpp>",
+            "#include <qtils/byte_arr.hpp>",
+            "#include <qtils/byte_vec.hpp>",
             "#include <qtils/empty.hpp>",
             "#include <qtils/tagged.hpp>",
             "",
@@ -468,7 +469,8 @@ class GenSpecialTypes:
             "#include <string_view>",
             "#include <variant>",
             "",
-            "#include <qtils/bytes.hpp>",
+            "#include <qtils/byte_arr.hpp>",
+            "#include <qtils/byte_vec.hpp>",
             "",
             *includes,
             "#include <test-vectors/config-types.hpp>",

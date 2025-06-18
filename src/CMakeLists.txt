@@ -4,7 +4,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_BINARY_DIR}/generated)
 
 # Executables (should contain `main()` function)
 add_subdirectory(executable)
@@ -26,3 +28,9 @@ add_subdirectory(clock)
 
 # Merkle tree DB
 add_subdirectory(merkle_tree)
+
+# Subscription Engine subsystem
+add_subdirectory(se)
+
+# Modules subsystem
+add_subdirectory(modules)

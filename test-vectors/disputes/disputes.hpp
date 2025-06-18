@@ -74,7 +74,7 @@ namespace morum::disputes {
                              const morum::crypto::ed25519::Public &pub,
                              qtils::BytesIn X,
                              const types::WorkReportHash &work_report) {
-    qtils::Bytes payload;
+    qtils::ByteVec payload;
     qtils::append(payload, X);
     qtils::append(payload, work_report);
     return morum::crypto::ed25519::verify(sig, payload, pub);
@@ -82,17 +82,17 @@ namespace morum::disputes {
 
   // [GP 0.4.5 I.4.5]
   // $jam_valid - Ed25519 Judgments for valid work-reports.
-  constexpr qtils::BytesN<9> kJamValid{
+  constexpr qtils::ByteArr<9> kJamValid{
       'j', 'a', 'm', '_', 'v', 'a', 'l', 'i', 'd'};
 
   // [GP 0.4.5 I.4.5]
   // $jam_invalid - Ed25519 Judgments for invalid work-reports.
-  constexpr qtils::BytesN<11> kJamInvalid{
+  constexpr qtils::ByteArr<11> kJamInvalid{
       'j', 'a', 'm', '_', 'i', 'n', 'v', 'a', 'l', 'i', 'd'};
 
   // [GP 0.4.5 I.4.5]
   // $jam_guarantee - Ed25519 Guarantee statements.
-  constexpr qtils::BytesN<13> kJamGuarantee{
+  constexpr qtils::ByteArr<13> kJamGuarantee{
       'j', 'a', 'm', '_', 'g', 'u', 'a', 'r', 'a', 'n', 't', 'e', 'e'};
 
   /// Given state and input, derive next state and output.
