@@ -10,10 +10,10 @@ vcpkg_cmake_install()
 vcpkg_cmake_config_fixup(PACKAGE_NAME "qdrvm-crates" CONFIG_PATH "lib/cmake/qdrvm-crates" NO_PREFIX_CORRECTION)
 
 # since config file is moved to share/
-vcpkg_replace_string(
-  "${CURRENT_PACKAGES_DIR}/share/qdrvm-crates/qdrvm-cratesConfig.cmake"
-  "{CMAKE_CURRENT_LIST_DIR}/../../../"
-  "{CMAKE_CURRENT_LIST_DIR}/../../"
-)
+#vcpkg_replace_string(
+#  "${CURRENT_PACKAGES_DIR}/share/qdrvm-crates/qdrvm-cratesConfig.cmake"
+#  "{CMAKE_CURRENT_LIST_DIR}/../../../"
+#  "{CMAKE_CURRENT_LIST_DIR}/../../"
+#)
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
