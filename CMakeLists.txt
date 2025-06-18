@@ -41,6 +41,7 @@ option(MORUM_TSAN "Enable address sanitizer" OFF)
 option(MORUM_UBSAN "Enable address sanitizer" OFF)
 option(MORUM_TRACE "Enable tracing" OFF)
 
+set(Python3_FIND_VIRTUALENV ONLY)
 find_package(Python3 REQUIRED)
 find_package(Boost CONFIG REQUIRED COMPONENTS algorithm program_options outcome)
 find_package(fmt CONFIG REQUIRED)
