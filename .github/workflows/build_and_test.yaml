@@ -51,6 +51,13 @@ jobs:
           toolchain: stable
           components: rustfmt, clippy
 
+      - name: switch to gcc-14 on linux
+        if: matrix.configurations.os == "ubuntu-24.04"
+        run: |
+          sudo apt install gcc-14 g++-14
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100 --slave /usr/bin/g++ g++ /usr/bin/g++-14 --slave /usr/bin/gcov gcov /usr/bin/gcov-14
+          sudo update-alternatives --set gcc /usr/bin/gcc-14
+
       - name: "Restore cache dependencies"
         id: cache-restore
         if: ${{ env.USE_CACHE == 'true' }}
