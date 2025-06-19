@@ -127,8 +127,9 @@ namespace morum::injector {
       loader = pimpl_->injector_
                    .create<std::unique_ptr<morum::loaders::NetworkingLoader>>();
     } else if ("SynchronizerLoader" == module->get_loader_id()) {
-      loader = pimpl_->injector_
-                   .create<std::unique_ptr<morum::loaders::SynchronizerLoader>>();
+      loader =
+          pimpl_->injector_
+              .create<std::unique_ptr<morum::loaders::SynchronizerLoader>>();
     } else {
       SL_CRITICAL(logger,
                   "> No loader found for: {} [{}]",
