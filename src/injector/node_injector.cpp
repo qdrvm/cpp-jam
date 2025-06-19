@@ -63,7 +63,7 @@ namespace {
         di::bind<metrics::Handler>.to<metrics::PrometheusHandler>(),
         di::bind<metrics::Exposer>.to<metrics::ExposerImpl>(),
         di::bind<Dispatcher>.to<se::AsyncDispatcher<kHandlersCount, kThreadPoolSize>>(),
-        di::bind<metrics::Exposer::Configuration>.to([](const auto &injector) {
+        di::bind<metrics::Exposer::Configuration>.to([](const auto &) {
           return metrics::Exposer::Configuration{
               {boost::asio::ip::address_v4::from_string("127.0.0.1"), 7777}
               // injector
