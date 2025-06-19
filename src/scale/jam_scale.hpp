@@ -22,7 +22,7 @@ namespace morum {
     } catch (std::system_error &e) {
       return outcome::failure(e.code());
     }
-    return std::move(out);
+    return out;
   }
 
   template <typename T, typename... Configs>

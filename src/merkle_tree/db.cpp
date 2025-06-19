@@ -190,7 +190,7 @@ namespace morum {
     return {};
   }
 
-  std::expected<std::optional<qtils::Bytes>, StorageError>
+  std::expected<std::optional<qtils::ByteVec>, StorageError>
   RocksDbColumnFamily::read(qtils::ByteView key) const {
     std::string value;
     auto status = db->db->Get(rocksdb::ReadOptions{},

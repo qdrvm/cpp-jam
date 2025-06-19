@@ -34,7 +34,7 @@ namespace morum::modules {
 
     // tmp entry point for experiments
     auto x = std::make_shared<const messages::BlockResponseMessage>(
-        messages::BlockResponseMessage{.ctx = msg->ctx, .result = Block{}});
+        messages::BlockResponseMessage{.ctx = msg->ctx, .result = Block{}, .peer{}});
     loader_.dispatch_block_response(std::move(x));
   };
 

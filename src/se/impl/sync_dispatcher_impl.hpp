@@ -35,8 +35,8 @@ namespace morum::se {
       task();
     }
 
-    void repeat(Tid tid,
-                std::chrono::microseconds timeout,
+    void repeat(Tid /*tid*/,
+                std::chrono::microseconds /*timeout*/,
                 typename Parent::Task &&task,
                 typename Parent::Predicate &&pred) override {
       if (!pred || pred()) {

@@ -31,7 +31,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API ON)
 
-add_compile_options(-Wall -Wextra)
+add_compile_options(-Wall -Wextra -Werror)
 
 if ((CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo") AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_compile_options(-flto=thin)

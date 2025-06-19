@@ -20,7 +20,9 @@ MODULE_C_API const char *module_info() {
 static std::shared_ptr<morum::modules::Networking> module_instance;
 
 #pragma GCC diagnostic push
+#ifdef __clang__
 #pragma GCC diagnostic ignored "-Wreturn-type-c-linkage"
+#endif
 
 MODULE_C_API std::weak_ptr<morum::modules::Networking> query_module_instance(
     morum::modules::NetworkingLoader &loader,

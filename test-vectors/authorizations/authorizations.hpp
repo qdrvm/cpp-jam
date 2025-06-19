@@ -29,7 +29,7 @@ namespace morum::authorizations {
 
     // [GP 0.4.5 8 85]
     // [α[c]] - set of authorizers allowable for a particular core
-    const auto &pool = state.auth_pools;
+    // state.auth_pools;
 
     // [GP 0.4.5 8 85]
     // [φ[c]] - the core’s current authorizer queue, from which we draw values

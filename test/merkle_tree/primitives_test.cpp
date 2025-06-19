@@ -30,7 +30,7 @@ void test_node_consistency(
 }
 
 int main() {
-  qtils::ByteArray<5> array{0x01, 0x23, 0x45, 0x67, 0x89};
+  qtils::ByteArr<5> array{0x01, 0x23, 0x45, 0x67, 0x89};
   qtils::BitSpan<> span{array};
   QTILS_ASSERT_EQ(span.get_as_byte(0, 8), 0x01);
   QTILS_ASSERT_EQ(span.get_as_byte(8, 8), 0x23);
@@ -40,7 +40,7 @@ int main() {
   QTILS_ASSERT_EQ(span.get_as_byte(4, 8), 0x30);
   QTILS_ASSERT_EQ(span.get_as_byte(12, 3), 0x2);
 
-  qtils::ByteArray<32> path{0b0000'0000};
+  qtils::ByteArr<32> path{0b0000'0000};
   morum::Page page{};
   auto node1 = page.get_node(qtils::BitSpan<>{path, 0, 1});
   QTILS_ASSERT_HAS_VALUE(node1);
@@ -74,7 +74,7 @@ int main() {
   }
   for (size_t depth = 1; depth < 6; depth++) {
     morum::Page page{};
-    qtils::ByteArray<32> path{0b1010'1010};
+    qtils::ByteArr<32> path{0b1010'1010};
     test_node_consistency(page,
         qtils::BitSpan<>{path, 0, depth},
         morum::RawNode{

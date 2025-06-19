@@ -25,19 +25,19 @@ namespace morum::modules {
   }
 
   void SynchronizerImpl::on_block_index_discovered(
-      std::shared_ptr<const messages::BlockDiscoveredMessage> msg) {
+      std::shared_ptr<const messages::BlockDiscoveredMessage>) {
     SL_INFO(logger_, "Block discovered");
   };
 
   void SynchronizerImpl::on_block_announce(
-      std::shared_ptr<const messages::BlockAnnounceMessage> msg) {
+      std::shared_ptr<const messages::BlockAnnounceMessage>) {
     SL_INFO(logger_, "Block announced");
 
     // tmp
     static const size_t s = reinterpret_cast<size_t>(this);
     static size_t n = 0;
     auto x = std::make_shared<const messages::BlockRequestMessage>(
-        messages::BlockRequestMessage{.ctx = {{s, ++n}}});
+        messages::BlockRequestMessage{.ctx = {{s, ++n}}, .request{}, .peer{}});
 
     // block_response_callbacks_.emplace(x->ctx.rid, [&](auto& msg) {
     //   SL_INFO(logger_, "Block response has been handled; rid={}",

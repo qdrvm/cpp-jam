@@ -76,7 +76,7 @@ namespace morum {
     using Timeout = std::chrono::seconds;
 
     Watchdog(std::shared_ptr<log::LoggingSystem> logsys,
-             std::shared_ptr<app::Configuration> config)
+             std::shared_ptr<app::Configuration>)
         : logger_(logsys->getLogger("Watchdog", "threads")),
           granularity_(1 /*config->granularity()*/) {
       // BOOST_ASSERT(granularity != granularity.zero());

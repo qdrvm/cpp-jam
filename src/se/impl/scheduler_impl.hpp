@@ -155,7 +155,7 @@ namespace morum::se {
       return 0;
     }
 
-    void dispose(bool wait_for_release = true) override {
+    void dispose(bool /* wait_for_release = true */) override {
       proceed_.clear();
       event_.set();
     }
