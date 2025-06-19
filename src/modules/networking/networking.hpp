@@ -12,7 +12,7 @@
 #include <qtils/shared_ref.hpp>
 #include <utils/ctor_limiters.hpp>
 
-namespace jam::modules {
+namespace morum::modules {
 
   class NetworkingImpl final : public Singleton<Networking>, public Networking {
    public:
@@ -34,4 +34,4 @@ namespace jam::modules {
     log::Logger logger_;
   };
 
-}  // namespace jam::modules
+}  // namespace morum::modules

@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace jam {
+namespace morum {
   enum class SubscriptionEngineHandlers {
     kTest = 0,
     //---------------
@@ -86,4 +86,4 @@ namespace jam {
   using BaseSubscriber =
       se::SubscriberImpl<EventTypes, Dispatcher, ObjectType, EventData...>;
 
-}  // namespace jam
+}  // namespace morum

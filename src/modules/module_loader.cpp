@@ -8,8 +8,8 @@
 
 #define COMPONENT_NAME "ModuleLoader"
 
-OUTCOME_CPP_DEFINE_CATEGORY(jam::modules, ModuleLoader::Error, e) {
-  using E = jam::modules::ModuleLoader::Error;
+OUTCOME_CPP_DEFINE_CATEGORY(morum::modules, ModuleLoader::Error, e) {
+  using E = morum::modules::ModuleLoader::Error;
   switch (e) {
     case E::PathIsNotADir:
       return COMPONENT_NAME ": path is not a directory";
@@ -27,7 +27,7 @@ OUTCOME_CPP_DEFINE_CATEGORY(jam::modules, ModuleLoader::Error, e) {
   return COMPONENT_NAME ": unknown error";
 }
 
-namespace jam::modules {
+namespace morum::modules {
 
   Result<void> ModuleLoader::recursive_search(
       const fs::path &dir_path, std::deque<std::shared_ptr<Module>> &modules) {
@@ -94,4 +94,4 @@ namespace jam::modules {
   }
 
 
-}  // namespace jam::modules
+}  // namespace morum::modules

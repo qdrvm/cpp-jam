@@ -20,6 +20,6 @@
 #include <scale/...>
 
 // project
-#include <jam/...>
+#include <morum/...>
 #include <test-vectors/...>
 ```

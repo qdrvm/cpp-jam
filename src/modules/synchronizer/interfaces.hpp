@@ -9,7 +9,7 @@
 #include <modules/shared/networking_types.tmp.hpp>
 #include <modules/shared/synchronizer_types.tmp.hpp>
 
-namespace jam::modules {
+namespace morum::modules {
 
   struct SynchronizerLoader {
     virtual ~SynchronizerLoader() = default;
@@ -36,4 +36,4 @@ namespace jam::modules {
         std::shared_ptr<const messages::BlockResponseMessage> msg) = 0;
   };
 
-}  // namespace jam::modules
+}  // namespace morum::modules

@@ -24,6 +24,7 @@
 #include <morum/calculate_root_in_memory.hpp>
 #include <morum/merkle_tree.hpp>
 #include <morum/common.hpp>
+#include <qtils/byte_view.hpp>
 
 uint8_t unhex(char c) {
   if (isdigit(c)) {
@@ -49,7 +50,7 @@ void unhex(std::string_view hex, It it) {
   }
 }
 
-std::string hex(std::span<const unsigned char> bytes) {
+std::string hex(qtils::ByteView bytes) {
   std::string s(bytes.size() * 2, 0);
   for (size_t i = 0; i < bytes.size(); i++) {
     s[i * 2] = hex(bytes[i] >> 4);
@@ -78,16 +79,16 @@ int main() {
   for (auto test_case : test_cases | std::views::drop(start_from)) {
     morum::MerkleTree tree{std::make_unique<morum::FlatPagedNodeStorage>(),
         std::make_shared<morum::NoopNodeLoader>()};
-    std::vector<std::pair<morum::Hash32, morum::ByteVector>> state;
+    std::vector<std::pair<morum::Hash32, qtils::ByteVec>> state;
     for (auto &[k, v] : test_case["input"].items()) {
       morum::Hash32 key;
       unhex(k, static_cast<unsigned char *>(key.data()));
       auto value_str = v.get<std::string>();
-      morum::ByteVector value(value_str.size() / 2);
+      qtils::ByteVec value(value_str.size() / 2);
       unhex(value_str, value.data());
       state.push_back(std::pair{key, value});
       [[maybe_unused]] auto res =
-          tree.set(key, morum::ByteVector{value}).has_value();
+          tree.set(key, qtils::ByteVec{value}).has_value();
       QTILS_ASSERT(res);
     }
     std::ranges::sort(state,

@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace jam::se::utils {
+namespace morum::se::utils {
 
   class Hasher {
     static constexpr /* h */ uint32_t __init__(uint32_t len) {
@@ -85,11 +85,11 @@ namespace jam::se::utils {
     }
   };
 
-}  // namespace jam::se::utils
+}  // namespace morum::se::utils
 
 #ifndef CT_MURMUR2
 #define CT_MURMUR2(x) \
-  ::jam::se::utils::Hasher::murmur2(x, (sizeof(x) / sizeof(x[0])) - 1)
+  ::morum::se::utils::Hasher::murmur2(x, (sizeof(x) / sizeof(x[0])) - 1)
 #endif  // CT_MURMUR2
 
 static_assert(CT_MURMUR2("Called the One Ring, or the Ruling Ring.")

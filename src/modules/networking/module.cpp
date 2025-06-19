@@ -17,16 +17,16 @@ MODULE_C_API const char *module_info() {
   return "Networking v0.0";
 }
 
-static std::shared_ptr<jam::modules::Networking> module_instance;
+static std::shared_ptr<morum::modules::Networking> module_instance;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type-c-linkage"
 
-MODULE_C_API std::weak_ptr<jam::modules::Networking> query_module_instance(
-    jam::modules::NetworkingLoader &loader,
-    std::shared_ptr<jam::log::LoggingSystem> logsys) {
+MODULE_C_API std::weak_ptr<morum::modules::Networking> query_module_instance(
+    morum::modules::NetworkingLoader &loader,
+    std::shared_ptr<morum::log::LoggingSystem> logsys) {
   if (!module_instance) {
-    module_instance = std::make_shared<jam::modules::NetworkingImpl>(
+    module_instance = std::make_shared<morum::modules::NetworkingImpl>(
         loader, std::move(logsys));
   }
   return module_instance;

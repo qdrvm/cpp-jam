@@ -20,7 +20,7 @@
 #include <qtils/assert.hpp>
 #include <qtils/bitspan.hpp>
 #include <qtils/bytes.hpp>
-#include <qtils/fixed_byte_vector.hpp>
+#include <qtils/fixed_byte_vec.hpp>
 #include <qtils/optional_ref.hpp>
 
 #include <morum/common.hpp>
@@ -85,7 +85,7 @@ namespace morum {
     qtils::OptionalRef<const TreeNode> get_root() const;
 
     // value hash or embedded value
-    using CachedValue = std::variant<Hash32, qtils::FixedByteVector<32>>;
+    using CachedValue = std::variant<Hash32, qtils::FixedByteVec<32>>;
 
    public:
     explicit MerkleTree(const TreeNode &root,
@@ -106,9 +106,9 @@ namespace morum {
     }
 
     std::expected<void, StorageError> set(
-        const Hash32 &key, ByteVector &&value);
+        const Hash32 &key, qtils::ByteVec &&value);
 
-    std::expected<std::optional<qtils::ByteSpan>, StorageError> get(
+    std::expected<std::optional<qtils::ByteView>, StorageError> get(
         const Hash32 &key) const;
 
     std::expected<bool, StorageError> exists(const Hash32 &key) const;
@@ -118,19 +118,19 @@ namespace morum {
     }
 
     struct ValueWithPath {
-      qtils::ByteSpan key;
-      qtils::ByteSpan value;
+      qtils::ByteView key;
+      qtils::ByteView value;
 
-      qtils::ByteArray<32> path_storage;
+      qtils::ByteArr<32> path_storage;
       qtils::BitSpan<> path;
     };
 
     static void empty_visitor(
-        const TreeNode &, qtils::ByteSpan, qtils::ByteSpan, qtils::BitSpan<>) {}
+        const TreeNode &, qtils::ByteView, qtils::ByteView, qtils::BitSpan<>) {}
 
     template <std::invocable<const TreeNode &,
-                  qtils::ByteSpan,
-                  qtils::ByteSpan,
+                  qtils::ByteView,
+                  qtils::ByteView,
                   qtils::BitSpan<>> Visitor = decltype(empty_visitor)>
     Hash32 calculate_hash(const Visitor &visitor = empty_visitor) const {
       if (empty()) {
@@ -143,7 +143,7 @@ namespace morum {
         hash = blake2b_256(serialized);
         visitor(*get_root(), serialized, hash, qtils::BitSpan<>{});
       } else {
-        ByteArray<sizeof(Hash32)> path_storage;
+        qtils::ByteArr<sizeof(Hash32)> path_storage;
         hash = calculate_hash(
             *get_root(), visitor, qtils::BitSpan<uint8_t>{path_storage, 0, 0});
       }
@@ -154,7 +154,7 @@ namespace morum {
 
     // if the value is cached, it means it's 'dirty' and should be written to
     // the DB
-    std::optional<qtils::ByteSpan> get_cached_value(
+    std::optional<qtils::ByteView> get_cached_value(
         const ValueHash &hash) const {
       auto it = value_cache_.find(hash);
       if (it != value_cache_.end()) {
@@ -167,7 +167,7 @@ namespace morum {
     std::expected<std::optional<size_t>, StorageError> get_child_idx(
         Branch &branch, int8_t bit, qtils::BitSpan<> path) const;
 
-    std::expected<qtils::ByteSpan, StorageError> get_value(
+    std::expected<qtils::ByteView, StorageError> get_value(
         Leaf::HashOrValue hash_or_value) const;
 
     struct NodeWithPath {
@@ -181,14 +181,14 @@ namespace morum {
     std::expected<std::optional<NodeId>, StorageError> find_leaf(
         const Hash32 &key) const;
 
-    size_t create_leaf_node(const Hash32 &key, qtils::Bytes &&value);
+    size_t create_leaf_node(const Hash32 &key, qtils::ByteVec &&value);
 
     void replace_leaf_with_branch(
         size_t path_len, size_t old_leaf_idx, size_t new_leaf_idx);
 
     template <std::invocable<const TreeNode &,
-        qtils::ByteSpan,
-        qtils::ByteSpan,
+        qtils::ByteView,
+        qtils::ByteView,
         qtils::BitSpan<>> Visitor>
     Hash32 calculate_hash(const TreeNode &n,
         const Visitor &visitor,
@@ -234,7 +234,7 @@ namespace morum {
     mutable std::shared_ptr<NodeStorage> nodes_;
     mutable std::shared_ptr<NodeLoader> loader_;
     mutable std::shared_ptr<KeyValueStorage> value_storage_;
-    mutable std::unordered_map<ValueHash, qtils::Bytes> value_cache_;
+    mutable std::unordered_map<ValueHash, qtils::ByteVec> value_cache_;
   };
 
 }  // namespace morum

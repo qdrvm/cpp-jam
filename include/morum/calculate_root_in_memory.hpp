@@ -21,7 +21,7 @@ namespace morum {
                               } -> std::convertible_to<Hash32>;
                               {
                                 std::get<1>(value)
-                              } -> std::convertible_to<qtils::ByteSpan>;
+                              } -> std::convertible_to<qtils::ByteView>;
                             };
 
   template <StateDictionary State>
@@ -32,7 +32,7 @@ namespace morum {
     if (std::ranges::begin(state) + 1 == std::ranges::end(state)) {
       auto kv = std::ranges::begin(state);
       auto &&[k, v] = *kv;
-      ByteArray<31> partial_key;
+      qtils::ByteArr<31> partial_key;
       std::copy_n(k.begin(), 31, partial_key.begin());
       return blake2b_256(serialize_leaf(partial_key, v));
     }

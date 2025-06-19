@@ -21,7 +21,7 @@
 #include "scheduler.hpp"
 #include "utils/ctor_limiters.hpp"
 
-namespace jam::se {
+namespace morum::se {
 
   class SchedulerBase : public IScheduler, NonCopyable, NonMovable {
    private:
@@ -189,4 +189,4 @@ namespace jam::se {
     }
   };
 
-}  // namespace jam::se
+}  // namespace morum::se

@@ -188,7 +188,7 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
                     return "qtils::ByteArr<%u>" % size
                 else:
                     return "::morum::ConfigVec<uint8_t, Config::Field::%s>" % c_dash(size)
-            return "qtils::Bytes"
+            return "qtils::ByteVec"
         if fixed:
             if isinstance(size, str):
                 return "::morum::ConfigVec<%s, Config::Field::%s>" % (T, c_dash(size))

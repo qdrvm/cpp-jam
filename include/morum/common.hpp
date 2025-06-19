@@ -67,12 +67,7 @@ namespace morum {
 
 namespace morum {
 
-  using ByteVector = std::vector<unsigned char>;
-
-  template <size_t N>
-  using ByteArray = std::array<unsigned char, N>;
-
-  using Hash32 = ByteArray<32>;
+  using Hash32 = qtils::ByteArr<32>;
 
   constexpr Hash32 operator~(Hash32 h) {
     Hash32 res;
@@ -122,9 +117,9 @@ struct std::hash<morum::Hash32> {
 
 namespace morum {
 
-  inline constexpr const Hash32 ZeroHash32{{}};
+  inline constexpr const Hash32 ZeroHash32{};
 
-  Hash32 blake2b_256(qtils::ByteSpan bytes);
+  Hash32 blake2b_256(qtils::ByteView bytes);
 
   inline unsigned char reverse_bits(unsigned char b) {
     b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;

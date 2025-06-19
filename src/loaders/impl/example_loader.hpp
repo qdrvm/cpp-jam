@@ -16,7 +16,7 @@
 #include "modules/example/example.hpp"
 #include "se/subscription.hpp"
 
-namespace jam::loaders {
+namespace morum::loaders {
 
   class ExampleLoader final
       : public std::enable_shared_from_this<ExampleLoader>,
@@ -50,7 +50,7 @@ namespace jam::loaders {
       auto module_accessor =
           get_module()
               ->getFunctionFromLibrary<
-                  std::weak_ptr<jam::modules::ExampleModule>,
+                  std::weak_ptr<morum::modules::ExampleModule>,
                   modules::ExampleModuleLoader &,
                   std::shared_ptr<log::LoggingSystem>>("query_module_instance");
 
@@ -112,19 +112,19 @@ namespace jam::loaders {
                     }
                   });
 
-      se_manager_->notify(jam::EventTypes::ExampleModuleIsLoaded);
+      se_manager_->notify(morum::EventTypes::ExampleModuleIsLoaded);
     }
 
     void dispatch_request(std::shared_ptr<const std::string> s) override {
-      se_manager_->notify(jam::EventTypes::ExampleRequest, s);
+      se_manager_->notify(morum::EventTypes::ExampleRequest, s);
     }
 
     void dispatch_response(std::shared_ptr<const std::string> s) override {
-      se_manager_->notify(jam::EventTypes::ExampleResponse, s);
+      se_manager_->notify(morum::EventTypes::ExampleResponse, s);
     }
 
     void dispatch_notify(std::shared_ptr<const std::string> s) override {
-      se_manager_->notify(jam::EventTypes::ExampleNotification, s);
+      se_manager_->notify(morum::EventTypes::ExampleNotification, s);
     }
   };
-}  // namespace jam::loaders
+}  // namespace morum::loaders

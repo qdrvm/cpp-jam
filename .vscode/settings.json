@@ -1,6 +1,6 @@
 {
     "clangd.arguments": [
-        "--compile-commands-dir=build-clang-20-debug"
+        "--compile-commands-dir=build-gcc-15-debug"
     ],
     "makefile.configureOnOpen": false
 }

@@ -17,16 +17,16 @@ MODULE_C_API const char *module_info() {
   return "ExampleModule v1.0";
 }
 
-static std::shared_ptr<jam::modules::ExampleModule> module_instance;
+static std::shared_ptr<morum::modules::ExampleModule> module_instance;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type-c-linkage"
 
-MODULE_C_API std::weak_ptr<jam::modules::ExampleModule> query_module_instance(
-    jam::modules::ExampleModuleLoader& loader,
-    std::shared_ptr<jam::log::LoggingSystem> logger) {
+MODULE_C_API std::weak_ptr<morum::modules::ExampleModule> query_module_instance(
+    morum::modules::ExampleModuleLoader& loader,
+    std::shared_ptr<morum::log::LoggingSystem> logger) {
   if (!module_instance) {
-    module_instance = std::make_shared<jam::modules::ExampleModuleImpl>(
+    module_instance = std::make_shared<morum::modules::ExampleModuleImpl>(
         loader, std::move(logger));
   }
   return module_instance;

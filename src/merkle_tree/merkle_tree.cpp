@@ -36,24 +36,24 @@ namespace morum {
     return (a + b - 1) / b;
   }
 
-  Hash32 blake2b_256(qtils::ByteSpan bytes) {
+  Hash32 blake2b_256(qtils::ByteView bytes) {
     Hash32 res;
     blake2(res.data(), res.size(), bytes.data(), bytes.size(), nullptr, 0);
     return res;
   }
 
-  qtils::ByteArray<64> serialize_leaf(
-      const qtils::ByteArray<31> &key, const Hash32 &value_hash) {
-    qtils::ByteArray<64> bytes{};
+  qtils::ByteArr<64> serialize_leaf(
+      const qtils::ByteArr<31> &key, const Hash32 &value_hash) {
+    qtils::ByteArr<64> bytes{};
     bytes[0] = 0x3;
     std::copy_n(key.begin(), 31, bytes.begin() + 1);
     std::copy_n(value_hash.begin(), value_hash.size(), bytes.begin() + 32);
     return bytes;
   }
 
-  qtils::ByteArray<64> serialize_leaf(
-      const qtils::ByteArray<31> &key, qtils::ByteSpan value) {
-    qtils::ByteArray<64> bytes{};
+  qtils::ByteArr<64> serialize_leaf(
+      const qtils::ByteArr<31> &key, qtils::ByteView value) {
+    qtils::ByteArr<64> bytes{};
     Hash32 value_hash;
     if (value.size() <= 32) {
       bytes[0] = 0x01 | (value.size() << 2);
@@ -68,24 +68,24 @@ namespace morum {
     return bytes;
   }
 
-  qtils::ByteArray<64> serialize_leaf(
-      const qtils::ByteArray<31> &key, const Leaf::HashOrValue &value) {
+  qtils::ByteArr<64> serialize_leaf(
+      const qtils::ByteArr<31> &key, const Leaf::HashOrValue &value) {
     if (std::holds_alternative<HashRef>(value)) {
       return serialize_leaf(key, std::get<HashRef>(value).get());
     }
-    return serialize_leaf(key, std::get<qtils::ByteSpan>(value));
+    return serialize_leaf(key, std::get<qtils::ByteView>(value));
   }
 
-  qtils::ByteArray<64> serialize_branch(
+  qtils::ByteArr<64> serialize_branch(
       const Hash32 &left, const Hash32 &right) {
-    qtils::ByteArray<64> bytes{};
+    qtils::ByteArr<64> bytes{};
     bytes[0] = 0xFE & left[0];
     std::copy_n(left.begin() + 1, 31, bytes.begin() + 1);
     std::copy_n(right.begin(), 32, bytes.begin() + 32);
     return bytes;
   }
 
-  TreeNode deserialize_node(qtils::ByteSpan bytes) {
+  TreeNode deserialize_node(qtils::ByteView bytes) {
     qtils::BitSpan<> bits{bytes};
     if (bits[0] == 0) {
       Branch branch;
@@ -97,7 +97,7 @@ namespace morum {
       }
       return branch;
     }
-    qtils::ByteArray<31> key;
+    qtils::ByteArr<31> key;
     std::ranges::copy(bytes.subspan(1, 31), key.begin());
     if (bits[1] == 0) {
       size_t value_size = bytes[0] >> 3;
@@ -121,7 +121,7 @@ namespace morum {
   }
 
   std::expected<void, StorageError> MerkleTree::set(
-      const Hash32 &key, ByteVector &&value) {
+      const Hash32 &key, qtils::ByteVec &&value) {
     MORUM_TRACE("Set {}", BitSpan<>{key});
     if (empty()) {
       MORUM_TRACE("New root");
@@ -178,7 +178,7 @@ namespace morum {
     return {};
   }
 
-  std::expected<std::optional<qtils::ByteSpan>, StorageError> MerkleTree::get(
+  std::expected<std::optional<qtils::ByteView>, StorageError> MerkleTree::get(
       const Hash32 &key) const {
     QTILS_UNWRAP(const auto &leaf_id_opt, find_leaf(key));
     if (!leaf_id_opt) {
@@ -217,11 +217,11 @@ namespace morum {
     return std::nullopt;
   }
 
-  std::expected<qtils::ByteSpan, StorageError> MerkleTree::get_value(
+  std::expected<qtils::ByteView, StorageError> MerkleTree::get_value(
       Leaf::HashOrValue hash_or_value) const {
-    if (auto *embedded_val = std::get_if<qtils::ByteSpan>(&hash_or_value);
+    if (auto *embedded_val = std::get_if<qtils::ByteView>(&hash_or_value);
         embedded_val) {
-      return qtils::ByteSpan{embedded_val->data(), embedded_val->size()};
+      return qtils::ByteView{embedded_val->data(), embedded_val->size()};
     }
     QTILS_ASSERT(std::holds_alternative<HashRef>(hash_or_value));
     auto &hash = std::get<HashRef>(hash_or_value).get();
@@ -275,7 +275,7 @@ namespace morum {
     if (root.is_leaf()) {
       // TODO: what if the missing byte mismatches?
       if (std::ranges::equal(
-              root.as_leaf().get_key(), qtils::ByteSpan{key}.subspan(0, 31))) {
+              root.as_leaf().get_key(), qtils::ByteView{key}.subspan(0, 31))) {
         return 0;
       }
       return std::nullopt;
@@ -302,15 +302,15 @@ namespace morum {
 
     // TODO: what if the dropped byte is different?
     if (std::ranges::equal(
-            leaf.get_key(), qtils::ByteSpan{key}.subspan(0, 31))) {
+            leaf.get_key(), qtils::ByteView{key}.subspan(0, 31))) {
       return current_id;
     }
     return std::nullopt;
   }
 
-  size_t MerkleTree::create_leaf_node(const Hash32 &key, qtils::Bytes &&value) {
-    ByteArray<31> key_part =
-        qtils::array_from_span<31>(qtils::ByteSpan{key}.subspan(0, 31));
+  size_t MerkleTree::create_leaf_node(const Hash32 &key, qtils::ByteVec &&value) {
+    qtils::ByteArr<31> key_part =
+        qtils::array_from_span<31>(qtils::ByteView{key}.subspan(0, 31));
     if (value.size() > 32) {
       Hash32 hash = blake2b_256(value);
       value_cache_[hash] = std::move(value);
@@ -319,7 +319,7 @@ namespace morum {
     }
     return nodes_->store(Leaf{Leaf::EmbeddedTag{},
         key_part,
-        qtils::ByteSpan{value.data(), value.size()}});
+        qtils::ByteView{value.data(), value.size()}});
   }
 
   void MerkleTree::replace_leaf_with_branch(
@@ -327,7 +327,7 @@ namespace morum {
     Leaf &old_leaf = nodes_->get(old_leaf_idx)->as_leaf();
     Leaf &new_leaf = nodes_->get(new_leaf_idx)->as_leaf();
 
-    ByteArray<31> old_key = old_leaf.get_key();
+    qtils::ByteArr<31> old_key = old_leaf.get_key();
     qtils::BitSpan<> old_key_bits{old_key};
     qtils::BitSpan<> new_key_bits{new_leaf.get_key()};
     size_t common_key_len = std::distance(old_key_bits.begin(),

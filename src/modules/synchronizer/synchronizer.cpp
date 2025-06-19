@@ -11,7 +11,7 @@
 #include "modules/shared/synchronizer_types.tmp.hpp"
 
 
-namespace jam::modules {
+namespace morum::modules {
 
   SynchronizerImpl::SynchronizerImpl(
       SynchronizerLoader &loader,
@@ -58,4 +58,4 @@ namespace jam::modules {
     // it->second(msg);
   }
 
-}  // namespace jam::modules
+}  // namespace morum::modules

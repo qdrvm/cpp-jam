@@ -8,7 +8,7 @@
 #include "modules/networking/networking.hpp"
 
 
-namespace jam::modules {
+namespace morum::modules {
 
   NetworkingImpl::NetworkingImpl(
       NetworkingLoader &loader,
@@ -38,4 +38,4 @@ namespace jam::modules {
     loader_.dispatch_block_response(std::move(x));
   };
 
-}  // namespace jam::modules
+}  // namespace morum::modules

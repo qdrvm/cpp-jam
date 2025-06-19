@@ -10,7 +10,7 @@
 
 #include "utils/ctor_limiters.hpp"
 
-namespace jam {
+namespace morum {
 
   /**
    * @brief A generic communication channel between two endpoints
@@ -334,10 +334,10 @@ namespace jam {
       };
 
       std::conditional_t<std::is_same_v<Opp, _Receiver>,
-                         jam::se::utils::WaitForSingleObject,
+                         morum::se::utils::WaitForSingleObject,
                          std::monostate>
           event_;
-      jam::se::utils::SafeObject<SafeContext, std::mutex> context_;
+      morum::se::utils::SafeObject<SafeContext, std::mutex> context_;
     };
 
     using Receiver = Endpoint<_Receiver>;
@@ -362,4 +362,4 @@ namespace jam {
     }
   };
 
-}  // namespace jam
+}  // namespace morum

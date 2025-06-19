@@ -66,11 +66,11 @@ morum::Hash32 random_hash() {
   return hash;
 }
 
-morum::ByteVector random_vector(size_t min_size = 1, size_t max_size = 128) {
+qtils::ByteVec random_vector(size_t min_size = 1, size_t max_size = 128) {
   std::uniform_int_distribution<size_t> dist(min_size, max_size);
   size_t size = dist(rand_engine);
 
-  morum::ByteVector v(size);
+  qtils::ByteVec v(size);
   fill_random(v);
   return v;
 }
@@ -170,7 +170,7 @@ int main() {
   {
     morum::NomtDb nomt{db};
 
-    std::vector<std::pair<morum::Hash32, morum::ByteVector>> insertions;
+    std::vector<std::pair<morum::Hash32, qtils::ByteVec>> insertions;
 
     for (int step = 0; step < STEPS_NUM; step++) {
       auto total_start = Clock::now();
@@ -196,7 +196,7 @@ int main() {
         insertions.emplace_back(random_hash(), random_vector());
       }
       for (auto &[k, v] : insertions) {
-        [[maybe_unused]] auto res = tree->set(k, morum::ByteVector{v});
+        [[maybe_unused]] auto res = tree->set(k, qtils::ByteVec{v});
         QTILS_ASSERT_HAS_VALUE(res);
       }
       for (auto &[k, v] : insertions) {
@@ -234,14 +234,14 @@ int main() {
     } else {
       tree = archive_db.load_tree(previous_root).value().value();
     }
-    std::vector<std::pair<morum::Hash32, morum::ByteVector>> insertions;
+    std::vector<std::pair<morum::Hash32, qtils::ByteVec>> insertions;
     for (int i = 0; i < INSERTION_NUM; i++) {
       insertions.emplace_back(random_hash(), random_vector());
     }
     {
       ZoneNamedN(setter_zone, "set", true);
       for (auto &[k, v] : insertions) {
-        [[maybe_unused]] auto res = tree->set(k, morum::ByteVector{v});
+        [[maybe_unused]] auto res = tree->set(k, qtils::ByteVec{v});
         QTILS_ASSERT_HAS_VALUE(res);
       }
     }
@@ -261,8 +261,8 @@ int main() {
     {
       ZoneNamedN(calculate_hash_zone, "calculate_hash", true);
       hash = tree->calculate_hash([&](const morum::TreeNode &n,
-                                      qtils::ByteSpan serialized,
-                                      qtils::ByteSpan hash,
+                                      qtils::ByteView serialized,
+                                      qtils::ByteView hash,
                                       qtils::BitSpan<>) {
         morum::Hash32 hash_copy;
         std::ranges::copy(hash, hash_copy.begin());

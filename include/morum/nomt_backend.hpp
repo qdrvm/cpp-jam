@@ -115,7 +115,7 @@ namespace morum {
     }
 
     struct PageKeyHash {
-      size_t operator()(const ByteArray<33> &page_key) const {
+      size_t operator()(const qtils::ByteArr<33> &page_key) const {
         size_t result;
         std::copy_n(page_key.begin(),
             sizeof(size_t),
@@ -135,7 +135,7 @@ namespace morum {
           [[maybe_unused]] const Hash32 &hash, qtils::BitSpan<> path);
 
       std::shared_ptr<NearlyOptimalNodeStorage> page_storage;
-      std::unordered_map<ByteArray<33>, Page, PageKeyHash> page_cache;
+      std::unordered_map<qtils::ByteArr<33>, Page, PageKeyHash> page_cache;
       std::optional<RawNode> root_node;
     };
 
@@ -148,7 +148,7 @@ namespace morum {
         ColumnFamilyStorage<ColumnFamilyId>::Batch &db_batch);
 
    private:
-    static qtils::FixedByteVector<sizeof(Hash32) + 1> get_page_key(
+    static qtils::FixedByteVec<sizeof(Hash32) + 1> get_page_key(
         qtils::BitSpan<> path);
 
     std::shared_ptr<KeyValueStorage> storage_;

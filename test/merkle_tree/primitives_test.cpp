@@ -23,9 +23,9 @@ void test_node_consistency(
   QTILS_ASSERT_HAS_VALUE(placed_node);
   QTILS_ASSERT((placed_node->is_branch() && node.is_branch())
       || (placed_node->is_leaf() && node.is_leaf()));
-  QTILS_ASSERT_RANGE_EQ((morum::ByteSpan{reinterpret_cast<uint8_t *>(&node),
+  QTILS_ASSERT_RANGE_EQ((morum::ByteView{reinterpret_cast<uint8_t *>(&node),
                             sizeof(morum::RawNode)}),
-      (morum::ByteSpan{
+      (morum::ByteView{
           reinterpret_cast<uint8_t *>(&*placed_node), sizeof(morum::RawNode)}));
 }
 
@@ -45,10 +45,10 @@ int main() {
   auto node1 = page.get_node(qtils::BitSpan<>{path, 0, 1});
   QTILS_ASSERT_HAS_VALUE(node1);
   node1->branch = morum::RawBranch{
-      morum::ZeroHash32, morum::blake2b_256(qtils::ByteArray<4>{0, 1, 2, 3})};
+      morum::ZeroHash32, morum::blake2b_256(qtils::ByteArr<4>{0, 1, 2, 3})};
   auto &node2 = page.get_node_unchecked(qtils::BitSpan<>{path, 0, 1});
   node2.leaf =
-      morum::Leaf{morum::Leaf::EmbeddedTag{}, qtils::ByteArray<31>{0xAB}, {}};
+      morum::Leaf{morum::Leaf::EmbeddedTag{}, qtils::ByteArr<31>{0xAB}, {}};
   [[maybe_unused]] auto node3 = page.get_node(qtils::BitSpan<>{path, 0, 1});
   QTILS_ASSERT_HAS_VALUE(node3);
   QTILS_ASSERT(node3->is_leaf());
@@ -56,21 +56,21 @@ int main() {
 
   for (size_t depth = 1; depth < 6; depth++) {
     morum::Page page{};
-    morum::ByteArray<32> path{0b0000'0000};
+    qtils::ByteArr<32> path{0b0000'0000};
     test_node_consistency(page,
         qtils::BitSpan<>{path, 0, depth},
         morum::RawNode{
             .leaf = morum::Leaf{
-                morum::Leaf::EmbeddedTag{}, morum::ByteArray<31>{0xAB}, {}}});
+                morum::Leaf::EmbeddedTag{}, qtils::ByteArr<31>{0xAB}, {}}});
   }
   for (size_t depth = 1; depth < 6; depth++) {
     morum::Page page{};
-    qtils::ByteArray<32> path{0b1111'1111};
+    qtils::ByteArr<32> path{0b1111'1111};
     test_node_consistency(page,
         qtils::BitSpan<>{path, 0, depth},
         morum::RawNode{
             .leaf = morum::Leaf{
-                morum::Leaf::EmbeddedTag{}, morum::ByteArray<31>{0xAB}, {}}});
+                morum::Leaf::EmbeddedTag{}, qtils::ByteArr<31>{0xAB}, {}}});
   }
   for (size_t depth = 1; depth < 6; depth++) {
     morum::Page page{};
@@ -79,6 +79,6 @@ int main() {
         qtils::BitSpan<>{path, 0, depth},
         morum::RawNode{
             .leaf = morum::Leaf{
-                morum::Leaf::EmbeddedTag{}, morum::ByteArray<31>{0xAB}, {}}});
+                morum::Leaf::EmbeddedTag{}, qtils::ByteArr<31>{0xAB}, {}}});
   }
 }

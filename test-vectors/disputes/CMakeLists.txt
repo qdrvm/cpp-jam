@@ -16,5 +16,4 @@ add_test_vector_libraries(disputes
     ark_vrf::ark_vrf
     blake2b
     schnorrkel::schnorrkel
-    PkgConfig::libb2
 )

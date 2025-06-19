@@ -22,7 +22,7 @@ logging:
       level: trace
       is_fallback: true
       children:
-        - name: jam
+        - name: morum
           children:
             - name: modules
               children:

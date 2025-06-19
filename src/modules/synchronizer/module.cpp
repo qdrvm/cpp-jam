@@ -17,16 +17,16 @@ MODULE_C_API const char *module_info() {
   return "Synchronizer v0.0";
 }
 
-static std::shared_ptr<jam::modules::Synchronizer> module_instance;
+static std::shared_ptr<morum::modules::Synchronizer> module_instance;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type-c-linkage"
 
-MODULE_C_API std::weak_ptr<jam::modules::Synchronizer> query_module_instance(
-    jam::modules::SynchronizerLoader& loader,
-    std::shared_ptr<jam::log::LoggingSystem> logsys) {
+MODULE_C_API std::weak_ptr<morum::modules::Synchronizer> query_module_instance(
+    morum::modules::SynchronizerLoader& loader,
+    std::shared_ptr<morum::log::LoggingSystem> logsys) {
   if (!module_instance) {
-    module_instance = std::make_shared<jam::modules::SynchronizerImpl>(
+    module_instance = std::make_shared<morum::modules::SynchronizerImpl>(
         loader, std::move(logsys));
   }
   return module_instance;

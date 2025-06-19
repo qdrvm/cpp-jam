@@ -111,26 +111,26 @@ namespace morum {
 
     virtual ~RocksDbBatch() = default;
 
-    std::expected<void, StorageError> write(qtils::ByteSpan key,
-                                            qtils::ByteSpan value) override {
+    std::expected<void, StorageError> write(qtils::ByteView key,
+                                            qtils::ByteView value) override {
       return wrap_status(
           batch.Put(default_cf, qtils::byte2str(key), qtils::byte2str(value)));
     }
 
-    std::expected<void, StorageError> remove(qtils::ByteSpan key) override {
+    std::expected<void, StorageError> remove(qtils::ByteView key) override {
       return wrap_status(batch.Delete(default_cf, qtils::byte2str(key)));
     }
 
     std::expected<void, StorageError> write(ColumnFamilyId cf,
-                                            qtils::ByteSpan key,
-                                            qtils::ByteSpan value) override {
+                                            qtils::ByteView key,
+                                            qtils::ByteView value) override {
       return wrap_status(batch.Put(db->handles[static_cast<size_t>(cf)],
                                    qtils::byte2str(key),
                                    qtils::byte2str(value)));
     }
 
     std::expected<void, StorageError> remove(ColumnFamilyId cf,
-                                             qtils::ByteSpan key) override {
+                                             qtils::ByteView key) override {
       return wrap_status(batch.Delete(db->handles[static_cast<size_t>(cf)],
                                       qtils::byte2str(key)));
     }
@@ -180,7 +180,7 @@ namespace morum {
       : db{db}, handle{db->handles.at(std::to_underlying(family))} {}
 
   std::expected<void, StorageError> RocksDbColumnFamily::write(
-      qtils::ByteSpan key, qtils::ByteSpan value) {
+      qtils::ByteView key, qtils::ByteView value) {
     rocksdb::WriteBatch updates;
     QTILS_UNWRAP_void(wrap_status(updates.Put(handle,
         rocksdb::Slice{qtils::byte2str(key)},
@@ -191,7 +191,7 @@ namespace morum {
   }
 
   std::expected<std::optional<qtils::Bytes>, StorageError>
-  RocksDbColumnFamily::read(qtils::ByteSpan key) const {
+  RocksDbColumnFamily::read(qtils::ByteView key) const {
     std::string value;
     auto status = db->db->Get(rocksdb::ReadOptions{},
                               handle,
@@ -201,11 +201,11 @@ namespace morum {
       return std::nullopt;
     }
     QTILS_UNWRAP_void(wrap_status(status));
-    return ByteVector{value.begin(), value.end()};
+    return qtils::ByteVec{value.begin(), value.end()};
   }
 
   std::expected<std::optional<size_t>, StorageError>
-  RocksDbColumnFamily::read_to(qtils::ByteSpan key,
+  RocksDbColumnFamily::read_to(qtils::ByteView key,
                                qtils::ByteSpanMut value) const {
     std::string res;
     auto status = db->db->Get(rocksdb::ReadOptions{},
@@ -221,7 +221,7 @@ namespace morum {
   }
 
   std::expected<void, StorageError> RocksDbColumnFamily::remove(
-      qtils::ByteSpan key) const {
+      qtils::ByteView key) const {
     QTILS_UNWRAP_void(wrap_status(
         db->db->Delete(rocksdb::WriteOptions{}, handle, qtils::byte2str(key))));
     return {};

@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace jam::modules {
+namespace morum::modules {
 
   struct ExampleModuleLoader {
     virtual ~ExampleModuleLoader() = default;
@@ -28,4 +28,4 @@ namespace jam::modules {
     virtual void on_notify(std::shared_ptr<const std::string>) = 0;
   };
 
-}  // namespace jam::modules
+}  // namespace morum::modules

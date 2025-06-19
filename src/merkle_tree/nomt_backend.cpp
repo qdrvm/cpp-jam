@@ -94,7 +94,7 @@ namespace morum {
 
     auto key = get_page_key(path);
     QTILS_UNWRAP(auto res,
-        storage_->read_to(key.span(),
+        storage_->read_to(key.view(),
             qtils::ByteSpanMut{
                 reinterpret_cast<uint8_t *>(&**page), sizeof(Page)}));
     if (!res) {
@@ -168,12 +168,12 @@ namespace morum {
     if (batch->root_node) {
       if (batch->root_node->is_branch()) {
         QTILS_UNWRAP_void(db_batch.write(ColumnFamilyId::TREE_PAGE,
-            qtils::ByteSpan{},
+            qtils::ByteView{},
             serialize_branch(batch->root_node->branch.left,
                 batch->root_node->branch.right)));
       } else {
         QTILS_UNWRAP_void(db_batch.write(ColumnFamilyId::TREE_PAGE,
-            qtils::ByteSpan{},
+            qtils::ByteView{},
             serialize_leaf(batch->root_node->leaf.get_key(),
                 batch->root_node->leaf.hash_or_value())));
       }
@@ -181,16 +181,16 @@ namespace morum {
 
     for (auto &[key, page] : batch->page_cache) {
       QTILS_UNWRAP_void(db_batch.write(ColumnFamilyId::TREE_PAGE,
-          qtils::ByteSpan{key.data(), key[0]},
+          qtils::ByteView{key.data(), key[0]},
           page.as_bytes()));
     }
     return {};
   }
 
-  qtils::FixedByteVector<sizeof(Hash32) + 1>
+  qtils::FixedByteVec<sizeof(Hash32) + 1>
   NearlyOptimalNodeStorage::get_page_key(qtils::BitSpan<> path) {
     path = path.subspan(0, (path.size_bits() / PAGE_LEVELS) * PAGE_LEVELS);
-    qtils::FixedByteVector<sizeof(Hash32) + 1> key_storage{};
+    qtils::FixedByteVec<sizeof(Hash32) + 1> key_storage{};
     key_storage.data[0] = path.size_bits();
     std::copy(path.begin(), path.end(), key_storage.data.begin() + 1);
     key_storage.size = path.size_bits() / 8 + 1;
@@ -261,8 +261,8 @@ namespace morum {
     auto total_batch = storage_->start_batch();
 
     auto hash = tree.calculate_hash([&](const TreeNode &n,
-                                        qtils::ByteSpan,
-                                        qtils::ByteSpan hash,
+                                        qtils::ByteView,
+                                        qtils::ByteView hash,
                                         qtils::BitSpan<> path) {
       morum::Hash32 hash_copy;
       std::ranges::copy(hash, hash_copy.begin());

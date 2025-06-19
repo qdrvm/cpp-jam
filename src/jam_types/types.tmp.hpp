@@ -10,7 +10,7 @@
 
 #include <jam_types/common-types.hpp>
 
-namespace jam {
+namespace morum {
 
   // stub types. must be refactored in future
 
@@ -57,15 +57,15 @@ namespace jam {
     BlockAnnounce(const BlockAnnounce &) = delete;
   };
 
-}  // namespace jam
+}  // namespace morum
 
-SCALE_DEFINE_ENUM_VALUE_RANGE(jam,
+SCALE_DEFINE_ENUM_VALUE_RANGE(morum,
                               Direction,
-                              jam::Direction::ASCENDING,
-                              jam::Direction::DESCENDING);
+                              morum::Direction::ASCENDING,
+                              morum::Direction::DESCENDING);
 
 template <>
-struct fmt::formatter<jam::Stub> {
+struct fmt::formatter<morum::Stub> {
   constexpr auto parse(format_parse_context &ctx) -> decltype(ctx.begin()) {
     auto it = ctx.begin(), end = ctx.end();
     if (it != end && *it != '}') {
@@ -75,7 +75,7 @@ struct fmt::formatter<jam::Stub> {
   }
 
   template <typename FormatContext>
-  auto format(const jam::Stub &, FormatContext &ctx) const
+  auto format(const morum::Stub &, FormatContext &ctx) const
       -> decltype(ctx.out()) {
     return fmt::format_to(ctx.out(), "stub");
   }

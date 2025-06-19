@@ -43,7 +43,7 @@ namespace {
     // Load modules
     std::deque<std::unique_ptr<morum::loaders::Loader>> loaders;
     {
-      auto logger = logsys->getLogger("Modules", "jam");
+      auto logger = logsys->getLogger("Modules", "morum");
       const std::string path(appcfg->modulesDir());
 
       morum::modules::ModuleLoader module_loader(path);
@@ -80,10 +80,10 @@ namespace {
       }
 
       // Notify about all modules are loaded
-      // se_manager->notify(jam::EventTypes::LoadingIsFinished);
+      // se_manager->notify(morum::EventTypes::LoadingIsFinished);
     }
 
-    auto logger = logsys->getLogger("Main", jam::log::defaultGroupName);
+    auto logger = logsys->getLogger("Main", morum::log::defaultGroupName);
     auto app = injector->injectApplication();
     SL_INFO(logger, "Node started. Version: {} ", appcfg->nodeVersion());
 

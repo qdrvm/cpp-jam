@@ -28,7 +28,7 @@ namespace morum {
    */
   struct Branch {
     friend class MerkleTree;
-    friend TreeNode deserialize_node(qtils::ByteSpan bytes);
+    friend TreeNode deserialize_node(qtils::ByteView bytes);
 
     static constexpr NodeId NoId = static_cast<NodeId>(-1);
     static constexpr Hash32 NoHash = []() {
@@ -201,7 +201,7 @@ namespace morum {
     Hash32 right_hash;
     NodeId left_idx;
     NodeId right_idx;
-    ByteArray<42>
+    qtils::ByteArr<42>
         padding;  // so that branch's size is a multiple of leaf's size
   };
 
@@ -213,7 +213,7 @@ namespace morum {
   class Leaf {
    public:
     // values with size <= 32 are not hashed and embedded
-    using HashOrValue = std::variant<HashRef, qtils::ByteSpan>;
+    using HashOrValue = std::variant<HashRef, qtils::ByteView>;
 
     enum class Type : unsigned char {
       EmbeddedValue = 0b01,
@@ -226,8 +226,8 @@ namespace morum {
     using HashedTag = Tag<Type::HashedValue>;
 
     Leaf(Tag<Type::EmbeddedValue>,
-        const ByteArray<31> &key,
-        qtils::ByteSpan value)
+        const qtils::ByteArr<31> &key,
+        qtils::ByteView value)
         : type{Type::EmbeddedValue},
           value_size{static_cast<uint8_t>(value.size_bytes())},
           key{key},
@@ -237,7 +237,7 @@ namespace morum {
     }
 
     Leaf(Tag<Type::HashedValue>,
-        const qtils::ByteArray<31> &key,
+        const qtils::ByteArr<31> &key,
         qtils::FixedByteSpan<32> value)
         : type{Type::HashedValue}, value_size{}, key{key} {
       std::ranges::copy(value, this->value.begin());
@@ -248,17 +248,17 @@ namespace morum {
         case Type::HashedValue:
           return std::ref(value);
         case Type::EmbeddedValue: {
-          return qtils::ByteSpan{value.data(), value_size};
+          return qtils::ByteView{value.data(), value_size};
         }
       }
       std::unreachable();
     }
 
-    const qtils::ByteArray<32> &raw_value() const {
+    const qtils::ByteArr<32> &raw_value() const {
       return value;
     }
 
-    const qtils::ByteArray<31> &get_key() const {
+    const qtils::ByteArr<31> &get_key() const {
       return key;
     }
 
@@ -266,8 +266,8 @@ namespace morum {
     Type type : 2;
     uint8_t value_size : 6;
 
-    qtils::ByteArray<31> key;
-    qtils::ByteArray<32> value;
+    qtils::ByteArr<31> key;
+    qtils::ByteArr<32> value;
   };
 
   template <std::ranges::random_access_range R>
@@ -343,11 +343,11 @@ namespace morum {
   static_assert(sizeof(Leaf) == 64);
   static_assert(sizeof(TreeNode) == 128);
 
-  ByteArray<64> serialize_leaf(
-      const ByteArray<31> &key, const Leaf::HashOrValue &value);
+  qtils::ByteArr<64> serialize_leaf(
+      const qtils::ByteArr<31> &key, const Leaf::HashOrValue &value);
 
-  ByteArray<64> serialize_branch(const Hash32 &left, const Hash32 &right);
+  qtils::ByteArr<64> serialize_branch(const Hash32 &left, const Hash32 &right);
 
-  TreeNode deserialize_node(qtils::ByteSpan bytes);
+  TreeNode deserialize_node(qtils::ByteView bytes);
 
 }  // namespace morum

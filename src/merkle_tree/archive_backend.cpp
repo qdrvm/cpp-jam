@@ -8,7 +8,7 @@ namespace morum {
       qtils::BitSpan<>, const Hash32 &hash) const {
     Hash32 hash_copy = hash;
     hash_copy[0] &= 0xFE;
-    ByteArray<sizeof(Leaf)>
+    qtils::ByteArr<sizeof(Leaf)>
         node_data;  // in-memory branches contain non-serializable metadata,
                     // so Leaf's size is used
     QTILS_UNWRAP(auto res, node_storage->read_to(hash_copy, node_data));
@@ -52,8 +52,8 @@ namespace morum {
       auto batch = storage_->start_batch();
 
       auto hash = tree.calculate_hash([&](const morum::TreeNode &n,
-                                          qtils::ByteSpan serialized,
-                                          qtils::ByteSpan hash,
+                                          qtils::ByteView serialized,
+                                          qtils::ByteView hash,
                                           qtils::BitSpan<>) {
         morum::Hash32 hash_copy;
         std::ranges::copy(hash, hash_copy.begin());

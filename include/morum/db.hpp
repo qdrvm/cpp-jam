@@ -21,16 +21,16 @@ namespace morum {
     virtual ~KeyValueStorage() = default;
 
     virtual std::expected<void, StorageError> write(
-        qtils::ByteSpan key, qtils::ByteSpan value) = 0;
+        qtils::ByteView key, qtils::ByteView value) = 0;
 
-    virtual std::expected<std::optional<ByteVector>, StorageError> read(
-        qtils::ByteSpan key) const = 0;
+    virtual std::expected<std::optional<qtils::ByteVec>, StorageError> read(
+        qtils::ByteView key) const = 0;
 
     virtual std::expected<std::optional<size_t>, StorageError> read_to(
-        qtils::ByteSpan key, qtils::ByteSpanMut value) const = 0;
+        qtils::ByteView key, qtils::ByteSpanMut value) const = 0;
 
     virtual std::expected<void, StorageError> remove(
-        qtils::ByteSpan key) const = 0;
+        qtils::ByteView key) const = 0;
 
     /**
      * Batches are supposed to provide a way to write several entries
@@ -41,8 +41,8 @@ namespace morum {
       virtual ~Batch() = default;
 
       virtual std::expected<void, StorageError> write(
-          qtils::ByteSpan key, qtils::ByteSpan value) = 0;
-      virtual std::expected<void, StorageError> remove(qtils::ByteSpan key) = 0;
+          qtils::ByteView key, qtils::ByteView value) = 0;
+      virtual std::expected<void, StorageError> remove(qtils::ByteView key) = 0;
     };
 
     virtual std::unique_ptr<Batch> start_batch() = 0;
@@ -67,10 +67,10 @@ namespace morum {
       virtual ~Batch() = default;
 
       virtual std::expected<void, StorageError> write(
-          ColumnFamilyId cf, qtils::ByteSpan key, qtils::ByteSpan value) = 0;
+          ColumnFamilyId cf, qtils::ByteView key, qtils::ByteView value) = 0;
 
       virtual std::expected<void, StorageError> remove(
-          ColumnFamilyId cf, qtils::ByteSpan key) = 0;
+          ColumnFamilyId cf, qtils::ByteView key) = 0;
     };
 
     virtual std::unique_ptr<Batch> start_batch() = 0;
@@ -133,16 +133,16 @@ namespace morum {
     RocksDbColumnFamily(std::shared_ptr<RocksDb> db, ColumnFamilyId family);
 
     virtual std::expected<void, StorageError> write(
-        qtils::ByteSpan key, qtils::ByteSpan value) override;
+        qtils::ByteView key, qtils::ByteView value) override;
 
-    virtual std::expected<std::optional<ByteVector>, StorageError> read(
-        qtils::ByteSpan key) const override;
+    virtual std::expected<std::optional<qtils::ByteVec>, StorageError> read(
+        qtils::ByteView key) const override;
 
     virtual std::expected<std::optional<size_t>, StorageError> read_to(
-        qtils::ByteSpan key, qtils::ByteSpanMut value) const override;
+        qtils::ByteView key, qtils::ByteSpanMut value) const override;
 
     virtual std::expected<void, StorageError> remove(
-        qtils::ByteSpan key) const override;
+        qtils::ByteView key) const override;
 
     virtual std::unique_ptr<Batch> start_batch() override;
 
