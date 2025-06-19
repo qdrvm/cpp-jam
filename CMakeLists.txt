@@ -120,6 +120,7 @@ if (MORUM_UBSAN)
     add_compile_options(-fsanitize=undefined -fno-sanitize-recovery=undefined)
     add_link_options(-fsanitize=undefined)
 endif()
+
 if (MORUM_TSAN)
     add_compile_options(-fsanitize=thread)
     add_link_options(-fsanitize=thread)

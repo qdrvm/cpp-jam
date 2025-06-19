@@ -17,3 +17,4 @@ add_morum_module(networking
     qtils::qtils
     soralog::soralog
 )
+add_dependencies(networking_module generate_common_types)
