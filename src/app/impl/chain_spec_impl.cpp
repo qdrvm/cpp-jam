@@ -34,7 +34,10 @@ namespace jam::app {
   ChainSpecImpl::ChainSpecImpl(qtils::SharedRef<log::LoggingSystem> logsys,
                                qtils::SharedRef<Configuration> app_config)
       : log_(logsys->getLogger("ChainSpec", "application")) {
-    qtils::raise_on_err(loadFromJson(app_config->specFile()));
+    if (auto res = loadFromJson(app_config->specFile()); res.has_error()) {
+      SL_CRITICAL(log_, "Can't init chain spec by json-file: {}", res.error());
+      qtils::raise(res.error());
+    }
   }
 
   outcome::result<void> ChainSpecImpl::loadFromJson(
@@ -65,16 +68,12 @@ namespace jam::app {
 
   outcome::result<void> ChainSpecImpl::loadGenesis(
       const boost::property_tree::ptree &tree) {
-    try {
-      auto genesis_header_hex = tree.get<std::string>("genesis_header");
-      OUTCOME_TRY(genesis_header_encoded,
-                  qtils::ByteVec::fromHex(genesis_header_hex));
-      genesis_header_ = std::move(genesis_header_encoded);
-    } catch (const boost::property_tree::ptree_error &e) {
-      SL_CRITICAL(log_,
-                  "Failed to read genesis block header from chain spec: {}",
-                  e.what());
-    }
+    OUTCOME_TRY(
+        genesis_header_hex,
+        ensure("genesis_header", tree.get_child_optional("genesis_header")));
+    OUTCOME_TRY(genesis_header_encoded,
+                qtils::ByteVec::fromHex(genesis_header_hex.data()));
+    genesis_header_ = std::move(genesis_header_encoded);
     return outcome::success();
   }
 
