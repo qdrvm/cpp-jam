@@ -12,7 +12,7 @@
 namespace morum::modules {
 
   class ExampleModuleImpl final : public morum::modules::ExampleModule {
-    morum::modules::ExampleModuleLoader &loader_;
+    [[maybe_unused]] morum::modules::ExampleModuleLoader &loader_;
     qtils::SharedRef<morum::log::LoggingSystem> logsys_;
     morum::log::Logger logger_;
 

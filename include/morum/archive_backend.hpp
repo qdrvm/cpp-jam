@@ -79,7 +79,7 @@ namespace morum {
         } empty;
         TreeNode node;
       };
-      // can actually store two leaves in place of one branch
+      // TODO: could actually store two leaves in place of one branch
       std::array<UninitNode, PageSizeBytes / sizeof(UninitNode)> nodes;
     };
 
