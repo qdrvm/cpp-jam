@@ -149,10 +149,10 @@ namespace morum {
   RocksDb::~RocksDb() {
     for (auto &handle : handles) {
       auto status = db->DestroyColumnFamilyHandle(handle);
-      QTILS_ASSERT(status.ok());
+      qtils::expect(status.ok(), status.ToString());
     }
     auto status = db->Close();
-    QTILS_ASSERT(status.ok());
+    qtils::expect(status.ok(), status.ToString());
     delete db;
   }
 

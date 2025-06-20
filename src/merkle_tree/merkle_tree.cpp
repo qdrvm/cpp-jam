@@ -339,7 +339,7 @@ namespace morum {
         path_len,
         common_key_len);
     // size of the key part in a node
-    if (common_key_len == sizeof(old_key)) {
+    if (common_key_len == sizeof(old_key) * 8) {
       // leaf keys are identical
       old_leaf = new_leaf;
       return;

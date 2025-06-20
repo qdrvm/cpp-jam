@@ -11,12 +11,11 @@
 
 #include <benchmark/benchmark.h>
 #include <client/TracyScoped.hpp>
-#include <tracy/Tracy.hpp>
-
 #include <morum/archive_backend.hpp>
 #include <morum/common.hpp>
 #include <morum/db.hpp>
 #include <morum/merkle_tree.hpp>
+#include <tracy/Tracy.hpp>
 
 constexpr unsigned seed = 42;
 static std::mt19937_64 rand_engine{seed};
@@ -102,8 +101,12 @@ int main(int argc, char **argv) {
     argv = &args_default;
   }
 
+  FinalAction cleanup{[]() {
+    trie_db.reset();
+    std::filesystem::remove_all("./test_db");
+  }};
+
   auto db = std::shared_ptr{morum::open_db("./test_db").value()};
-  FinalAction cleanup{[]() { std::filesystem::remove_all("./test_db"); }};
 
   trie_db = std::make_unique<morum::ArchiveTrieDb>(db);
 

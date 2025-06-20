@@ -42,7 +42,6 @@
     "boost-asio",
     "boost-beast",
     "prometheus-cpp",
-    "qtils",
     {
       "name": "yaml-cpp",
       "version>=": "0.8.0#3"
