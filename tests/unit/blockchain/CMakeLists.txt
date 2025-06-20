@@ -1,0 +1,38 @@
+#
+# Copyright Quadrivium LLC
+# All Rights Reserved
+# SPDX-License-Identifier: Apache-2.0
+#
+
+addtest(block_storage_test
+    block_storage_test.cpp
+    )
+target_link_libraries(block_storage_test
+    blockchain #???
+    logger_for_tests
+    storage
+ )
+
+addtest(block_tree_test
+    block_tree_test.cpp
+)
+target_link_libraries(block_tree_test
+    blockchain
+#    block_tree
+#    network
+#    consensus
+    hasher
+    app_configuration
+    logger_for_tests
+#    dummy_error
+    qtils::qtils
+    se_async
+)
+
+#addtest(justification_storage_policy_test
+#    justification_storage_policy_test.cpp
+#    )
+#target_link_libraries(justification_storage_policy_test
+#    blockchain
+#    scale::scale
+#    )
