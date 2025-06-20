@@ -7,7 +7,7 @@
 #include "storage/storage_error.hpp"
 
 OUTCOME_CPP_DEFINE_CATEGORY(jam::storage, StorageError, e) {
-  using E = StorageError;
+  using E = jam::storage::StorageError;
   switch (e) {
     case E::OK:
       return "success";
