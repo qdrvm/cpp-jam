@@ -187,11 +187,11 @@ def parse_types(cpp_namespace: str, ARGS: list[str], path: str, key: str, import
                 if type(size) is int:
                     return "qtils::ByteArr<%u>" % size
                 else:
-                    return "::jam::ConfigVec<uint8_t, Config::Field::%s>" % c_dash(size)
+                    return "::morum::ConfigVec<uint8_t, Config::Field::%s>" % c_dash(size)
             return "qtils::ByteVec"
         if fixed:
             if isinstance(size, str):
-                return "::jam::ConfigVec<%s, Config::Field::%s>" % (T, c_dash(size))
+                return "::morum::ConfigVec<%s, Config::Field::%s>" % (T, c_dash(size))
             return "std::array<%s, %s>" % (T, c_dash(size))
         return "std::vector<%s>" % T
 
@@ -499,7 +499,7 @@ class GenSpecialTypes:
 
 def constants():
     g = GenConstants(
-        "jam::test_vectors",
+        "morum::test_vectors",
         "jam-types-asn",
     )
     g.write()
@@ -507,7 +507,7 @@ def constants():
 
 def types():
     g = GenCommonTypes(
-        "jam::test_vectors",
+        "morum::test_vectors",
         "jam-types-asn",
     )
     g.write()
@@ -515,7 +515,7 @@ def types():
 
 def history():
     g = GenSpecialTypes(
-        "jam::test_vectors",
+        "morum::test_vectors",
         "history",
         "history/history",
         "HistoryModule",
@@ -525,7 +525,7 @@ def history():
 
 def safrole():
     g = GenSpecialTypes(
-        "jam::test_vectors",
+        "morum::test_vectors",
         "safrole",
         "safrole/safrole",
         "SafroleModule",
@@ -535,7 +535,7 @@ def safrole():
 
 def disputes():
     g = GenSpecialTypes(
-        "jam::test_vectors",
+        "morum::test_vectors",
         "disputes",
         "disputes/disputes",
         "DisputesModule",
@@ -545,7 +545,7 @@ def disputes():
 
 def authorizations():
     g = GenSpecialTypes(
-        "jam::test_vectors",
+        "morum::test_vectors",
         "authorizations",
         "authorizations/authorizations",
         "AuthorizationsModule",

@@ -20,7 +20,7 @@
 #include "injector/dont_inject.hpp"
 #include "utils/ctor_limiters.hpp"
 
-namespace jam::log {
+namespace morum::log {
   using soralog::Level;
 
   using Logger = qtils::SharedRef<soralog::Logger>;
@@ -31,7 +31,7 @@ namespace jam::log {
 
   void setLoggingSystem(std::weak_ptr<soralog::LoggingSystem> logging_system);
 
-  inline static std::string defaultGroupName{"jam"};
+  inline static std::string defaultGroupName{"morum"};
 
   class LoggingSystem : public Singleton<LoggingSystem> {
    public:
@@ -84,6 +84,6 @@ namespace jam::log {
     std::shared_ptr<soralog::LoggingSystem> logging_system_;
   };
 
-}  // namespace jam::log
+}  // namespace morum::log
 
-OUTCOME_HPP_DECLARE_ERROR(jam::log, Error);
+OUTCOME_HPP_DECLARE_ERROR(morum::log, Error);

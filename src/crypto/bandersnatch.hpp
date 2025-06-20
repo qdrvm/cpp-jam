@@ -12,7 +12,7 @@
 #include <ark_vrf/ark_vrf.h>
 #include <qtils/byte_arr.hpp>
 
-namespace jam::crypto::bandersnatch {
+namespace morum::crypto::bandersnatch {
   using Output = qtils::ByteArr<JAM_BANDERSNATCH_OUTPUT>;
   using Public = qtils::ByteArr<JAM_BANDERSNATCH_PUBLIC>;
   using RingCommitment = qtils::ByteArr<JAM_BANDERSNATCH_RING_COMMITMENT>;
@@ -91,4 +91,4 @@ namespace jam::crypto::bandersnatch {
   RingVerifier Ring::verifier(const RingCommitment &commitment) const {
     return RingVerifier{*this, commitment};
   }
-}  // namespace jam::bandersnatch
+}  // namespace morum::bandersnatch

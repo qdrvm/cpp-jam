@@ -10,7 +10,7 @@
 #include <functional>
 #include <optional>
 
-namespace jam::se {
+namespace morum::se {
 
   class IScheduler {
    public:
@@ -39,4 +39,4 @@ namespace jam::se {
                         Predicate &&pred) = 0;
   };
 
-}  // namespace jam::se
+}  // namespace morum::se

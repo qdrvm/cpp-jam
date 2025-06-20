@@ -8,7 +8,7 @@
 #include "modules/networking/networking.hpp"
 
 
-namespace jam::modules {
+namespace morum::modules {
 
   NetworkingImpl::NetworkingImpl(
       NetworkingLoader &loader,
@@ -34,8 +34,8 @@ namespace jam::modules {
 
     // tmp entry point for experiments
     auto x = std::make_shared<const messages::BlockResponseMessage>(
-        messages::BlockResponseMessage{.ctx = msg->ctx, .result = Block{}});
+        messages::BlockResponseMessage{.ctx = msg->ctx, .result = Block{}, .peer{}});
     loader_.dispatch_block_response(std::move(x));
   };
 
-}  // namespace jam::modules
+}  // namespace morum::modules

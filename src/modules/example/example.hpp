@@ -9,16 +9,16 @@
 #include <log/logger.hpp>
 #include <modules/example/interfaces.hpp>
 
-namespace jam::modules {
+namespace morum::modules {
 
-  class ExampleModuleImpl final : public jam::modules::ExampleModule {
-    jam::modules::ExampleModuleLoader &loader_;
-    qtils::SharedRef<jam::log::LoggingSystem> logsys_;
-    jam::log::Logger logger_;
+  class ExampleModuleImpl final : public morum::modules::ExampleModule {
+    [[maybe_unused]] morum::modules::ExampleModuleLoader &loader_;
+    qtils::SharedRef<morum::log::LoggingSystem> logsys_;
+    morum::log::Logger logger_;
 
    public:
-    ExampleModuleImpl(jam::modules::ExampleModuleLoader &loader,
-                      qtils::SharedRef<jam::log::LoggingSystem> logsys);
+    ExampleModuleImpl(morum::modules::ExampleModuleLoader &loader,
+                      qtils::SharedRef<morum::log::LoggingSystem> logsys);
 
     void on_loaded_success() override;
 
@@ -32,4 +32,4 @@ namespace jam::modules {
   };
 
 
-}  // namespace jam::modules
+}  // namespace morum::modules

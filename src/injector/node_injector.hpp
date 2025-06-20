@@ -10,24 +10,24 @@
 
 #include "se/subscription.hpp"
 
-namespace jam::log {
+namespace morum::log {
   class LoggingSystem;
-}  // namespace jam::log
+}  // namespace morum::log
 
-namespace jam::app {
+namespace morum::app {
   class Configuration;
   class Application;
-}  // namespace jam::app
+}  // namespace morum::app
 
-namespace jam::loaders {
+namespace morum::loaders {
   class Loader;
-}  // namespace jam::loaders
+}  // namespace morum::loaders
 
-namespace jam::modules {
+namespace morum::modules {
   class Module;
-}  // namespace jam::modules
+}  // namespace morum::modules
 
-namespace jam::injector {
+namespace morum::injector {
 
   /**
    * Dependency injector for a universal node. Provides all major components
@@ -46,4 +46,4 @@ namespace jam::injector {
     std::shared_ptr<class NodeInjectorImpl> pimpl_;
   };
 
-}  // namespace jam::injector
+}  // namespace morum::injector

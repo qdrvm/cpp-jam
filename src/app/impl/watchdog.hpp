@@ -27,9 +27,9 @@ namespace soralog {
   class Logger;
 }  // namespace soralog
 
-namespace jam::log {
+namespace morum::log {
   class LoggingSystem;
-}  // namespace jam::log
+}  // namespace morum::log
 
 #ifdef __APPLE__
 
@@ -64,7 +64,7 @@ inline uint64_t getPlatformThreadId() {
 
 #endif
 
-namespace jam {
+namespace morum {
 
   constexpr auto kWatchdogDefaultTimeout = std::chrono::minutes{15};
 
@@ -76,7 +76,7 @@ namespace jam {
     using Timeout = std::chrono::seconds;
 
     Watchdog(std::shared_ptr<log::LoggingSystem> logsys,
-             std::shared_ptr<app::Configuration> config)
+             std::shared_ptr<app::Configuration>)
         : logger_(logsys->getLogger("Watchdog", "threads")),
           granularity_(1 /*config->granularity()*/) {
       // BOOST_ASSERT(granularity != granularity.zero());
@@ -183,4 +183,4 @@ namespace jam {
     std::unordered_map<std::thread::id, Thread> threads_;
     std::atomic_bool stopped_ = false;
   };
-}  // namespace jam
+}  // namespace morum

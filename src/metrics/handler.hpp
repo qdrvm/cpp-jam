@@ -10,7 +10,7 @@
 
 #include "metrics/session.hpp"
 
-namespace jam::metrics {
+namespace morum::metrics {
 
   class Registry;
   class Session;

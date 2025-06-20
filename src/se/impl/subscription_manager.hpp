@@ -32,7 +32,7 @@
 #define FUNCTION_NAME __PRETTY_FUNCTION__
 #endif
 
-namespace jam::se {
+namespace morum::se {
 
   /**
    * Class-aggregator that keeps all event engines inside. On notification it
@@ -47,7 +47,7 @@ namespace jam::se {
         NonCopyable,
         NonMovable {
    public:
-    using Dispatcher = jam::se::Dispatcher;
+    using Dispatcher = morum::se::Dispatcher;
 
    private:
     using EngineHash = uint64_t;
@@ -180,4 +180,4 @@ namespace jam::se {
       return dispatcher_;
     }
   };
-}  // namespace jam::se
+}  // namespace morum::se

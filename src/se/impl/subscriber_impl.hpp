@@ -14,7 +14,7 @@
 #include "subscriber.hpp"
 #include "subscription_engine.hpp"
 
-namespace jam::se {
+namespace morum::se {
 
   /**
    * Is a wrapper class, which provides subscription to events from
@@ -193,4 +193,4 @@ namespace jam::se {
     }
   };
 
-}  // namespace jam::se
+}  // namespace morum::se

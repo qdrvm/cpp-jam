@@ -6,7 +6,7 @@
 
 #include <fmt/format.h>
 
-namespace jam {
+namespace morum {
 
   class RequestId {
    public:
@@ -30,18 +30,18 @@ namespace jam {
     RequestId rid;
   };
 
-}  // namespace jam
+}  // namespace morum
 
 template <>
-struct std::hash<jam::RequestId> {
-  size_t operator()(const jam::RequestId &id) const noexcept {
+struct std::hash<morum::RequestId> {
+  size_t operator()(const morum::RequestId &id) const noexcept {
     return id.id;
   }
 };
 
 
 template <>
-struct fmt::formatter<jam::RequestId> {
+struct fmt::formatter<morum::RequestId> {
   constexpr auto parse(format_parse_context &ctx) -> decltype(ctx.begin()) {
     auto it = ctx.begin(), end = ctx.end();
     if (it != end && *it != '}') {
@@ -51,7 +51,7 @@ struct fmt::formatter<jam::RequestId> {
   }
 
   template <typename FormatContext>
-  auto format(const jam::RequestId &rid, FormatContext &ctx) const
+  auto format(const morum::RequestId &rid, FormatContext &ctx) const
       -> decltype(ctx.out()) {
     auto *b = reinterpret_cast<const uint8_t *>(&rid.id);
     return fmt::format_to(ctx.out(), "{:02x}{:02x}{:02x}", b[0], b[1], b[2]);

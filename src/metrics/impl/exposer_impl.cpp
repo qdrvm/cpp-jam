@@ -16,7 +16,7 @@
 #include "metrics/metrics.hpp"
 #include "utils/tuner.hpp"
 
-namespace jam::metrics {
+namespace morum::metrics {
   ExposerImpl::ExposerImpl(std::shared_ptr<log::LoggingSystem> logsys,
                            std::shared_ptr<app::StateManager> state_manager,
                            std::shared_ptr<app::Configuration> config,
@@ -39,10 +39,10 @@ namespace jam::metrics {
   bool ExposerImpl::prepare() {
     BOOST_ASSERT(config_->metrics().enabled == true);
     try {
-      acceptor_ = jam::api::acceptOnFreePort(
+      acceptor_ = morum::api::acceptOnFreePort(
           context_,
           config_->metrics().endpoint,
-          jam::api::kDefaultPortTolerance,
+          morum::api::kDefaultPortTolerance,
           logger_);
     } catch (const boost::wrapexcept<boost::system::system_error> &exception) {
       SL_CRITICAL(
@@ -119,4 +119,4 @@ namespace jam::metrics {
 
     acceptor_->async_accept(new_session_->socket(), std::move(on_accept));
   }
-}  // namespace jam::metrics
+}  // namespace morum::metrics

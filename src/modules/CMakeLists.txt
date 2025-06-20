@@ -8,7 +8,7 @@ if(NOT TARGET all_modules)
   add_custom_target(all_modules)
 endif()
 
-function(add_jam_module NAME)
+function(add_morum_module NAME)
   set(MODULE_NAME ${NAME})
 
   set(MODULE "${MODULE_NAME}_module")

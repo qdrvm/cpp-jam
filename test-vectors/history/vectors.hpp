@@ -10,7 +10,7 @@
 #include <jam_types/history-types.hpp>
 #include <test-vectors/vectors.hpp>
 
-namespace jam::test_vectors::history {
+namespace morum::test_vectors::history {
   struct Vectors : test_vectors::VectorsT<TestCase, Config> {
     Vectors() : VectorsT{Config{}} {
       this->list(std::filesystem::path{"history/data"});
@@ -20,4 +20,4 @@ namespace jam::test_vectors::history {
       return {std::make_shared<Vectors>()};
     }
   };
-}  // namespace jam::test_vectors_history
+}  // namespace morum::test_vectors_history

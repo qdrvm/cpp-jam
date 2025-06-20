@@ -11,7 +11,7 @@
 #include <jam_types/disputes-types.hpp>
 #include <test-vectors/vectors.hpp>
 
-namespace jam::test_vectors::disputes {
+namespace morum::test_vectors::disputes {
   struct Vectors : test_vectors::VectorsT<TestCase, Config> {
     std::string_view type;
 
@@ -28,4 +28,4 @@ namespace jam::test_vectors::disputes {
       };
     }
   };
-}  // namespace jam::test_vectors::disputes
+}  // namespace morum::test_vectors::disputes

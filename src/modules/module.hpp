@@ -15,7 +15,7 @@
 
 #include <utils/ctor_limiters.hpp>
 
-namespace jam::modules {
+namespace morum::modules {
 
   class Module final : public std::enable_shared_from_this<Module>,
                        NonCopyable {
@@ -76,4 +76,4 @@ namespace jam::modules {
     Module &operator=(Module &&) = delete;
   };
 
-}  // namespace jam::modules
+}  // namespace morum::modules

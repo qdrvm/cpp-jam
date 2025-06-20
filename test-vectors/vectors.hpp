@@ -21,25 +21,25 @@
 /**
  * Common functions for test vectors
  */
-#define GTEST_VECTORS(VectorName, NsPart)                                 \
-  struct VectorName##Test                                                 \
-      : jam::test_vectors::TestT<jam::test_vectors::NsPart::Vectors> {};  \
-  INSTANTIATE_TEST_SUITE_P(                                               \
-      VectorName,                                                         \
-      VectorName##Test,                                                   \
-      testing::ValuesIn([] {                                              \
-        using T = jam::test_vectors::NsPart::Vectors;                     \
-        std::vector<std::pair<std::shared_ptr<T>, std::filesystem::path>> \
-            params;                                                       \
-        for (auto &vectors : T::vectors()) {                              \
-          for (auto &path : vectors->paths) {                             \
-            params.emplace_back(vectors, path);                           \
-          }                                                               \
-        }                                                                 \
-        return params;                                                    \
-      }()),                                                               \
-      [](auto &&info) {                                                   \
-        return jam::test_vectors::getTestName(std::get<1>(info.param));   \
+#define GTEST_VECTORS(VectorName, NsPart)                                    \
+  struct VectorName##Test                                                    \
+      : morum::test_vectors::TestT<morum::test_vectors::NsPart::Vectors> {}; \
+  INSTANTIATE_TEST_SUITE_P(                                                  \
+      VectorName,                                                            \
+      VectorName##Test,                                                      \
+      testing::ValuesIn([] {                                                 \
+        using T = morum::test_vectors::NsPart::Vectors;                      \
+        std::vector<std::pair<std::shared_ptr<T>, std::filesystem::path>>    \
+            params;                                                          \
+        for (auto &vectors : T::vectors()) {                                 \
+          for (auto &path : vectors->paths) {                                \
+            params.emplace_back(vectors, path);                              \
+          }                                                                  \
+        }                                                                    \
+        return params;                                                       \
+      }()),                                                                  \
+      [](auto &&info) {                                                      \
+        return morum::test_vectors::getTestName(std::get<1>(info.param));    \
       });
 
 /**
@@ -48,31 +48,31 @@
  * @when transition with `input`
  * @then get expected `post_state` and `output`
  */
-#define GTEST_VECTORS_TEST_TRANSITION(VectorName, NsPart)              \
-  TEST_P(VectorName##Test, Transition) {                               \
-    using jam::test_vectors::getTestLabel;                             \
-    fmt::println("Test transition for '{}'\n", getTestLabel(path));    \
-                                                                       \
-    ASSERT_OUTCOME_SUCCESS(raw_data, qtils::readBytes(path));          \
-                                                                       \
-    ASSERT_OUTCOME_SUCCESS(                                            \
-        testcase,                                                      \
-        (jam::decode_with_config<jam::test_vectors::NsPart::TestCase>( \
-            raw_data, vectors.config)));                               \
-                                                                       \
-    auto [state, output] = jam::NsPart::transition(                    \
-        vectors.config, testcase.pre_state, testcase.input);           \
-    Indent indent{1};                                                  \
-    EXPECT_EQ(state, testcase.post_state)                              \
-        << "Actual and expected states are differ";                    \
-    if (state != testcase.post_state) {                                \
-      diff_m(indent, state, testcase.post_state, "state");             \
-    }                                                                  \
-    EXPECT_EQ(output, testcase.output)                                 \
-        << "Actual and expected outputs are differ";                   \
-    if (output != testcase.output) {                                   \
-      diff_m(indent, output, testcase.output, "output");               \
-    }                                                                  \
+#define GTEST_VECTORS_TEST_TRANSITION(VectorName, NsPart)                \
+  TEST_P(VectorName##Test, Transition) {                                 \
+    using morum::test_vectors::getTestLabel;                             \
+    fmt::println("Test transition for '{}'\n", getTestLabel(path));      \
+                                                                         \
+    ASSERT_OUTCOME_SUCCESS(raw_data, qtils::readBytes(path));            \
+                                                                         \
+    ASSERT_OUTCOME_SUCCESS(                                              \
+        testcase,                                                        \
+        (morum::decode_with_config<morum::test_vectors::NsPart::TestCase>( \
+            raw_data, vectors.config)));                                 \
+                                                                         \
+    auto [state, output] = morum::NsPart::transition(                    \
+        vectors.config, testcase.pre_state, testcase.input);             \
+    Indent indent{1};                                                    \
+    EXPECT_EQ(state, testcase.post_state)                                \
+        << "Actual and expected states are differ";                      \
+    if (state != testcase.post_state) {                                  \
+      diff_m(indent, state, testcase.post_state, "state");               \
+    }                                                                    \
+    EXPECT_EQ(output, testcase.output)                                   \
+        << "Actual and expected outputs are differ";                     \
+    if (output != testcase.output) {                                     \
+      diff_m(indent, output, testcase.output, "output");                 \
+    }                                                                    \
   }
 
 /**
@@ -81,33 +81,33 @@
  * @when decode it and encode back
  * @then `actual` result has the same value as `original`
  */
-#define GTEST_VECTORS_TEST_REENCODE(VectorName, NsPart)                 \
-  TEST_P(VectorName##Test, Reencode) {                                  \
-    using jam::test_vectors::getTestLabel;                              \
-    fmt::println("Test reencode for '{}'\n", getTestLabel(path));       \
-                                                                        \
-    ASSERT_OUTCOME_SUCCESS(raw_data, qtils::readBytes(path));           \
-    const auto &original = raw_data;                                    \
-                                                                        \
-    ASSERT_OUTCOME_SUCCESS(                                             \
-        decoded,                                                        \
-        (jam::decode_with_config<jam::test_vectors::NsPart::TestCase>(  \
-            original, vectors.config)));                                \
-                                                                        \
-    ASSERT_OUTCOME_SUCCESS(                                             \
-        reencoded, (jam::encode_with_config(decoded, vectors.config))); \
-                                                                        \
-    EXPECT_EQ(reencoded, original);                                     \
+#define GTEST_VECTORS_TEST_REENCODE(VectorName, NsPart)                    \
+  TEST_P(VectorName##Test, Reencode) {                                     \
+    using morum::test_vectors::getTestLabel;                               \
+    fmt::println("Test reencode for '{}'\n", getTestLabel(path));          \
+                                                                           \
+    ASSERT_OUTCOME_SUCCESS(raw_data, qtils::readBytes(path));              \
+    const auto &original = raw_data;                                       \
+                                                                           \
+    ASSERT_OUTCOME_SUCCESS(                                                \
+        decoded,                                                           \
+        (morum::decode_with_config<morum::test_vectors::NsPart::TestCase>( \
+            original, vectors.config)));                                   \
+                                                                           \
+    ASSERT_OUTCOME_SUCCESS(                                                \
+        reencoded, (morum::encode_with_config(decoded, vectors.config)));  \
+                                                                           \
+    EXPECT_EQ(reencoded, original);                                        \
   }
 
-namespace jam::test_vectors {
+namespace morum::test_vectors {
   inline const std::filesystem::path dir =
       std::filesystem::path{PROJECT_SOURCE_DIR} / "test-vectors/jamtestvectors";
 
   auto getTestLabel(const std::filesystem::path &path) {
     std::filesystem::path label;
     auto rel_path =
-        std::filesystem::relative(path.parent_path(), jam::test_vectors::dir);
+        std::filesystem::relative(path.parent_path(), morum::test_vectors::dir);
     auto it = rel_path.begin();
     if (it != rel_path.end()) {
       ++it;
@@ -176,4 +176,4 @@ namespace jam::test_vectors {
     const T &vectors = *this->GetParam().first;
     const std::filesystem::path &path = this->GetParam().second;
   };
-}  // namespace jam::test_vectors
+}  // namespace morum::test_vectors

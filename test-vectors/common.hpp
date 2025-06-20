@@ -18,7 +18,7 @@
  * Common functions used in tests
  */
 
-namespace jam {
+namespace morum {
   template <size_t N>
   qtils::ByteArr<N> first_bytes(qtils::BytesIn bytes) {
     if (bytes.size() < N) {
@@ -82,4 +82,4 @@ namespace jam {
   inline auto mathcal_H_K(qtils::BytesIn m) {
     return crypto::Keccak::hash(m);
   }
-}  // namespace jam
+}  // namespace morum

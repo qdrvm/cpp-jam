@@ -8,7 +8,7 @@
 
 #include <modules/shared/networking_types.tmp.hpp>
 
-namespace jam::modules {
+namespace morum::modules {
 
   struct NetworkingLoader {
     virtual ~NetworkingLoader() = default;
@@ -37,4 +37,4 @@ namespace jam::modules {
         std::shared_ptr<const messages::BlockRequestMessage> msg) = 0;
   };
 
-}  // namespace jam::modules
+}  // namespace morum::modules

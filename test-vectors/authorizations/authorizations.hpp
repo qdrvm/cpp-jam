@@ -9,8 +9,8 @@
 #include <list>
 #include <set>
 
-namespace jam::authorizations {
-  namespace types = jam::test_vectors;
+namespace morum::authorizations {
+  namespace types = morum::test_vectors;
 
   auto asSet(auto &&r) {
     return std::set(r.begin(), r.end());
@@ -29,7 +29,7 @@ namespace jam::authorizations {
 
     // [GP 0.4.5 8 85]
     // [α[c]] - set of authorizers allowable for a particular core
-    const auto &pool = state.auth_pools;
+    // state.auth_pools;
 
     // [GP 0.4.5 8 85]
     // [φ[c]] - the core’s current authorizer queue, from which we draw values
@@ -106,4 +106,4 @@ namespace jam::authorizations {
 
     return {new_state, qtils::Empty{}};
   }
-}  // namespace jam::authorizations
+}  // namespace morum::authorizations

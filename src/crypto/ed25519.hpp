@@ -7,7 +7,7 @@
 #include <schnorrkel/schnorrkel.h>
 #include <qtils/byte_arr.hpp>
 
-namespace jam::crypto::ed25519 {
+namespace morum::crypto::ed25519 {
   using Secret = qtils::ByteArr<ED25519_SECRET_KEY_LENGTH>;
   using Public = qtils::ByteArr<ED25519_PUBLIC_KEY_LENGTH>;
   using KeyPair = qtils::ByteArr<ED25519_KEYPAIR_LENGTH>;
@@ -34,4 +34,4 @@ namespace jam::crypto::ed25519 {
                               message.size_bytes());
     return res == ED25519_RESULT_OK;
   }
-}  // namespace jam::ed25519
+}  // namespace morum::ed25519

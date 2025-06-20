@@ -11,7 +11,7 @@
 #include <prometheus/histogram.h>
 #include <prometheus/summary.h>
 
-namespace jam::metrics {
+namespace morum::metrics {
   PrometheusCounter::PrometheusCounter(prometheus::Counter &m) : m_(m) {}
 
   void PrometheusCounter::inc() {
@@ -55,4 +55,4 @@ namespace jam::metrics {
   void PrometheusHistogram::observe(const double value) {
     m_.Observe(value);
   }
-}  // namespace jam::metrics
+}  // namespace morum::metrics

@@ -8,7 +8,7 @@
 
 #include "jam_types/types.tmp.hpp"
 
-namespace jam::messages {
+namespace morum::messages {
 
   struct BlockDiscoveredMessage {
     BlockIndex index;

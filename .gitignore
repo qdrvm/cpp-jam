@@ -16,10 +16,6 @@
 *.dylib
 *.dll
 
-# Fortran module files
-*.mod
-*.smod
-
 # Compiled Static libraries
 *.lai
 *.la
@@ -34,12 +30,14 @@
 # IDE auxiliaries
 .idea
 
-/build
+/build*
 /build-ex
 /cmake-build-*
-
 /.build
 /.venv
 /.vcpkg
 /.build*
+.vscode
+
+CMakeUserPresets.json
 /vcpkg_installed

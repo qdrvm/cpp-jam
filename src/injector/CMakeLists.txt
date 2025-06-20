@@ -18,3 +18,4 @@ target_link_libraries(node_injector
     se_async
     modules
 )
+add_dependencies(node_injector generate_common_types)

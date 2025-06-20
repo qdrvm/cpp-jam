@@ -12,7 +12,7 @@
 #include <qtils/shared_ref.hpp>
 #include <utils/ctor_limiters.hpp>
 
-namespace jam::modules {
+namespace morum::modules {
 
   class SynchronizerImpl final : public Singleton<Synchronizer>,
                                  public Synchronizer {
@@ -45,4 +45,4 @@ namespace jam::modules {
         block_response_callbacks_;
   };
 
-}  // namespace jam::modules
+}  // namespace morum::modules

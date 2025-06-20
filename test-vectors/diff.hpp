@@ -43,7 +43,7 @@ struct fmt::formatter<Indent> {
 };
 
 #define DIFF_F(...) \
-  void diff(Indent indent, const __VA_ARGS__ &v1, const __VA_ARGS__ &v2)
+  void diff([[maybe_unused]] Indent indent, [[maybe_unused]] const __VA_ARGS__ &v1, [[maybe_unused]] const __VA_ARGS__ &v2)
 
 #define DIFF_M(m) diff_m(indent, v1.m, v2.m, #m)
 

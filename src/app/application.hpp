@@ -8,7 +8,7 @@
 
 #include <utils/ctor_limiters.hpp>
 
-namespace jam::app {
+namespace morum::app {
 
   /// @class Application - JAM-application interface
   class Application : private Singleton<Application> {
@@ -19,4 +19,4 @@ namespace jam::app {
     virtual void run() = 0;
   };
 
-}  // namespace jam::app
+}  // namespace morum::app

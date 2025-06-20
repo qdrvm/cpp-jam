@@ -18,11 +18,11 @@ namespace soralog {
   class Logger;
 }  // namespace soralog
 
-namespace jam::app {
+namespace morum::app {
   class Configuration;
-}  // namespace jam::app
+}  // namespace morum::app
 
-namespace jam::app {
+namespace morum::app {
 
   class Configurator final {
    public:
@@ -74,6 +74,6 @@ namespace jam::app {
     boost::program_options::variables_map cli_values_map_;
   };
 
-}  // namespace jam::app
+}  // namespace morum::app
 
-OUTCOME_HPP_DECLARE_ERROR(jam::app, Configurator::Error);
+OUTCOME_HPP_DECLARE_ERROR(morum::app, Configurator::Error);

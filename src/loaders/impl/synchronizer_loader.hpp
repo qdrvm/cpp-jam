@@ -16,7 +16,7 @@
 #include "modules/synchronizer/synchronizer.hpp"
 #include "se/subscription.hpp"
 
-namespace jam::loaders {
+namespace morum::loaders {
 
   class SynchronizerLoader final
       : public std::enable_shared_from_this<SynchronizerLoader>,
@@ -53,7 +53,7 @@ namespace jam::loaders {
       auto module_accessor =
           get_module()
               ->getFunctionFromLibrary<
-                  std::weak_ptr<jam::modules::Synchronizer>,
+                  std::weak_ptr<morum::modules::Synchronizer>,
                   modules::SynchronizerLoader &,
                   std::shared_ptr<log::LoggingSystem>>("query_module_instance");
 
@@ -101,14 +101,14 @@ namespace jam::loaders {
                 }
               });
 
-      se_manager_->notify(jam::EventTypes::SynchronizerIsLoaded);
+      se_manager_->notify(morum::EventTypes::SynchronizerIsLoaded);
     }
 
     void dispatch_block_request(
         std::shared_ptr<const messages::BlockRequestMessage> msg) override {
       SL_TRACE(logger_, "Dispatch BlockRequest; rid={}", msg->ctx.rid);
-      se_manager_->notify(jam::EventTypes::BlockRequest, msg);
+      se_manager_->notify(morum::EventTypes::BlockRequest, msg);
     }
   };
 
-}  // namespace jam::loaders
+}  // namespace morum::loaders

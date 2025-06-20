@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-namespace jam::metrics {
+namespace morum::metrics {
 
   class Counter;
   class Gauge;

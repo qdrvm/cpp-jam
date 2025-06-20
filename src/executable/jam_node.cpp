@@ -31,22 +31,22 @@ namespace {
                  "Run with `--help' argument to print usage\n";
   }
 
-  using jam::app::Application;
-  using jam::app::Configuration;
-  using jam::injector::NodeInjector;
-  using jam::log::LoggingSystem;
+  using morum::app::Application;
+  using morum::app::Configuration;
+  using morum::injector::NodeInjector;
+  using morum::log::LoggingSystem;
 
   int run_node(std::shared_ptr<LoggingSystem> logsys,
                std::shared_ptr<Configuration> appcfg) {
     auto injector = std::make_unique<NodeInjector>(logsys, appcfg);
 
     // Load modules
-    std::deque<std::unique_ptr<jam::loaders::Loader>> loaders;
+    std::deque<std::unique_ptr<morum::loaders::Loader>> loaders;
     {
-      auto logger = logsys->getLogger("Modules", "jam");
+      auto logger = logsys->getLogger("Modules", "morum");
       const std::string path(appcfg->modulesDir());
 
-      jam::modules::ModuleLoader module_loader(path);
+      morum::modules::ModuleLoader module_loader(path);
       auto modules_res = module_loader.get_modules();
       if (modules_res.has_error()) {
         SL_CRITICAL(logger, "Failed to load modules from path: {}", path);
@@ -80,10 +80,10 @@ namespace {
       }
 
       // Notify about all modules are loaded
-      // se_manager->notify(jam::EventTypes::LoadingIsFinished);
+      // se_manager->notify(morum::EventTypes::LoadingIsFinished);
     }
 
-    auto logger = logsys->getLogger("Main", jam::log::defaultGroupName);
+    auto logger = logsys->getLogger("Main", morum::log::defaultGroupName);
     auto app = injector->injectApplication();
     SL_INFO(logger, "Node started. Version: {} ", appcfg->nodeVersion());
 
@@ -98,7 +98,7 @@ namespace {
 }  // namespace
 
 int main(int argc, const char **argv, const char **env) {
-  soralog::util::setThreadName("jam-node");
+  soralog::util::setThreadName("morum-node");
 
   qtils::FinalAction flush_std_streams_at_exit([] {
     std::cout.flush();
@@ -118,7 +118,7 @@ int main(int argc, const char **argv, const char **env) {
   }
 
   auto app_configurator =
-      std::make_unique<jam::app::Configurator>(argc, argv, env);
+      std::make_unique<morum::app::Configurator>(argc, argv, env);
 
   // Parse CLI args for help, version and config
   if (auto res = app_configurator->step1(); res.has_value()) {
@@ -152,7 +152,7 @@ int main(int argc, const char **argv, const char **env) {
       return EXIT_FAILURE;
     }
 
-    std::make_shared<jam::log::LoggingSystem>(std::move(logging_system));
+    std::make_shared<morum::log::LoggingSystem>(std::move(logging_system));
   });
 
   // Parse remaining args
@@ -166,7 +166,7 @@ int main(int argc, const char **argv, const char **env) {
 
   // Setup config
   auto configuration = ({
-    auto logger = logging_system->getLogger("Configurator", "jam");
+    auto logger = logging_system->getLogger("Configurator", "morum");
 
     auto config_res = app_configurator->calculateConfig(logger);
     if (config_res.has_error()) {
@@ -205,7 +205,7 @@ int main(int argc, const char **argv, const char **env) {
     }
   }
 
-  auto logger = logging_system->getLogger("Main", jam::log::defaultGroupName);
+  auto logger = logging_system->getLogger("Main", morum::log::defaultGroupName);
   SL_INFO(logger, "All components are stopped");
   logger->flush();
 

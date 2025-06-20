@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-add_jam_module(networking
+add_morum_module(networking
   SOURCE
     networking.cpp
   INCLUDE_DIRS
@@ -17,3 +17,4 @@ add_jam_module(networking
     qtils::qtils
     soralog::soralog
 )
+add_dependencies(networking_module generate_common_types)

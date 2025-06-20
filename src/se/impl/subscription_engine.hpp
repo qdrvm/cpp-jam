@@ -16,7 +16,7 @@
 #include "subscriber.hpp"
 #include "utils/ctor_limiters.hpp"
 
-namespace jam::se {
+namespace morum::se {
 
   /**
    * Interface for objects that can be disposed/cleaned up
@@ -220,4 +220,4 @@ namespace jam::se {
     }
   };
 
-}  // namespace jam::se
+}  // namespace morum::se

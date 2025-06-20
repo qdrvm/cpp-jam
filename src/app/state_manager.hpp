@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace jam::app {
+namespace morum::app {
 
   // Concepts that check if an object has a method that is called by app state
   // manager. Deliberately avoid checking that the method returns bool,
@@ -127,4 +127,4 @@ namespace jam::app {
     explicit AppStateException(std::string message)
         : std::runtime_error("Wrong workflow at " + std::move(message)) {}
   };
-}  // namespace jam::app
+}  // namespace morum::app

@@ -12,7 +12,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <utils/ctor_limiters.hpp>
 
-namespace jam::app {
+namespace morum::app {
   class Configuration final : Singleton<Configuration> {
    public:
     using Endpoint = boost::asio::ip::tcp::endpoint;
@@ -45,4 +45,4 @@ namespace jam::app {
     MetricsConfig metrics_;
   };
 
-}  // namespace jam::app
+}  // namespace morum::app

@@ -37,7 +37,7 @@
 namespace {
   namespace di = boost::di;
   namespace fs = std::filesystem;
-  using namespace jam;  // NOLINT
+  using namespace morum;  // NOLINT
 
   template <typename C>
   auto useConfig(C c) {
@@ -63,7 +63,7 @@ namespace {
         di::bind<metrics::Handler>.to<metrics::PrometheusHandler>(),
         di::bind<metrics::Exposer>.to<metrics::ExposerImpl>(),
         di::bind<Dispatcher>.to<se::AsyncDispatcher<kHandlersCount, kThreadPoolSize>>(),
-        di::bind<metrics::Exposer::Configuration>.to([](const auto &injector) {
+        di::bind<metrics::Exposer::Configuration>.to([](const auto &) {
           return metrics::Exposer::Configuration{
               {boost::asio::ip::address_v4::from_string("127.0.0.1"), 7777}
               // injector
@@ -89,7 +89,7 @@ namespace {
   }
 }  // namespace
 
-namespace jam::injector {
+namespace morum::injector {
   class NodeInjectorImpl {
    public:
     using Injector =
@@ -112,23 +112,24 @@ namespace jam::injector {
         .template create<std::shared_ptr<app::Application>>();
   }
 
-  std::unique_ptr<jam::loaders::Loader> NodeInjector::register_loader(
+  std::unique_ptr<morum::loaders::Loader> NodeInjector::register_loader(
       std::shared_ptr<modules::Module> module) {
     auto logsys = pimpl_->injector_
                       .template create<std::shared_ptr<log::LoggingSystem>>();
-    auto logger = logsys->getLogger("Modules", "jam");
+    auto logger = logsys->getLogger("Modules", "morum");
 
-    std::unique_ptr<jam::loaders::Loader> loader{};
+    std::unique_ptr<morum::loaders::Loader> loader{};
 
     if ("ExampleLoader" == module->get_loader_id()) {
       loader = pimpl_->injector_
-                   .create<std::unique_ptr<jam::loaders::ExampleLoader>>();
+                   .create<std::unique_ptr<morum::loaders::ExampleLoader>>();
     } else if ("NetworkingLoader" == module->get_loader_id()) {
       loader = pimpl_->injector_
-                   .create<std::unique_ptr<jam::loaders::NetworkingLoader>>();
+                   .create<std::unique_ptr<morum::loaders::NetworkingLoader>>();
     } else if ("SynchronizerLoader" == module->get_loader_id()) {
-      loader = pimpl_->injector_
-                   .create<std::unique_ptr<jam::loaders::SynchronizerLoader>>();
+      loader =
+          pimpl_->injector_
+              .create<std::unique_ptr<morum::loaders::SynchronizerLoader>>();
     } else {
       SL_CRITICAL(logger,
                   "> No loader found for: {} [{}]",
@@ -147,6 +148,6 @@ namespace jam::injector {
                module->get_loader_id(),
                module->get_path());
     }
-    return std::unique_ptr<jam::loaders::Loader>(loader.release());
+    return std::unique_ptr<morum::loaders::Loader>(loader.release());
   }
-}  // namespace jam::injector
+}  // namespace morum::injector

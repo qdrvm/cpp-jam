@@ -9,10 +9,10 @@
 #include "impl/async_dispatcher_impl.hpp"
 #include "subscription.hpp"
 
-namespace jam::se {
+namespace morum::se {
 
   std::shared_ptr<Dispatcher> getDispatcher() {
     return std::make_shared<AsyncDispatcher<kHandlersCount, kThreadPoolSize>>();
   }
 
-}  // namespace jam::se
+}  // namespace morum::se
