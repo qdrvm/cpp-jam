@@ -91,6 +91,7 @@ namespace morum {
       return std::nullopt;
     }
     std::expected<std::optional<Page>, StorageError> page{};
+    page.emplace(Page{});
 
     auto key = get_page_key(path);
     QTILS_UNWRAP(auto res,
