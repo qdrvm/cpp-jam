@@ -31,10 +31,10 @@ struct RocksDb_Open : public test::BaseFS_Test {
     logsys = testutil::prepareLoggers();
     app_config = std::make_shared<ConfigurationMock>();
 
-    DatabaseConfig db_config{.directory = getPathString() + "/db",
-                             .cache_size = 8 << 20,  // 8Mb
-                             .migration_enabled = false};
-
+    DatabaseConfig db_config{
+        .directory = getPathString() + "/db",
+        .cache_size = 8 << 20,  // 8Mb
+    };
     EXPECT_CALL(*app_config, database()).WillRepeatedly(ReturnRef(db_config));
   };
 
@@ -53,9 +53,10 @@ struct RocksDb_Open : public test::BaseFS_Test {
  * @then database can not be opened (since there is no db already)
  */
 TEST_F(RocksDb_Open, OpenNonExistingDB) {
-  DatabaseConfig db_config{.directory = "/dev/zero/impossible/path",
-                           .cache_size = 8 << 20,  // 8Mb
-                           .migration_enabled = false};
+  DatabaseConfig db_config{
+      .directory = "/dev/zero/impossible/path",
+      .cache_size = 8 << 20,  // 8Mb
+  };
 
   EXPECT_CALL(*app_config, database()).WillRepeatedly(ReturnRef(db_config));
 
@@ -68,9 +69,10 @@ TEST_F(RocksDb_Open, OpenNonExistingDB) {
  * @then database is opened
  */
 TEST_F(RocksDb_Open, OpenExistingDB) {
-  DatabaseConfig db_config{.directory = getPathString() + "/db",
-                           .cache_size = 8 << 20,  // 8Mb
-                           .migration_enabled = false};
+  DatabaseConfig db_config{
+      .directory = getPathString() + "/db",
+      .cache_size = 8 << 20,  // 8Mb
+  };
 
   EXPECT_CALL(*app_config, database()).WillRepeatedly(ReturnRef(db_config));
 

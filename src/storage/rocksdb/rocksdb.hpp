@@ -41,24 +41,6 @@ namespace jam::storage {
     static constexpr uint32_t kDefaultLruCacheSizeMiB = 512;
     static constexpr uint32_t kDefaultBlockSizeKiB = 32;
 
-    /**
-     * @brief Factory method to create an instance of RocksDb class.
-     * @param path filesystem path where database is going to be
-     * @param options rocksdb options, such as caching, logging, etc.
-     * @param prevent_destruction - avoid destruction of underlying db if true
-     * @param memory_budget_mib - state cache size in MiB, 90% would be set for
-     * trie nodes, and the rest - distributed evenly among left spaces
-     * @return instance of RocksDB
-     */
-    static outcome::result<std::shared_ptr<RocksDb>> create(
-        log::Logger logger,
-        const std::filesystem::path &path,
-        rocksdb::Options options = rocksdb::Options(),
-        uint32_t memory_budget_mib = kDefaultStateCacheSizeMiB,
-        bool prevent_destruction = false,
-        const std::unordered_map<std::string, int32_t> &column_ttl = {},
-        bool enable_migration = true);
-
     std::shared_ptr<BufferStorage> getSpace(Space space) override;
 
     /**
@@ -112,17 +94,6 @@ namespace jam::storage {
             &column_family_descriptors,
         const std::vector<int32_t> &ttls,
         RocksDb &rocks_db,
-        const std::filesystem::path &ttl_migrated_path,
-        log::Logger &log);
-
-    static outcome::result<void> migrateDatabase(
-        const rocksdb::Options &options,
-        const std::filesystem::path &path,
-        const std::vector<rocksdb::ColumnFamilyDescriptor>
-            &column_family_descriptors,
-        const std::vector<int32_t> &ttls,
-        RocksDb &rocks_db,
-        const std::filesystem::path &ttl_migrated_path,
         log::Logger &log);
 
     rocksdb::DBWithTTL *db_{};

@@ -19,7 +19,6 @@ namespace jam::app {
     struct DatabaseConfig {
       std::filesystem::path directory = "db";
       size_t cache_size = 1 << 30;  // 1GiB
-      bool migration_enabled = false;
     };
 
     struct MetricsConfig {

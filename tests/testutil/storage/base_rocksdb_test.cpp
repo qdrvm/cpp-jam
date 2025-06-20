@@ -30,8 +30,7 @@ namespace test {
     jam::app::Configuration::DatabaseConfig db_config{
         .directory = getPathString() + "/db",
         .cache_size = 8 << 20,  // 8Mb
-        .migration_enabled = false};
-
+    };
     EXPECT_CALL(*app_config, database())
         .WillRepeatedly(testing::ReturnRef(db_config));
 

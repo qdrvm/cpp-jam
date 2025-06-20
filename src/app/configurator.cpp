@@ -87,8 +87,7 @@ namespace jam::app {
     config_->name_ = "noname";
 
     config_->database_.directory = "db";
-    config_->database_.cache_size = 512 << 20;  // 512Mb
-    config_->database_.migration_enabled = false;
+    config_->database_.cache_size = 512 << 20;  // 512MiB
 
     config_->metrics_.endpoint = {boost::asio::ip::address_v4::any(), 9615};
     config_->metrics_.enabled = std::nullopt;
@@ -119,7 +118,6 @@ namespace jam::app {
         ("db_path", po::value<std::string>()->default_value(config_->database_.directory), "Path to DB directory. Can be relative on base path.")
         // ("db-tmp", "Use temporary storage path.")
         ("db_cache_size", po::value<uint32_t>()->default_value(config_->database_.cache_size), "Limit the memory the database cache can use <MiB>.")
-        ("db_enable_migration", po::bool_switch(), "Enable automatic db migration.")
         ;
 
     po::options_description metrics_options("Metric options");
@@ -425,9 +423,6 @@ namespace jam::app {
         cli_values_map_, "db_cache_size", [&](const uint32_t &value) {
           config_->database_.cache_size = value;
         });
-    if (find_argument(cli_values_map_, "db_migration_enabled")) {
-      config_->database_.migration_enabled = true;
-    }
     if (fail) {
       return Error::CliArgsParseFailed;
     }

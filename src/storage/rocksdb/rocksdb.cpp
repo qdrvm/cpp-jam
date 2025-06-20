@@ -91,7 +91,6 @@ namespace jam::storage {
     ro_.fill_cache = false;
 
     const auto &path = app_config->database().directory;
-    bool enable_migration = app_config->database().migration_enabled;
 
     auto options = rocksdb::Options{};
     options.create_if_missing = true;
@@ -179,32 +178,13 @@ namespace jam::storage {
 
     options.create_missing_column_families = true;
 
-    const auto ttl_migrated_path = path.parent_path() / "ttl_migrated";
-    const auto ttl_migrated_exists = exists(ttl_migrated_path);
-
-    if (no_db_presented or ttl_migrated_exists) {
+    if (no_db_presented) {
       qtils::raise_on_err(openDatabaseWithTTL(options,
                                               path,
                                               column_family_descriptors,
                                               ttls,
                                               *this,
-                                              ttl_migrated_path,
                                               logger_));
-    } else {
-      if (not enable_migration) {
-        SL_ERROR(logger_,
-                 "Database migration is disabled, use older node version or "
-                 "run with --db_migration_enabled flag");
-        qtils::raise(StorageError::IO_ERROR);
-      }
-
-      qtils::raise_on_err(migrateDatabase(options,
-                                          path,
-                                          column_family_descriptors,
-                                          ttls,
-                                          *this,
-                                          ttl_migrated_path,
-                                          logger_));
     }
 
     // Print size of each column family
@@ -257,7 +237,6 @@ namespace jam::storage {
           &column_family_descriptors,
       const std::vector<int32_t> &ttls,
       RocksDb &rocks_db,
-      const std::filesystem::path &ttl_migrated_path,
       log::Logger &log) {
     const auto status =
         rocksdb::DBWithTTL::Open(options,
@@ -273,139 +252,6 @@ namespace jam::storage {
                status.ToString());
       return status_as_error(status, log);
     }
-    if (not fs::exists(ttl_migrated_path)) {
-      std::ofstream file(ttl_migrated_path.native());
-      if (not file) {
-        SL_ERROR(log,
-                 "Can't create file {} for database",
-                 ttl_migrated_path.native());
-        return StorageError::IO_ERROR;
-      }
-      file.close();
-    }
-    return outcome::success();
-  }
-
-  outcome::result<void> RocksDb::migrateDatabase(
-      const rocksdb::Options &options,
-      const std::filesystem::path &path,
-      const std::vector<rocksdb::ColumnFamilyDescriptor>
-          &column_family_descriptors,
-      const std::vector<int32_t> &ttls,
-      RocksDb &rocks_db,
-      const std::filesystem::path &ttl_migrated_path,
-      log::Logger &log) {
-    rocksdb::DB *db_raw = nullptr;
-    std::vector<ColumnFamilyHandlePtr> column_family_handles;
-    auto status = rocksdb::DB::Open(options,
-                                    path.native(),
-                                    column_family_descriptors,
-                                    &column_family_handles,
-                                    &db_raw);
-    std::shared_ptr<rocksdb::DB> db(db_raw);
-    if (not status.ok()) {
-      SL_ERROR(log,
-               "Can't open old database in {}: {}",
-               path.native(),
-               status.ToString());
-      return status_as_error(status, log);
-    }
-    auto defer_db =
-        std::make_unique<DatabaseGuard>(db, column_family_handles, log);
-
-    std::vector<ColumnFamilyHandlePtr> column_family_handles_with_ttl;
-    const auto ttl_path = path.parent_path() / "db_ttl";
-    std::error_code ec;
-    fs::create_directories(ttl_path, ec);
-    if (ec) {
-      SL_ERROR(log,
-               "Can't create directory {} for database: {}",
-               ttl_path.native(),
-               ec);
-      return StorageError::IO_ERROR;
-    }
-    rocksdb::DBWithTTL *db_with_ttl_raw = nullptr;
-    status = rocksdb::DBWithTTL::Open(options,
-                                      ttl_path.native(),
-                                      column_family_descriptors,
-                                      &column_family_handles_with_ttl,
-                                      &db_with_ttl_raw,
-                                      ttls);
-    if (not status.ok()) {
-      SL_ERROR(log,
-               "Can't open database in {}: {}",
-               ttl_path.native(),
-               status.ToString());
-      return status_as_error(status, log);
-    }
-    std::shared_ptr<rocksdb::DBWithTTL> db_with_ttl(db_with_ttl_raw);
-    auto defer_db_ttl = std::make_unique<DatabaseGuard>(
-        db_with_ttl, column_family_handles_with_ttl, log);
-
-    for (std::size_t i = 0; i < column_family_handles.size(); ++i) {
-      const auto from_handle = column_family_handles[i];
-      auto to_handle = column_family_handles_with_ttl[i];
-      std::unique_ptr<rocksdb::Iterator> it(
-          db->NewIterator(rocksdb::ReadOptions(), from_handle));
-      for (it->SeekToFirst(); it->Valid(); it->Next()) {
-        const auto &key = it->key();
-        const auto &value = it->value();
-        status =
-            db_with_ttl->Put(rocksdb::WriteOptions(), to_handle, key, value);
-        if (not status.ok()) {
-          SL_ERROR(log, "Can't write to ttl database: {}", status.ToString());
-          return status_as_error(status, log);
-        }
-      }
-      if (not it->status().ok()) {
-        SL_ERROR(log, "DB operation failed: {}", status.ToString());
-        return status_as_error(it->status(), log);
-      }
-    }
-    defer_db_ttl.reset();
-    defer_db.reset();
-    fs::remove_all(path, ec);
-    if (ec) {
-      SL_ERROR(log, "Can't remove old database in {}: {}", path.native(), ec);
-      return StorageError::IO_ERROR;
-    }
-    fs::create_directories(path, ec);
-    if (ec) {
-      SL_ERROR(log,
-               "Can't create directory {} for final database: {}",
-               path.native(),
-               ec);
-      return StorageError::IO_ERROR;
-    }
-    fs::rename(ttl_path, path, ec);
-    if (ec) {
-      SL_ERROR(log,
-               "Can't rename database from {} to {}: {}",
-               ttl_path.native(),
-               path.native(),
-               ec);
-      return StorageError::IO_ERROR;
-    }
-    status = rocksdb::DBWithTTL::Open(options,
-                                      path.native(),
-                                      column_family_descriptors,
-                                      &rocks_db.column_family_handles_,
-                                      &rocks_db.db_,
-                                      ttls);
-    if (not status.ok()) {
-      SL_ERROR(log,
-               "Can't open database in {}: {}",
-               path.native(),
-               status.ToString());
-      return status_as_error(status, log);
-    }
-    std::ofstream file(ttl_migrated_path.native());
-    if (not file) {
-      SL_ERROR(
-          log, "Can't create file {} for database", ttl_migrated_path.native());
-      return StorageError::IO_ERROR;
-    }
-    file.close();
     return outcome::success();
   }
 
