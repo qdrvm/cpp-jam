@@ -13,7 +13,9 @@
     "boost-asio",
     "boost-beast",
     "prometheus-cpp",
-    "ftxui"
+    "ftxui",
+    "rocksdb",
+    "boost-property-tree"
   ],
   "features": {
     "test": { "description": "Test", "dependencies": ["gtest"]}

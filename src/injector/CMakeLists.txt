@@ -11,10 +11,12 @@ target_link_libraries(node_injector
     Boost::Boost.DI
     logger
     app_configurator
+    chain_spec
     app_state_manager
     application
     metrics
     clock
     se_async
     modules
+    storage
 )

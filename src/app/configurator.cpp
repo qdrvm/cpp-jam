@@ -5,8 +5,14 @@
 
 #include "app/configurator.hpp"
 
+#include <algorithm>
+#include <charconv>
+#include <cstdint>
 #include <filesystem>
 #include <iostream>
+#include <optional>
+#include <string>
+#include <string_view>
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/beast/core/error.hpp>
@@ -17,6 +23,7 @@
 
 #include "app/build_version.hpp"
 #include "app/configuration.hpp"
+#include "utils/parsers.hpp"
 
 using Endpoint = boost::asio::ip::tcp::endpoint;
 
@@ -67,6 +74,7 @@ namespace {
     }
     return false;
   }
+
 }  // namespace
 
 namespace jam::app {
@@ -77,6 +85,10 @@ namespace jam::app {
 
     config_->version_ = buildVersion();
     config_->name_ = "noname";
+
+    config_->database_.directory = "db";
+    config_->database_.cache_size = 512 << 20;  // 512MiB
+
     config_->metrics_.endpoint = {boost::asio::ip::address_v4::any(), 9615};
     config_->metrics_.enabled = std::nullopt;
 
@@ -90,6 +102,7 @@ namespace jam::app {
         ("version,v", "Show version information.")
         ("base_path", po::value<std::string>(), "Set base path. All relative paths will be resolved based on this path.")
         ("config,c", po::value<std::string>(),  "Optional. Filepath to load configuration from. Overrides default configuration values.")
+        ("spec_file", po::value<std::string>(), "Set path to spec file.")
         ("modules_dir", po::value<std::string>(), "Set path to directory containing modules.")
         ("name,n", po::value<std::string>(), "Set name of node.")
         ("log,l", po::value<std::vector<std::string>>(),
@@ -98,6 +111,13 @@ namespace jam::app {
           "Log levels: trace, debug, verbose, info, warn, error, critical, off.\n"
           "Default: all targets log at `info`.\n"
           "Global log level can be set with: -l<level>.")
+        ;
+
+    po::options_description storage_options("Storage options");
+    storage_options.add_options()
+        ("db_path", po::value<std::string>()->default_value(config_->database_.directory), "Path to DB directory. Can be relative on base path.")
+        // ("db-tmp", "Use temporary storage path.")
+        ("db_cache_size", po::value<uint32_t>()->default_value(config_->database_.cache_size), "Limit the memory the database cache can use <MiB>.")
         ;
 
     po::options_description metrics_options("Metric options");
@@ -111,6 +131,7 @@ namespace jam::app {
 
     cli_options_
         .add(general_options)  //
+        .add(storage_options)
         .add(metrics_options);
   }
 
@@ -199,6 +220,7 @@ namespace jam::app {
       qtils::SharedRef<soralog::Logger> logger) {
     logger_ = std::move(logger);
     OUTCOME_TRY(initGeneralConfig());
+    OUTCOME_TRY(initDatabaseConfig());
     OUTCOME_TRY(initOpenMetricsConfig());
 
     return config_;
@@ -227,6 +249,16 @@ namespace jam::app {
               config_->base_path_ = value;
             } else {
               file_errors_ << "E: Value 'general.base_path' must be scalar\n";
+              file_has_error_ = true;
+            }
+          }
+          auto spec_file = section["spec_file"];
+          if (spec_file.IsDefined()) {
+            if (spec_file.IsScalar()) {
+              auto value = spec_file.as<std::string>();
+              config_->spec_file_ = value;
+            } else {
+              file_errors_ << "E: Value 'general.spec_file' must be scalar\n";
               file_has_error_ = true;
             }
           }
@@ -278,6 +310,10 @@ namespace jam::app {
         cli_values_map_, "modules_dir", [&](const std::string &value) {
           config_->modules_dir_ = value;
         });
+    find_argument<std::string>(
+        cli_values_map_, "spec_file", [&](const std::string &value) {
+          config_->spec_file_ = value;
+        });
     if (fail) {
       return Error::CliArgsParseFailed;
     }
@@ -310,6 +346,95 @@ namespace jam::app {
                config_->modules_dir_.c_str());
       return Error::InvalidValue;
     }
+
+    config_->spec_file_ = make_absolute(config_->spec_file_);
+    if (not is_regular_file(config_->spec_file_)) {
+      SL_ERROR(logger_,
+               "The 'spec_file' does not exist or is not a file: {}",
+               config_->spec_file_.c_str());
+      return Error::InvalidValue;
+    }
+
+    return outcome::success();
+  }
+
+  outcome::result<void> Configurator::initDatabaseConfig() {
+    // Init by config-file
+    if (config_file_.has_value()) {
+      auto section = (*config_file_)["database"];
+      if (section.IsDefined()) {
+        if (section.IsMap()) {
+          auto path = section["path"];
+          if (path.IsDefined()) {
+            if (path.IsScalar()) {
+              auto value = path.as<std::string>();
+              config_->database_.directory = value;
+            } else {
+              file_errors_ << "E: Value 'database.path' must be scalar\n";
+              file_has_error_ = true;
+            }
+          }
+          auto spec_file = section["cache_size"];
+          if (spec_file.IsDefined()) {
+            if (spec_file.IsScalar()) {
+              auto value = util::parseByteQuantity(spec_file.as<std::string>());
+              if (value.has_value()) {
+                config_->database_.cache_size = value.value();
+              } else {
+                file_errors_ << "E: Bad 'cache_size' value; "
+                                "Expected: 4096, 512Mb, 1G, etc.\n";
+              }
+            } else {
+              file_errors_ << "E: Value 'database.cache_size' must be scalar\n";
+              file_has_error_ = true;
+            }
+          }
+        } else {
+          file_errors_ << "E: Section 'database' defined, but is not map\n";
+          file_has_error_ = true;
+        }
+      }
+    }
+
+    if (file_has_error_) {
+      std::string path;
+      find_argument<std::string>(
+          cli_values_map_, "config", [&](const std::string &value) {
+            path = value;
+          });
+      SL_ERROR(logger_, "Config file `{}` has some problems:", path);
+      std::istringstream iss(file_errors_.str());
+      std::string line;
+      while (std::getline(iss, line)) {
+        SL_ERROR(logger_, "  {}", std::string_view(line).substr(3));
+      }
+      return Error::ConfigFileParseFailed;
+    }
+
+    // Adjust by CLI arguments
+    bool fail;
+
+    fail = false;
+    find_argument<std::string>(
+        cli_values_map_, "db_path", [&](const std::string &value) {
+          config_->database_.directory = value;
+        });
+    find_argument<uint32_t>(
+        cli_values_map_, "db_cache_size", [&](const uint32_t &value) {
+          config_->database_.cache_size = value;
+        });
+    if (fail) {
+      return Error::CliArgsParseFailed;
+    }
+
+    // Check values
+    auto make_absolute = [&](const std::filesystem::path &path) {
+      return weakly_canonical(config_->base_path_.is_absolute()
+                                  ? path
+                                  : (config_->base_path_ / path));
+    };
+
+    config_->database_.directory = make_absolute(config_->database_.directory);
 
     return outcome::success();
   }

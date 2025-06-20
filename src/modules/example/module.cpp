@@ -23,7 +23,7 @@ static std::shared_ptr<jam::modules::ExampleModule> module_instance;
 #pragma GCC diagnostic ignored "-Wreturn-type-c-linkage"
 
 MODULE_C_API std::weak_ptr<jam::modules::ExampleModule> query_module_instance(
-    jam::modules::ExampleModuleLoader& loader,
+    jam::modules::ExampleModuleLoader &loader,
     std::shared_ptr<jam::log::LoggingSystem> logger) {
   if (!module_instance) {
     module_instance = std::make_shared<jam::modules::ExampleModuleImpl>(

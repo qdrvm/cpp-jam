@@ -108,4 +108,4 @@ namespace jam::metrics {
         const std::map<std::string, std::string> &labels = {}) = 0;
   };
 
-}  // namespace kagome::metrics
+}  // namespace jam::metrics

@@ -56,6 +56,7 @@ namespace jam::app {
 
    private:
     outcome::result<void> initGeneralConfig();
+    outcome::result<void> initDatabaseConfig();
     outcome::result<void> initOpenMetricsConfig();
 
     int argc_;
