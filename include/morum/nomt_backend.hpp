@@ -12,6 +12,7 @@
 #include <morum/common.hpp>
 #include <morum/merkle_tree.hpp>
 #include <morum/tree_node.hpp>
+#include <qtils/byte_arr.hpp>
 
 namespace morum {
 
@@ -62,7 +63,7 @@ namespace morum {
 
   struct Page {
     // unused space
-    uint8_t metadata[sizeof(RawNode) * 2];
+    qtils::ByteArr<sizeof(RawNode) * 2> metadata;
     // i.e. for DISK_PAGE_SIZE 4096: 32 + 16 + 8 + 4 + 2 = 62
     std::array<RawNode, DISK_PAGE_SIZE / sizeof(RawNode) - 2> nodes;
 
