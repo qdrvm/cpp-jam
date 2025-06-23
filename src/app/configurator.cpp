@@ -417,7 +417,7 @@ namespace morum::app {
 
     fail = false;
     find_argument<uint32_t>(
-        cli_values_map_, "prometheus-port", [&](const uint32_t &value) {
+        cli_values_map_, "prometheus_port", [&](const uint32_t &value) {
           if (value > 0 and value <= 65535) {
             config_->metrics_.endpoint = {config_->metrics_.endpoint.address(),
                                           static_cast<uint16_t>(value)};
