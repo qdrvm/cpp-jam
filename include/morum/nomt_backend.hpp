@@ -118,9 +118,7 @@ namespace morum {
     struct PageKeyHash {
       size_t operator()(const qtils::ByteArr<33> &page_key) const {
         size_t result;
-        std::copy_n(page_key.begin(),
-            sizeof(size_t),
-            reinterpret_cast<uint8_t *>(&result));
+        std::memcpy(&result, page_key.data(), sizeof(size_t));
         return result;
       }
     };
@@ -129,8 +127,8 @@ namespace morum {
       WriteBatch(std::shared_ptr<NearlyOptimalNodeStorage> storage)
           : page_storage{storage} {}
 
-      std::expected<void, StorageError> set(
-          qtils::BitSpan<> path, const RawNode &node);
+      std::expected<void, StorageError> set(qtils::BitSpan<> path,
+                                            const RawNode &node);
 
       std::expected<std::optional<RawNode>, StorageError> load(
           [[maybe_unused]] const Hash32 &hash, qtils::BitSpan<> path);

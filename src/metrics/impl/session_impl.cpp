@@ -13,10 +13,10 @@ namespace morum::metrics {
   SessionImpl::SessionImpl(std::shared_ptr<log::LoggingSystem> logsys,
                            Context &context,
                            Configuration config)
-      : strand_(boost::asio::make_strand(context)),
+      : logger_{logsys->getLogger("OpenMetricsSession", "metrics")},
+        strand_(boost::asio::make_strand(context)),
         config_{config},
-        stream_(boost::asio::ip::tcp::socket(strand_)),
-        logger_{logsys->getLogger("OpenMetricsSession", "metrics")} {}
+        stream_(boost::asio::ip::tcp::socket(strand_)) {}
 
   void SessionImpl::start() {
     asyncRead();

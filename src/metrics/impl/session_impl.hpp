@@ -106,6 +106,8 @@ namespace morum::metrics {
 
     static constexpr boost::string_view kServerName = "Morum-Node";
 
+    std::shared_ptr<soralog::Logger> logger_;
+
     /// Strand to ensure the connection's handlers are not called concurrently.
     boost::asio::strand<boost::asio::io_context::executor_type> strand_;
 
@@ -119,8 +121,6 @@ namespace morum::metrics {
      */
 
     std::unique_ptr<Parser> parser_;  ///< http parser
-
-    std::shared_ptr<soralog::Logger> logger_;
   };
 
 }  // namespace morum::metrics

@@ -127,4 +127,9 @@ namespace morum {
     b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
     return b;
   }
+
+  constexpr void unsetLeastBit(uint8_t& byte) {
+    byte &= 0xFE;
+  }
+
 }  // namespace morum

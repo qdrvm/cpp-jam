@@ -10,6 +10,7 @@
 
 #include <qtils/bytes.hpp>
 #include <qtils/cxx23/forward_like.hpp>
+#include <qtils/assert.hpp>
 #include <qtils/optional_ref.hpp>
 
 #include <morum/common.hpp>
@@ -33,13 +34,13 @@ namespace morum {
     static constexpr NodeId NoId = static_cast<NodeId>(-1);
     static constexpr Hash32 NoHash = []() {
       auto h = ~ZeroHash32;
-      h[0] &= 0xFE;  // first bit is always zero for branch nodes
+      unsetLeastBit(h[0]);  // least bit is always zero for branch nodes
       return h;
     }();
 
     explicit Branch(const Hash32 &left, std::nullopt_t)
         : left_hash{left}, right_hash{NoHash}, left_idx{NoId}, right_idx{NoId} {
-      left_hash[0] &= 0xFE;  // the first bit in a branch must be zero
+      unsetLeastBit(left_hash[0]);  // the least bit in a branch must be zero
     }
 
     explicit Branch(std::nullopt_t, const Hash32 &right)
@@ -62,7 +63,7 @@ namespace morum {
 
     explicit Branch(const Hash32 &left, const Hash32 &right)
         : left_hash{left}, right_hash{right}, left_idx{NoId}, right_idx{NoId} {
-      left_hash[0] &= 0xFE;  // the first bit in a branch must be zero
+      unsetLeastBit(left_hash[0]);  // the least bit in a branch must be zero
     }
 
     explicit Branch(qtils::OptionalRef<const Hash32> left,
@@ -72,7 +73,7 @@ namespace morum {
           left_idx{NoId},
           right_idx{NoId} {
       if (left_hash != NoHash) {
-        left_hash[0] &= 0xFE;  // the first bit in a branch must be zero
+        unsetLeastBit(left_hash[0]);  // the least bit in a branch must be zero
       }
     }
 
@@ -87,7 +88,7 @@ namespace morum {
           right_hash{with_idx.first == 1 ? with_idx.second : NoHash},
           left_idx{NoId},
           right_idx{NoId} {
-      left_hash[0] &= 0xFE;  // the first bit in a branch must be zero
+      unsetLeastBit(left_hash[0]);  // the least bit in a branch must be zero
     }
 
     explicit Branch(std::pair<uint8_t, NodeId> with_idx)
@@ -148,7 +149,7 @@ namespace morum {
 
     void set_left(const Hash32 &hash) {
       left_hash = hash;
-      left_hash[0] &= 0xFE;  // the first bit in a branch must be zero
+      unsetLeastBit(left_hash[0]);  // the least bit in a branch must be zero
     }
 
     void set_right(const Hash32 &hash) {
@@ -157,7 +158,7 @@ namespace morum {
 
     void set_left(qtils::FixedByteSpan<32> hash) {
       std::ranges::copy(hash, left_hash.begin());
-      left_hash[0] &= 0xFE;  // the first bit in a branch must be zero
+      unsetLeastBit(left_hash[0]);  // the least bit in a branch must be zero
     }
 
     void set_right(qtils::FixedByteSpan<32> hash) {
@@ -287,12 +288,12 @@ namespace morum {
     TreeNode(const Leaf &leaf) : node{.leaf = leaf} {}
 
     bool is_branch() const {
-      // first bit of a node denotes its type
+      // least bit of a node denotes its type
       return (reinterpret_cast<const uint8_t *>(&node)[0] & 1) == 0;
     }
 
     bool is_leaf() const {
-      // first bit of a node denotes its type
+      // least bit of a node denotes its type
       return (reinterpret_cast<const uint8_t *>(&node)[0] & 1) == 1;
     }
 #if defined(__cpp_explicit_this_parameter) \
@@ -331,7 +332,7 @@ namespace morum {
 
 #endif
    private:
-    // first bit of a node denotes its type
+    // least bit of a node denotes its type
     union {
       Leaf leaf;
       Branch branch;

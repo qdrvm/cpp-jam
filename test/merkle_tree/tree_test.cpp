@@ -266,7 +266,7 @@ int main() {
                                       qtils::BitSpan<>) {
         morum::Hash32 hash_copy;
         std::ranges::copy(hash, hash_copy.begin());
-        hash_copy[0] &= 0xFE;
+        morum::unsetLeastBit(hash_copy[0]);
         auto start = Clock::now();
         [[maybe_unused]] auto res = node_batch->write(hash_copy, serialized);
         if (n.is_leaf()) {
@@ -313,7 +313,7 @@ int main() {
         }
       });
     }
-    hash[0] &= 0xFE;
+    morum::unsetLeastBit(hash[0]);
     previous_root = hash;
 
     auto start = Clock::now();

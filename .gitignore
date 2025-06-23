@@ -31,7 +31,6 @@
 .idea
 
 /build*
-/build-ex
 /cmake-build-*
 /.build
 /.venv

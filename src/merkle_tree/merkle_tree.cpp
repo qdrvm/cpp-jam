@@ -79,9 +79,9 @@ namespace morum {
   qtils::ByteArr<64> serialize_branch(
       const Hash32 &left, const Hash32 &right) {
     qtils::ByteArr<64> bytes{};
-    bytes[0] = 0xFE & left[0];
-    std::copy_n(left.begin() + 1, 31, bytes.begin() + 1);
+    std::copy_n(left.begin(), 32, bytes.begin());
     std::copy_n(right.begin(), 32, bytes.begin() + 32);
+    unsetLeastBit(bytes[0]);
     return bytes;
   }
 
@@ -198,7 +198,7 @@ namespace morum {
   }
 
   std::expected<std::optional<size_t>, StorageError> MerkleTree::get_child_idx(
-      Branch &branch, int8_t bit, qtils::BitSpan<> path) const {
+      Branch &branch, uint8_t bit, qtils::BitSpan<> path) const {
     QTILS_ASSERT(bit == 0 || bit == 1);
     if (auto idx = branch.get_child_idx(bit); idx.has_value()) {
       return *idx;

@@ -209,7 +209,7 @@ namespace morum {
       virtual std::expected<std::optional<TreeNode>, StorageError> load(
           qtils::BitSpan<> path, const Hash32 &hash_copy) const override {
         Hash32 hash = hash_copy;
-        hash[0] &= 0xFE;
+        unsetLeastBit(hash[0]);
         if (path.size_bits() == 0) {
           QTILS_UNWRAP(auto root_opt, db.page_storage_->load_root_node());
           if (!root_opt) {
@@ -267,7 +267,7 @@ namespace morum {
                                         qtils::BitSpan<> path) {
       morum::Hash32 hash_copy;
       std::ranges::copy(hash, hash_copy.begin());
-      hash_copy[0] &= 0xFE;
+      unsetLeastBit(hash_copy[0]);
       RawNode raw_node{};
       if (n.is_leaf()) {
         raw_node.leaf = n.as_leaf();
@@ -293,7 +293,7 @@ namespace morum {
         }
       }
     });
-    hash[0] &= 0xFE;
+    unsetLeastBit(hash[0]);
 
     auto page_batch_start = Clock::now();
     [[maybe_unused]] auto res =

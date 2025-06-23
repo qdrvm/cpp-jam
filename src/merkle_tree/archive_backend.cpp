@@ -7,7 +7,7 @@ namespace morum {
   std::expected<std::optional<TreeNode>, StorageError> ArchiveNodeLoader::load(
       qtils::BitSpan<>, const Hash32 &hash) const {
     Hash32 hash_copy = hash;
-    hash_copy[0] &= 0xFE;
+    unsetLeastBit(hash_copy[0]);
     qtils::ByteArr<sizeof(Leaf)>
         node_data;  // in-memory branches contain non-serializable metadata,
                     // so Leaf's size is used
@@ -57,13 +57,11 @@ namespace morum {
                                           qtils::BitSpan<>) {
         morum::Hash32 hash_copy;
         std::ranges::copy(hash, hash_copy.begin());
-        hash_copy[0] &= 0xFE;
+        unsetLeastBit(hash_copy[0]);
         [[maybe_unused]] auto res =
             batch->write(ColumnFamilyId::TREE_NODE, hash_copy, serialized);
         QTILS_ASSERT(res);
-        if (n.is_leaf()) {
-          // cached_nodes_.emplace(hash_copy, n);
-        } else {
+        if (n.is_branch()) {
           auto &branch = n.as_branch();
           // original node may contain child node ids which are not persistent
           morum::Branch b{branch.get_left_hash(), branch.get_right_hash()};
@@ -82,7 +80,7 @@ namespace morum {
           }
         }
       });
-      hash[0] &= 0xFE;
+      unsetLeastBit(hash[0]);
 
       [[maybe_unused]] auto res = storage_->write_batch(std::move(batch));
       QTILS_ASSERT_HAS_VALUE(res);

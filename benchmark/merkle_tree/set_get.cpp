@@ -11,11 +11,13 @@
 
 #include <benchmark/benchmark.h>
 #include <client/TracyScoped.hpp>
+#include <tracy/Tracy.hpp>
+#include <qtils/final_action.hpp>
+
 #include <morum/archive_backend.hpp>
 #include <morum/common.hpp>
 #include <morum/db.hpp>
 #include <morum/merkle_tree.hpp>
-#include <tracy/Tracy.hpp>
 
 constexpr unsigned seed = 42;
 static std::mt19937_64 rand_engine{seed};
@@ -84,14 +86,6 @@ static void BM_SetGet(benchmark::State &state) {
 
 BENCHMARK(BM_SetGet);
 
-template <typename F>
-struct FinalAction {
-  ~FinalAction() {
-    f();
-  }
-
-  F f;
-};
 
 int main(int argc, char **argv) {
   char arg0_default[] = "benchmark";
@@ -101,7 +95,7 @@ int main(int argc, char **argv) {
     argv = &args_default;
   }
 
-  FinalAction cleanup{[]() {
+  qtils::FinalAction cleanup{[]() {
     trie_db.reset();
     std::filesystem::remove_all("./test_db");
   }};
