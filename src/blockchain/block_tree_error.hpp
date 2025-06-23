@@ -7,6 +7,7 @@
 #pragma once
 
 #include <qtils/enum_error_code.hpp>
+#include <cstdint>
 
 namespace jam::blockchain {
 

@@ -14,6 +14,7 @@
 #pragma once
 
 #include <qtils/enum_error_code.hpp>
+#include <cstdint>
 
 namespace jam::storage {
 
@@ -23,7 +24,7 @@ namespace jam::storage {
    * Defines common error conditions returned by storage operations,
    * such as missing entries, corruption, or IO failures.
    */
-  enum class StorageError : int {  // NOLINT(performance-enum-size)
+  enum class StorageError : uint8_t {  // NOLINT(performance-enum-size)
 
     OK = 0,  ///< success (no error)
 
@@ -31,11 +32,11 @@ namespace jam::storage {
     CORRUPTION = 2,           ///< data corruption in storage
     INVALID_ARGUMENT = 3,     ///< invalid argument to storage
     IO_ERROR = 4,             ///< IO error in storage
-    NOT_FOUND = 5,            ///< entry not found in storage
+    NOT_FOUND = 5,            ///< entry isn't found in storage
     DB_PATH_NOT_CREATED = 6,  ///< storage path was not created
     STORAGE_GONE = 7,         ///< storage instance has been uninitialized
 
-    UNKNOWN = 1000,  ///< unknown error
+    UNKNOWN = 255,  ///< unknown error
   };
 }  // namespace jam::storage
 

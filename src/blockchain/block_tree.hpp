@@ -153,14 +153,9 @@ namespace jam::blockchain {
     virtual outcome::result<void> finalize(
         const BlockHash &block, const Justification &justification) = 0;
 
-    // enum class GetChainDirection : uint8_t {
-    //   ASCEND,
-    //   DESCEND,
-    // };
-
     /**
      * Get a chain of blocks from provided block to direction of the best block
-     * @param block, from which the chain is started
+     * @param block from which the chain is started
      * @param maximum number of blocks to be retrieved
      * @return chain or blocks or error
      */

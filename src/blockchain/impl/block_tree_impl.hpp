@@ -237,12 +237,14 @@ namespace jam::blockchain {
             == std::this_thread::get_id()) {
           return f(block_tree_data_.unsafeGet());
         }
-        return block_tree_data_.exclusiveAccess([&f,
-                                                 this](BlockTreeData &data) {
-          exclusive_owner_ = std::this_thread::get_id();
-          qtils::FinalAction reset([&] { exclusive_owner_ = std::nullopt; });
-          return f(data);
-        });
+        return block_tree_data_.exclusiveAccess(
+            [&f, this](BlockTreeData &data) {
+              exclusive_owner_ = std::this_thread::get_id();
+              qtils::FinalAction reset([&] {
+                exclusive_owner_ = decltype(std::this_thread::get_id()){};
+              });
+              return f(data);
+            });
       }
 
       template <typename F>
@@ -258,7 +260,8 @@ namespace jam::blockchain {
 
      private:
       se::utils::SafeObject<BlockTreeData> block_tree_data_;
-      std::atomic<std::optional<std::thread::id>> exclusive_owner_;
+      std::atomic<std::thread::id> exclusive_owner_ =
+          decltype(std::this_thread::get_id()){};
     };
 
     log::Logger log_;

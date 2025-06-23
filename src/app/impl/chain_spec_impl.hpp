@@ -25,7 +25,7 @@ namespace jam::app {
 
   class ChainSpecImpl : public ChainSpec {
    public:
-    enum class Error {
+    enum class Error : uint8_t {
       MISSING_ENTRY = 1,
       MISSING_PEER_ID,
       PARSER_ERROR,

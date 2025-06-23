@@ -9,7 +9,8 @@
 // #include <algorithm>
 // #include <set>
 // #include <soralog/macro.hpp>
-// #include <stack>
+#include <queue>
+#include <stack>
 
 #include <qtils/cxx23/ranges/contains.hpp>
 

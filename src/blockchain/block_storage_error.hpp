@@ -7,16 +7,18 @@
 #pragma once
 
 #include <qtils/enum_error_code.hpp>
+#include <cstdint>
 
 namespace jam::blockchain {
 
+#undef BlockStorageError
   enum class BlockStorageError : uint8_t {
     BLOCK_EXISTS = 1,
     HEADER_NOT_FOUND,
     GENESIS_BLOCK_ALREADY_EXISTS,
     GENESIS_BLOCK_NOT_FOUND,
     FINALIZED_BLOCK_NOT_FOUND,
-    BLOCK_TREE_LEAVES_NOT_FOUND
+    BLOCK_TREE_LEAVES_NOT_FOUND,
   };
 
 }
