@@ -25,7 +25,7 @@ static std::shared_ptr<morum::modules::Synchronizer> module_instance;
 #endif 
 
 MODULE_C_API std::weak_ptr<morum::modules::Synchronizer> query_module_instance(
-    morum::modules::SynchronizerLoader& loader,
+    morum::modules::SynchronizerLoader &loader,
     std::shared_ptr<morum::log::LoggingSystem> logsys) {
   if (!module_instance) {
     module_instance = std::make_shared<morum::modules::SynchronizerImpl>(

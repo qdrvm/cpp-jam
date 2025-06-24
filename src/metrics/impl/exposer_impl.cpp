@@ -39,11 +39,10 @@ namespace morum::metrics {
   bool ExposerImpl::prepare() {
     BOOST_ASSERT(config_->metrics().enabled == true);
     try {
-      acceptor_ = morum::api::acceptOnFreePort(
-          context_,
-          config_->metrics().endpoint,
-          morum::api::kDefaultPortTolerance,
-          logger_);
+      acceptor_ = morum::api::acceptOnFreePort(context_,
+                                             config_->metrics().endpoint,
+                                             morum::api::kDefaultPortTolerance,
+                                             logger_);
     } catch (const boost::wrapexcept<boost::system::system_error> &exception) {
       SL_CRITICAL(
           logger_, "Failed to prepare a listener: {}", exception.what());
@@ -72,10 +71,9 @@ namespace morum::metrics {
       return false;
     }
 
-    logger_->info(
-        "Listening for new connections on {}:{}",
-        config_->metrics().endpoint.address().to_string(),
-        acceptor_->local_endpoint().port());
+    logger_->info("Listening for new connections on {}:{}",
+                  config_->metrics().endpoint.address().to_string(),
+                  acceptor_->local_endpoint().port());
     acceptOnce();
 
     thread_ = std::make_unique<std::thread>([context = context_] {

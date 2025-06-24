@@ -19,9 +19,8 @@
 #include <soralog/soralog.hpp>
 
 #include "app/configuration.hpp"
-#include "log/logger.hpp"
-
 #include "injector/dont_inject.hpp"
+#include "log/logger.hpp"
 
 namespace soralog {
   class Logger;
@@ -55,6 +54,7 @@ namespace {
 #else
 
 #include <unistd.h>
+
 #include <sys/syscall.h>
 
 inline uint64_t getPlatformThreadId() {

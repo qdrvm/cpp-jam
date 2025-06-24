@@ -83,7 +83,7 @@ option(MORUM_TRACE "Enable tracing" OFF)
 
 set(Python3_FIND_VIRTUALENV ONLY)
 find_package(Python3 REQUIRED)
-find_package(Boost CONFIG REQUIRED COMPONENTS algorithm program_options outcome)
+find_package(Boost CONFIG REQUIRED COMPONENTS algorithm program_options outcome property_tree)
 find_package(fmt CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 find_package(scale CONFIG REQUIRED)
@@ -99,15 +99,18 @@ find_library(BLAKE2_LIB blake2b)
 add_library(blake2b STATIC IMPORTED)
 set_property(TARGET blake2b PROPERTY IMPORTED_LOCATION ${BLAKE2_LIB})
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  add_compile_options(-fmodules-ts)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang")
-  add_compile_options(-fmodules)
-endif()
+# TODO Temporarily commented out until gcc is updated (gcc-13 crashes because of this).
+# if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+#   add_compile_options(-fmodules-ts)
+# elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang")
+#   add_compile_options(-fmodules)
+# endif()
 
 add_library(headers INTERFACE)
 target_include_directories(headers INTERFACE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src_>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 

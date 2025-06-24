@@ -4,9 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <boost/assert.hpp>
+#include "log/logger.hpp"
+
 #include <iostream>
 
+#include <boost/assert.hpp>
 #include <qtils/enum_error_code.hpp>
 #include <qtils/outcome.hpp>
 #include <soralog/impl/sink_to_console.hpp>

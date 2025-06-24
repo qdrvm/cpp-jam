@@ -24,7 +24,7 @@ static std::mt19937_64 rand_engine{seed};
 
 template <std::ranges::input_range R>
 void fill_random(R &&span) {
-  static std::uniform_int_distribution dist;
+  static std::uniform_int_distribution<uint8_t> dist(0, 255);
 
   for (auto &byte : span) {
     byte = dist(rand_engine);
@@ -90,7 +90,7 @@ BENCHMARK(BM_SetGet);
 int main(int argc, char **argv) {
   char arg0_default[] = "benchmark";
   char *args_default = arg0_default;
-  if (!argv) {
+  if (argc == 0) {
     argc = 1;
     argv = &args_default;
   }

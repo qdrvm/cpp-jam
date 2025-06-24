@@ -34,4 +34,4 @@ namespace morum::metrics {
                                   std::shared_ptr<Session> session) = 0;
   };
 
-}  // namespace kagome::metrics
+}  // namespace morum::metrics

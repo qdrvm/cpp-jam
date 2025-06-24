@@ -5,7 +5,9 @@
  */
 
 #include "metrics/impl/metrics_watcher.hpp"
+
 #include <filesystem>
+
 #include "app/configuration.hpp"
 #include "app/state_manager.hpp"
 #include "log/logger.hpp"

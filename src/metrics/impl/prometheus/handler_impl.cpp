@@ -7,6 +7,7 @@
 #include "metrics/impl/prometheus/handler_impl.hpp"
 
 #include <prometheus/text_serializer.h>
+
 #include "log/logger.hpp"
 #include "registry_impl.hpp"
 #include "utils/retain_if.hpp"

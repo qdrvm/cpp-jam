@@ -41,6 +41,7 @@
     "boost-program-options",
     "boost-asio",
     "boost-beast",
+    "boost-property-tree",
     "prometheus-cpp",
     {
       "name": "yaml-cpp",

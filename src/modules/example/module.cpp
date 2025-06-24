@@ -25,7 +25,7 @@ static std::shared_ptr<morum::modules::ExampleModule> module_instance;
 #endif 
 
 MODULE_C_API std::weak_ptr<morum::modules::ExampleModule> query_module_instance(
-    morum::modules::ExampleModuleLoader& loader,
+    morum::modules::ExampleModuleLoader &loader,
     std::shared_ptr<morum::log::LoggingSystem> logger) {
   if (!module_instance) {
     module_instance = std::make_shared<morum::modules::ExampleModuleImpl>(
