@@ -13,7 +13,7 @@
 
 #include "utils/ctor_limiters.hpp"
 
-namespace jam::se::utils {
+namespace morum::se::utils {
 
   /**
    * @brief Creates a weak_ptr from a shared_ptr
@@ -202,4 +202,4 @@ namespace jam::se::utils {
       wait_cv_.notify_one();
     }
   };
-}  // namespace jam::se::utils
+}  // namespace morum::se::utils

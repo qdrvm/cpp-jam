@@ -10,7 +10,7 @@
 
 #include "storage/in_memory/in_memory_storage.hpp"
 
-namespace jam::storage {
+namespace morum::storage {
   class InMemoryCursor : public BufferStorageCursor {
    public:
     explicit InMemoryCursor(InMemoryStorage &db) : db{db} {}
@@ -71,4 +71,4 @@ namespace jam::storage {
     InMemoryStorage &db;
     std::optional<std::pair<ByteVec, ByteVec>> kv;
   };
-}  // namespace jam::storage
+}  // namespace morum::storage

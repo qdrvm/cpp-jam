@@ -11,7 +11,7 @@
 
 #include "scheduler.hpp"
 
-namespace jam::se {
+namespace morum::se {
 
   /**
    * Interface for task dispatchers that handle execution across different threads
@@ -39,4 +39,4 @@ namespace jam::se {
                         Predicate &&pred) = 0;
   };
 
-}  // namespace jam::se
+}  // namespace morum::se

@@ -8,7 +8,7 @@
 
 #include "log/logger.hpp"
 
-namespace jam::api {
+namespace morum::api {
 
   std::unique_ptr<Acceptor> acceptOnFreePort(
       std::shared_ptr<boost::asio::io_context> context,
@@ -37,4 +37,4 @@ namespace jam::api {
     }
   }
 
-}  // namespace jam::api
+}  // namespace morum::api

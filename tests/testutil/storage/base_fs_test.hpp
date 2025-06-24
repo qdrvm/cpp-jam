@@ -41,7 +41,7 @@ namespace test {
     }
 
    protected:
-    jam::log::Logger logger;
+    morum::log::Logger logger;
     fs::path base_path;
   };
 

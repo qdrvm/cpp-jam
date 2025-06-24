@@ -6,10 +6,10 @@
 
 #pragma once
 
-namespace jam::storage::face {
+namespace morum::storage::face {
   template <typename T>
   struct ViewTrait;
 
   template <typename T>
   using View = typename ViewTrait<T>::type;
-}  // namespace jam::storage::face
+}  // namespace morum::storage::face

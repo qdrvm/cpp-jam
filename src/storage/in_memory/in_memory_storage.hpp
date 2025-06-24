@@ -13,7 +13,7 @@
 
 #include "storage/buffer_map_types.hpp"
 
-namespace jam::storage {
+namespace morum::storage {
 
   /**
    * Simple storage that conforms PersistentMap interface
@@ -51,4 +51,4 @@ namespace jam::storage {
     friend class InMemoryCursor;
   };
 
-}  // namespace jam::storage
+}  // namespace morum::storage

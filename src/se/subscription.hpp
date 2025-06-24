@@ -13,7 +13,7 @@
 #include "impl/subscription_manager.hpp"
 #include "subscription_fwd.hpp"
 
-namespace jam::se {
+namespace morum::se {
   std::shared_ptr<Dispatcher> getDispatcher();
 
   template <typename ObjectType, typename... EventData>
@@ -38,4 +38,4 @@ namespace jam::se {
       return subscriber;
     }
   };
-}  // namespace jam::se
+}  // namespace morum::se

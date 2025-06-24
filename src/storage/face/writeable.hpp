@@ -18,7 +18,7 @@
 #include "storage/face/owned_or_view.hpp"
 #include "storage/face/view.hpp"
 
-namespace jam::storage::face {
+namespace morum::storage::face {
 
   /**
    * @brief Interface for batch-modifiable map storage.
@@ -54,4 +54,4 @@ namespace jam::storage::face {
     virtual outcome::result<void> remove(const View<K> &key) = 0;
   };
 
-}  // namespace jam::storage::face
+}  // namespace morum::storage::face

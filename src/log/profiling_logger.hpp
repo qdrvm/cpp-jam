@@ -10,12 +10,12 @@
 
 #include "clock/impl/clock_impl.hpp"
 
-namespace jam::log {
+namespace morum::log {
 
   extern Logger profiling_logger;  // NOLINT
 
   struct ProfileScope {
-    using Clock = ::jam::clock::SteadyClockImpl;
+    using Clock = ::morum::clock::SteadyClockImpl;
 
     explicit ProfileScope(std::string_view scope,
                           log::Logger logger = profiling_logger)
@@ -52,15 +52,15 @@ namespace jam::log {
     Clock::TimePoint start;
     log::Logger logger;
   };
-}  // namespace jam::log
+}  // namespace morum::log
 
 #ifdef JAM_PROFILING
 
 #define JAM_PROFILE_START_L(logger, scope) \
-  auto _profiling_scope_##scope = ::jam::log::ProfileScope{#scope, logger};
+  auto _profiling_scope_##scope = ::morum::log::ProfileScope{#scope, logger};
 
 #define JAM_PROFILE_START(scope) \
-  JAM_PROFILE_START_L(::jam::log::profiling_logger, scope)
+  JAM_PROFILE_START_L(::morum::log::profiling_logger, scope)
 #define JAM_PROFILE_END(scope) _profiling_scope_##scope.end();
 
 #else

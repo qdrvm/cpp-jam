@@ -10,7 +10,7 @@
 #include "dispatcher.hpp"
 #include "utils/ctor_limiters.hpp"
 
-namespace jam::se {
+namespace morum::se {
 
   template <uint32_t kCount, uint32_t kPoolSize>
   class SyncDispatcher final : public Dispatcher, NonCopyable, NonMovable {
@@ -35,8 +35,8 @@ namespace jam::se {
       task();
     }
 
-    void repeat(Tid tid,
-                std::chrono::microseconds timeout,
+    void repeat(Tid /*tid*/,
+                std::chrono::microseconds /*timeout*/,
                 typename Parent::Task &&task,
                 typename Parent::Predicate &&pred) override {
       if (!pred || pred()) {
@@ -57,4 +57,4 @@ namespace jam::se {
     }
   };
 
-}  // namespace jam::se
+}  // namespace morum::se

@@ -11,7 +11,7 @@
 #include <optional>
 #include <string>
 
-namespace jam::storage {
+namespace morum::storage {
 
   /**
    * Map space item to its string name for Rocks DB needs
@@ -22,4 +22,4 @@ namespace jam::storage {
 
   std::optional<Space> spaceFromString(std::string_view string);
 
-}  // namespace jam::storage
+}  // namespace morum::storage

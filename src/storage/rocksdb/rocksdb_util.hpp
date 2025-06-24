@@ -10,7 +10,7 @@
 #include <qtils/byte_vec.hpp>
 #include "storage/storage_error.hpp"
 
-namespace jam::storage {
+namespace morum::storage {
   inline StorageError status_as_error(const rocksdb::Status &s, const log::Logger &log) {
     if (s.IsNotFound()) {
       return StorageError::NOT_FOUND;
@@ -54,4 +54,4 @@ namespace jam::storage {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     return {ptr, ptr + s.size()};
   }
-}  // namespace jam::storage
+}  // namespace morum::storage

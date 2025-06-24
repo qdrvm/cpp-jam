@@ -12,7 +12,7 @@
 #include "utils/ctor_limiters.hpp"
 
 
-namespace jam::se {
+namespace morum::se {
 
   using SubscriptionSetId = uint32_t;
 
@@ -45,4 +45,4 @@ namespace jam::se {
                            Arguments &&...args) = 0;
   };
 
-}  // namespace jam::se
+}  // namespace morum::se

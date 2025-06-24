@@ -19,11 +19,11 @@
 #include "storage/spaced_storage.hpp"
 #include "utils/ctor_limiters.hpp"
 
-namespace jam::app {
+namespace morum::app {
   class Configuration;
 }
 
-namespace jam::storage {
+namespace morum::storage {
 
   class RocksDb : public SpacedStorage,
                   public std::enable_shared_from_this<RocksDb>,
@@ -143,4 +143,4 @@ namespace jam::storage {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
     const RocksDb::ColumnFamilyHandlePtr &column_;
   };
-}  // namespace jam::storage
+}  // namespace morum::storage

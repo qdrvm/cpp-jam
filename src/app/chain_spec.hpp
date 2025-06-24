@@ -13,13 +13,13 @@
 
 #include "jam_types/types.tmp.hpp"
 
-namespace jam {
+namespace morum {
 
   using NodeAddress = Stub;
 
 }
 
-namespace jam::app {
+namespace morum::app {
 
   class ChainSpec {
    public:
@@ -35,4 +35,4 @@ namespace jam::app {
         const = 0;
   };
 
-}  // namespace jam::app
+}  // namespace morum::app

@@ -12,7 +12,7 @@
 #include "storage/face/owned_or_view.hpp"
 #include "storage/face/view.hpp"
 
-namespace jam::storage::face {
+namespace morum::storage::face {
 
   /**
    * @brief An abstraction over generic map cursor.
@@ -93,4 +93,4 @@ namespace jam::storage::face {
     virtual std::optional<OwnedOrView<V>> value() const = 0;
   };
 
-}  // namespace jam::storage::face
+}  // namespace morum::storage::face

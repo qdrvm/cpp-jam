@@ -8,7 +8,7 @@
 
 #include <chrono>
 
-namespace jam::clock {
+namespace morum::clock {
 
   /**
    * An interface for a clock
@@ -63,4 +63,4 @@ namespace jam::clock {
    */
   class SteadyClock : public virtual Clock<std::chrono::steady_clock> {};
 
-}  // namespace jam::clock
+}  // namespace morum::clock

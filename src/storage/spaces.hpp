@@ -17,7 +17,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace jam::storage {
+namespace morum::storage {
 
   /**
    * @enum Space

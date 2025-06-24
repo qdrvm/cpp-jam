@@ -15,34 +15,34 @@
 #include "app/application.hpp"
 #include "se/subscription_fwd.hpp"
 
-namespace jam {
+namespace morum {
   class Watchdog;
-}  // namespace jam
+}  // namespace morum
 
-namespace jam::app {
+namespace morum::app {
   class Configuration;
   class StateManager;
-}  // namespace jam::app
+}  // namespace morum::app
 
-namespace jam::clock {
+namespace morum::clock {
   class SystemClock;
-}  // namespace jam::clock
+}  // namespace morum::clock
 
 namespace soralog {
   class Logger;
 }  // namespace soralog
 
-namespace jam::log {
+namespace morum::log {
   class LoggingSystem;
-}  // namespace jam::log
+}  // namespace morum::log
 
-namespace jam::metrics {
+namespace morum::metrics {
   class Registry;
   class Gauge;
   class Exposer;
-}  // namespace jam::metrics
+}  // namespace morum::metrics
 
-namespace jam::app {
+namespace morum::app {
 
   /**
    * @brief RAII holder for subscription engine management
@@ -99,4 +99,4 @@ namespace jam::app {
     std::unique_ptr<metrics::Registry> metrics_registry_;
   };
 
-}  // namespace jam::app
+}  // namespace morum::app

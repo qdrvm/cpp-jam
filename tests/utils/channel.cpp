@@ -13,7 +13,7 @@
 #include <thread>
 
 using namespace std::chrono_literals;
-using namespace jam;
+using namespace morum;
 
 /**
  * @file channel.cpp

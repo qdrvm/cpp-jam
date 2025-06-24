@@ -9,7 +9,7 @@
 #include <qtils/byte_vec.hpp>
 #include "storage/in_memory/in_memory_storage.hpp"
 
-namespace jam::storage {
+namespace morum::storage {
   using qtils::ByteVec;
 
   class InMemoryBatch : public BufferBatch {
@@ -44,4 +44,4 @@ namespace jam::storage {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
     InMemoryStorage &db;
   };
-}  // namespace jam::storage
+}  // namespace morum::storage

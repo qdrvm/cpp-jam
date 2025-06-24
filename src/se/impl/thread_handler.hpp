@@ -13,7 +13,7 @@
 #include <fmt/format.h>
 #include "scheduler_impl.hpp"
 
-namespace jam::se {
+namespace morum::se {
 
   class ThreadHandler final : public SchedulerBase {
    private:
@@ -40,4 +40,4 @@ namespace jam::se {
     }
   };
 
-}  // namespace jam::se
+}  // namespace morum::se

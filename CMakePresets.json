@@ -2,13 +2,38 @@
   "version": 2,
   "configurePresets": [
     {
-      "name": "default",
+      "name": "vcpkg",
+      "hidden": true,
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "CMAKE_BUILD_TYPE": "Debug",
         "VCPKG_OVERLAY_PORTS": "${sourceDir}/vcpkg-overlay"
+      }
+    },
+    {
+      "name": "dev",
+      "inherits": "vcpkg",
+      "binaryDir": "${sourceDir}/build-dev",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "QTILS_ASSERT": "ON",
+        "MORUM_BUILD_TRACY": "ON",
+        "MORUM_ASAN": "OFF",
+        "MORUM_UBSAN": "OFF",
+        "MORUM_TSAN": "OFF"
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "vcpkg",
+      "binaryDir": "${sourceDir}/build-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "MORUM_BUILD_TRACY": "ON",
+        "MORUM_BUILD_TESTS": "ON",
+        "MORUM_ASAN": "OFF",
+        "MORUM_UBSAN": "OFF",
+        "MORUM_TSAN": "OFF"
       }
     }
   ]

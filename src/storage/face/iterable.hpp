@@ -10,7 +10,7 @@
 
 #include "storage/face/map_cursor.hpp"
 
-namespace jam::storage::face {
+namespace morum::storage::face {
 
   /**
    * @brief A mixin for an iterable map.
@@ -30,4 +30,4 @@ namespace jam::storage::face {
     virtual std::unique_ptr<Cursor> cursor() = 0;
   };
 
-}  // namespace jam::storage::face
+}  // namespace morum::storage::face

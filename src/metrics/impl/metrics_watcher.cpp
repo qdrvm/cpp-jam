@@ -13,7 +13,7 @@
 #include "log/logger.hpp"
 #include "metrics/registry.hpp"
 
-namespace jam::metrics {
+namespace morum::metrics {
   namespace fs = std::filesystem;
 
   MetricsWatcher::MetricsWatcher(
@@ -25,7 +25,7 @@ namespace jam::metrics {
     BOOST_ASSERT(state_manager);
 
     // Metric for exposing current storage size
-    constexpr auto storageSizeMetricName = "jam_storage_size";
+    constexpr auto storageSizeMetricName = "morum_storage_size";
     metrics_registry_->registerGaugeFamily(
         storageSizeMetricName, "Consumption of disk space by storage");
     metric_storage_size_ =
@@ -91,4 +91,4 @@ namespace jam::metrics {
     return outcome::success(total_size);
   }
 
-}  // namespace jam::metrics
+}  // namespace morum::metrics

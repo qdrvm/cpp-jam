@@ -14,14 +14,14 @@
 #include "app/chain_spec.hpp"
 #include "log/logger.hpp"
 
-namespace jam::app {
+namespace morum::app {
   class Configuration;
 }
-namespace jam::log {
+namespace morum::log {
   class LoggingSystem;
 }
 
-namespace jam::app {
+namespace morum::app {
 
   class ChainSpecImpl : public ChainSpec {
    public:
@@ -77,6 +77,6 @@ namespace jam::app {
     std::map<qtils::ByteVec, qtils::ByteVec> genesis_state_;
   };
 
-}  // namespace jam::app
+}  // namespace morum::app
 
-OUTCOME_HPP_DECLARE_ERROR(jam::app, ChainSpecImpl::Error)
+OUTCOME_HPP_DECLARE_ERROR(morum::app, ChainSpecImpl::Error)

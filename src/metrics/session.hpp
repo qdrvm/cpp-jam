@@ -11,7 +11,7 @@
 #include <boost/asio/streambuf.hpp>
 #include <boost/beast/http/string_body.hpp>
 
-namespace jam::metrics {
+namespace morum::metrics {
 
   /**
    * @brief session interface for OpenMetrics service
@@ -69,4 +69,4 @@ namespace jam::metrics {
     virtual void respond(Response message) = 0;
   };
 
-}  // namespace jam::metrics
+}  // namespace morum::metrics

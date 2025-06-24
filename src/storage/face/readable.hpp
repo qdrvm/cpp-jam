@@ -11,7 +11,7 @@
 #include "storage/face/owned_or_view.hpp"
 #include "storage/face/view.hpp"
 
-namespace jam::storage::face {
+namespace morum::storage::face {
   /**
    * @brief A mixin for read-only map.
    * @tparam K key type
@@ -45,4 +45,4 @@ namespace jam::storage::face {
     [[nodiscard]] virtual outcome::result<std::optional<OwnedOrView<V>>> tryGet(
         const View<K> &key) const = 0;
   };
-}  // namespace jam::storage::face
+}  // namespace morum::storage::face

@@ -10,7 +10,7 @@
  * Keccak hash
  */
 
-namespace jam::crypto {
+namespace morum::crypto {
   struct Keccak {
     using Hash32 = qtils::ByteArr<32>;
     uint64_t state[5][5] = {};
@@ -31,7 +31,7 @@ namespace jam::crypto {
       };
       uint64_t(*a)[5] = state;
       uint8_t r = 1;  // LFSR
-      for (int i = 0; i < NUM_ROUNDS; i++) {
+      for (int i = 0; i < static_cast<int>(NUM_ROUNDS); i++) {
         // Theta step
         uint64_t c[5] = {};
         for (int x = 0; x < 5; x++) {
@@ -80,7 +80,7 @@ namespace jam::crypto {
         absorb();
       }
       // Uint64 array to bytes in little endian
-      for (int i = 0; i < HASH_LEN; i++) {
+      for (int i = 0; i < static_cast<int>(HASH_LEN); i++) {
         int j = i >> 3;
         hash[i] = static_cast<uint8_t>(state[j % 5][j / 5] >> ((i & 7) << 3));
       }
@@ -110,4 +110,4 @@ namespace jam::crypto {
       return Keccak{}.update(input).hash();
     }
   };
-}  // namespace jam
+}  // namespace morum

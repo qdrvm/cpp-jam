@@ -17,7 +17,7 @@
 #include "modules/shared/networking_types.tmp.hpp"
 #include "se/subscription.hpp"
 
-namespace jam::loaders {
+namespace morum::loaders {
 
   class NetworkingLoader final
       : public std::enable_shared_from_this<NetworkingLoader>,
@@ -49,7 +49,7 @@ namespace jam::loaders {
       set_module(module);
       auto module_accessor =
           get_module()
-              ->getFunctionFromLibrary<std::weak_ptr<jam::modules::Networking>,
+              ->getFunctionFromLibrary<std::weak_ptr<morum::modules::Networking>,
                                        modules::NetworkingLoader &,
                                        std::shared_ptr<log::LoggingSystem>>(
                   "query_module_instance");
@@ -98,31 +98,31 @@ namespace jam::loaders {
               });
 
 
-      se_manager_->notify(jam::EventTypes::NetworkingIsLoaded);
+      se_manager_->notify(morum::EventTypes::NetworkingIsLoaded);
     }
 
     void dispatch_peer_connected(
         std::shared_ptr<const messages::PeerConnectedMessage> msg) override {
       SL_TRACE(logger_, "Dispatch PeerConnected; peer={}", msg->peer);
-      se_manager_->notify(jam::EventTypes::PeerConnected, msg);
+      se_manager_->notify(morum::EventTypes::PeerConnected, msg);
     }
 
     void dispatch_peer_disconnected(
         std::shared_ptr<const messages::PeerDisconnectedMessage> msg) override {
       SL_TRACE(logger_, "Dispatch PeerDisconnected; peer={}", msg->peer);
-      se_manager_->notify(jam::EventTypes::PeerDisconnected, msg);
+      se_manager_->notify(morum::EventTypes::PeerDisconnected, msg);
     }
 
     void dispatch_block_announce(
         std::shared_ptr<const messages::BlockAnnounceMessage> msg) override {
       SL_TRACE(logger_, "Dispatch BlockAnnounceReceived");
-      se_manager_->notify(jam::EventTypes::BlockAnnounceReceived, msg);
+      se_manager_->notify(morum::EventTypes::BlockAnnounceReceived, msg);
     }
 
     void dispatch_block_response(
         std::shared_ptr<const messages::BlockResponseMessage> msg) override {
       SL_TRACE(logger_, "Dispatch BlockResponse; rid={}", msg->ctx.rid);
-      se_manager_->notify(jam::EventTypes::BlockResponse, std::move(msg));
+      se_manager_->notify(morum::EventTypes::BlockResponse, std::move(msg));
     }
   };
-}  // namespace jam::loaders
+}  // namespace morum::loaders

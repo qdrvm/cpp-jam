@@ -11,7 +11,7 @@
 #include <optional>
 #include <string_view>
 
-namespace jam::util {
+namespace morum::util {
 
   /**
    * Case-insensitive comparison of two string views.
@@ -187,4 +187,4 @@ namespace jam::util {
     return std::nullopt;
   }
 
-}  // namespace jam::util
+}  // namespace morum::util

@@ -14,9 +14,9 @@ namespace test {
 
     rocks_.reset();
     ASSERT_NO_THROW(
-        rocks_ = std::make_shared<jam::storage::RocksDb>(logsys, app_config));
+        rocks_ = std::make_shared<morum::storage::RocksDb>(logsys, app_config));
 
-    db_ = rocks_->getSpace(jam::storage::Space::Default);
+    db_ = rocks_->getSpace(morum::storage::Space::Default);
     ASSERT_TRUE(db_) << "BaseRocksDB_Test: db is nullptr";
   }
 
@@ -25,9 +25,9 @@ namespace test {
 
   void BaseRocksDB_Test::SetUp() {
     logsys = testutil::prepareLoggers();
-    app_config = std::make_shared<jam::app::ConfigurationMock>();
+    app_config = std::make_shared<morum::app::ConfigurationMock>();
 
-    jam::app::Configuration::DatabaseConfig db_config{
+    morum::app::Configuration::DatabaseConfig db_config{
         .directory = getPathString() + "/db",
         .cache_size = 8 << 20,  // 8Mb
     };

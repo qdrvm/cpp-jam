@@ -22,7 +22,7 @@ struct fmt::formatter<boost::variant<Args...>> {
       -> decltype(ctx.out()) {
     // ctx.out() is an output iterator to write to.
 
-    return jam::visit_in_place(variant, [&](const auto &value) {
+    return morum::visit_in_place(variant, [&](const auto &value) {
       return fmt::format_to(ctx.out(), "{}", value);
     });
   }

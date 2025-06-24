@@ -18,7 +18,7 @@
 #include "storage/face/generic_maps.hpp"
 #include "storage/face/write_batch.hpp"
 
-namespace jam::storage::face {
+namespace morum::storage::face {
 
   /**
    * @brief OwnedOrView trait for ByteVec values.
@@ -41,9 +41,9 @@ namespace jam::storage::face {
     using type = qtils::ByteView;
   };
 
-}  // namespace jam::storage::face
+}  // namespace morum::storage::face
 
-namespace jam::storage {
+namespace morum::storage {
 
   using qtils::ByteVec;
   using qtils::ByteVecOrView;
@@ -68,4 +68,4 @@ namespace jam::storage {
    */
   using BufferStorageCursor = face::MapCursor<ByteVec, ByteVec>;
 
-}  // namespace jam::storage
+}  // namespace morum::storage

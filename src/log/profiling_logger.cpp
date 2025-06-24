@@ -6,7 +6,7 @@
 
 #include "log/profiling_logger.hpp"
 
-namespace jam::log {
+namespace morum::log {
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
   Logger profiling_logger = nullptr;
-}  // namespace jam::log
+}  // namespace morum::log

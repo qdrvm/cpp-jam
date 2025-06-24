@@ -13,11 +13,11 @@
 #include "log/logger.hpp"
 #include "metrics/session.hpp"
 
-namespace jam::log {
+namespace morum::log {
   class LoggingSystem;
-}  // namespace jam::log
+}  // namespace morum::log
 
-namespace jam::metrics {
+namespace morum::metrics {
 
   class SessionImpl : public Session,
                       public std::enable_shared_from_this<SessionImpl> {
@@ -104,7 +104,7 @@ namespace jam::metrics {
      */
     void reportError(boost::system::error_code ec, std::string_view message);
 
-    static constexpr boost::string_view kServerName = "JAM-Node";
+    static constexpr boost::string_view kServerName = "Morum-Node";
 
     std::shared_ptr<soralog::Logger> logger_;
 
@@ -123,4 +123,4 @@ namespace jam::metrics {
     std::unique_ptr<Parser> parser_;  ///< http parser
   };
 
-}  // namespace jam::metrics
+}  // namespace morum::metrics

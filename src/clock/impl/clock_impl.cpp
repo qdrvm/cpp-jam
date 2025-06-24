@@ -6,7 +6,7 @@
 
 #include "clock/impl/clock_impl.hpp"
 
-namespace jam::clock {
+namespace morum::clock {
 
   template <typename ClockType>
   typename Clock<ClockType>::TimePoint ClockImpl<ClockType>::now() const {
@@ -30,4 +30,4 @@ namespace jam::clock {
   template class ClockImpl<std::chrono::steady_clock>;
   template class ClockImpl<std::chrono::system_clock>;
 
-}  // namespace jam::clock
+}  // namespace morum::clock

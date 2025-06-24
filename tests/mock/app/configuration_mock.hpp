@@ -11,7 +11,7 @@
 
 #include "app/configuration.hpp"
 
-namespace jam::app {
+namespace morum::app {
 
   class ConfigurationMock : public Configuration {
    public:
@@ -28,4 +28,4 @@ namespace jam::app {
     // clang-format on
   };
 
-}  // namespace jam::app
+}  // namespace morum::app

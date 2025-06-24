@@ -9,10 +9,10 @@
 #include "impl/sync_dispatcher_impl.hpp"
 #include "subscription.hpp"
 
-namespace jam::se {
+namespace morum::se {
 
   std::shared_ptr<Dispatcher> getDispatcher() {
     return std::make_shared<SyncDispatcher<kHandlersCount, kThreadPoolSize>>();
   }
 
-}  // namespace jam::se
+}  // namespace morum::se

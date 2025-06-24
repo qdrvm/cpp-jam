@@ -12,8 +12,8 @@
 
 #include <app/configuration.hpp>
 
-OUTCOME_CPP_DEFINE_CATEGORY(jam::app, ChainSpecImpl::Error, e) {
-  using E = jam::app::ChainSpecImpl::Error;
+OUTCOME_CPP_DEFINE_CATEGORY(morum::app, ChainSpecImpl::Error, e) {
+  using E = morum::app::ChainSpecImpl::Error;
   switch (e) {
     case E::MISSING_ENTRY:
       return "A required entry is missing in the config file";
@@ -27,7 +27,7 @@ OUTCOME_CPP_DEFINE_CATEGORY(jam::app, ChainSpecImpl::Error, e) {
   return "Unknown error in ChainSpecImpl";
 }
 
-namespace jam::app {
+namespace morum::app {
 
   namespace pt = boost::property_tree;
 
@@ -83,4 +83,4 @@ namespace jam::app {
     return outcome::success();
   }
 
-}  // namespace jam::app
+}  // namespace morum::app

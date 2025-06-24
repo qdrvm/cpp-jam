@@ -35,7 +35,7 @@ namespace test {
       : logger(testutil::prepareLoggers()->createLogger(
             fs::weakly_canonical(path).string(),
             "testing",
-            jam::log::Level::DEBUG)),
+            morum::log::Level::DEBUG)),
         base_path(std::move(path)) {
     clear();
     mkdir();

@@ -24,7 +24,7 @@
 #include "storage/storage_error.hpp"
 #include "utils/fd_limit.hpp"
 
-namespace jam::storage {
+namespace morum::storage {
   namespace fs = std::filesystem;
 
   rocksdb::ColumnFamilyOptions configureColumn(uint64_t memory_budget) {
@@ -274,7 +274,7 @@ namespace jam::storage {
     return space_ptr;
   }
 
-  void RocksDb::dropColumn(jam::storage::Space space) {
+  void RocksDb::dropColumn(morum::storage::Space space) {
     auto space_name = spaceName(space);
     auto column_it = std::ranges::find_if(
         column_family_handles_,
@@ -495,4 +495,4 @@ namespace jam::storage {
     return rocks;
   }
 
-}  // namespace jam::storage
+}  // namespace morum::storage

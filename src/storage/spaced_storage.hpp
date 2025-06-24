@@ -20,7 +20,7 @@
 #include "storage/buffer_map_types.hpp"
 #include "storage/spaces.hpp"
 
-namespace jam::storage {
+namespace morum::storage {
 
   /**
    * @class SpacedStorage
@@ -43,4 +43,4 @@ namespace jam::storage {
     virtual std::shared_ptr<BufferStorage> getSpace(Space space) = 0;
   };
 
-}  // namespace jam::storage
+}  // namespace morum::storage

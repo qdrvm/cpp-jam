@@ -9,7 +9,7 @@
 #include "storage/rocksdb/rocksdb_util.hpp"
 #include "storage/storage_error.hpp"
 
-namespace jam::storage {
+namespace morum::storage {
 
   RocksDbBatch::RocksDbBatch(RocksDbSpace &db, log::Logger &logger)
       : db_(db), logger_(logger) {}
@@ -41,4 +41,4 @@ namespace jam::storage {
   void RocksDbBatch::clear() {
     batch_.Clear();
   }
-}  // namespace jam::storage
+}  // namespace morum::storage

@@ -18,9 +18,9 @@
 namespace testutil {
 
   // supposed to be called in SetUpTestCase
-  inline qtils::SharedRef<jam::log::LoggingSystem> prepareLoggers(
+  inline qtils::SharedRef<morum::log::LoggingSystem> prepareLoggers(
       soralog::Level level = soralog::Level::INFO) {
-    static qtils::SharedRef<jam::log::LoggingSystem> logging_system = ({
+    static qtils::SharedRef<morum::log::LoggingSystem> logging_system = ({
       auto testing_log_config = std::string(R"(
 sinks:
   - name: console
@@ -60,11 +60,11 @@ groups:
         throw std::runtime_error("Cannot configure logging");
       }
 
-      std::make_shared<jam::log::LoggingSystem>(std::move(logging_system_));
+      std::make_shared<morum::log::LoggingSystem>(std::move(logging_system_));
     });
 
     std::ignore =
-        logging_system->setLevelOfGroup(jam::log::defaultGroupName, level);
+        logging_system->setLevelOfGroup(morum::log::defaultGroupName, level);
 
     return logging_system;
   }

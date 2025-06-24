@@ -14,7 +14,7 @@
 #include <boost/static_assert.hpp>
 #include <rocksdb/db.h>
 
-namespace jam::storage {
+namespace morum::storage {
 
   static constexpr std::string_view kNamesArr[] = {
       ""
@@ -41,4 +41,4 @@ namespace jam::storage {
     return space;
   }
 
-}  // namespace jam::storage
+}  // namespace morum::storage

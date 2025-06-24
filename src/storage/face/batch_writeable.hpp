@@ -17,7 +17,7 @@
 
 #include "storage/face/write_batch.hpp"
 
-namespace jam::storage::face {
+namespace morum::storage::face {
 
   /**
    * @brief Mixin interface for batched map modifications.
@@ -44,4 +44,4 @@ namespace jam::storage::face {
     }
   };
 
-}  // namespace jam::storage::face
+}  // namespace morum::storage::face

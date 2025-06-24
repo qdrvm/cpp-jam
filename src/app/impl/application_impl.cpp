@@ -18,7 +18,7 @@
 #include "metrics/metrics.hpp"
 #include "se/impl/subscription_manager.hpp"
 
-namespace jam::app {
+namespace morum::app {
 
   SeHolder::SeHolder(SePtr se) : se_(std::move(se)) {}
 
@@ -43,7 +43,7 @@ namespace jam::app {
         metrics_registry_(metrics::createRegistry()) {
     // Metric for exposing name and version of node
     metrics::GaugeHelper(
-        "jam_build_info",
+        "morum_build_info",
         "A metric with a constant '1' value labeled by name, version",
         std::map<std::string, std::string>{
             {"name", app_config_->nodeName()},
@@ -65,7 +65,7 @@ namespace jam::app {
     state_manager_->atShutdown([this] { watchdog_->stop(); });
 
     // Metric storing start time
-    metrics::GaugeHelper("jam_process_start_time_seconds",
+    metrics::GaugeHelper("morum_process_start_time_seconds",
                          "UNIX timestamp of the moment the process started")
         ->set(system_clock_->nowSec());
 
@@ -76,4 +76,4 @@ namespace jam::app {
     watchdog_thread.join();
   }
 
-}  // namespace jam::app
+}  // namespace morum::app

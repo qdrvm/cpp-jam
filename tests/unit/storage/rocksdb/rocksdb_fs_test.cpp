@@ -16,10 +16,10 @@
 #include "testutil/prepare_loggers.hpp"
 #include "testutil/storage/base_fs_test.hpp"
 
-using jam::app::ConfigurationMock;
-using jam::log::LoggingSystem;
-using jam::storage::RocksDb;
-using DatabaseConfig = jam::app::Configuration::DatabaseConfig;
+using morum::app::ConfigurationMock;
+using morum::log::LoggingSystem;
+using morum::storage::RocksDb;
+using DatabaseConfig = morum::app::Configuration::DatabaseConfig;
 using namespace testing;
 
 struct RocksDb_Open : public test::BaseFS_Test {
