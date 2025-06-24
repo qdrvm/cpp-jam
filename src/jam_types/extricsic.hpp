@@ -6,27 +6,24 @@
 
 #pragma once
 
-#include <jam_types/types.tmp.hpp>
+#include "jam_types/types.hpp"
 
 namespace jam {
 
-  using test_vectors::TicketsExtrinsic;
-  using test_vectors::PreimagesExtrinsic;
-  using test_vectors::GuaranteesExtrinsic;
-  using test_vectors::AssurancesExtrinsic;
-  using test_vectors::DisputesExtrinsic;
-
-  struct BlockBody {
+  struct Extrinsic {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     TicketsExtrinsic tickets;
     PreimagesExtrinsic preimages;
     GuaranteesExtrinsic guarantees;
     AssurancesExtrinsic assurances;
     DisputesExtrinsic disputes;
-    bool operator==(const BlockBody &) const = default;
-
-    operator test_vectors::Extrinsic() const {
-      return reinterpret_cast<const test_vectors::Extrinsic&>(*this);
-    }
+#pragma GCC diagnostic pop
+    bool operator==(const Extrinsic &) const = default;
   };
+
+  HAS_PROXY_TEST_VECTORS(Extrinsic);
+
+  TEMPORARY_TYPE_ALIAS(BlockBody, Extrinsic);
 
 }  // namespace jam

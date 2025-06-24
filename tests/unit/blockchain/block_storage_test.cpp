@@ -27,11 +27,11 @@
 #include "testutil/literals.hpp"
 
 using jam::Block;
-using jam::BlockBody;
+using jam::Extrinsic;
 using jam::BlockData;
 using jam::BlockHash;
 using jam::BlockHeader;
-using jam::BlockNumber;
+using jam::TimeSlot;
 using jam::encode;
 using jam::app::ChainSpecMock;
 using jam::blockchain::BlockStorageError;

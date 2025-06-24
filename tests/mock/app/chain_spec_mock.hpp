@@ -16,7 +16,7 @@ namespace jam::app {
    public:
     MOCK_METHOD(const std::string &, id, (), (const, override));
 
-    MOCK_METHOD(const std::vector<NodeAddress> &,
+    MOCK_METHOD(const std::vector<PeerAddress> &,
                 bootNodes,
                 (),
                 (const, override));

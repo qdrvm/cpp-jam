@@ -6,11 +6,8 @@
 
 #pragma once
 
-#include <qtils/byte_vec.hpp>
+#include <fmt/core.h>
 #include <qtils/tagged.hpp>
 
-namespace jam {
-
-  using Justification = qtils::Tagged<qtils::ByteVec, struct JustificationTag>;
-
-}
+template <typename T, typename U>
+struct fmt::formatter<qtils::Tagged<T, U>> : formatter<T> {};

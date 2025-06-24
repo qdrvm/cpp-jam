@@ -16,9 +16,9 @@ namespace jam::blockchain {
 
   namespace {
     /// Function-helper for loading (and repair if it needed) of leaves
-    outcome::result<std::set<BlockInfo>> loadLeaves(
+    outcome::result<std::set<BlockIndex>> loadLeaves(
         const qtils::SharedRef<BlockStorage> &storage, const log::Logger &log) {
-      std::set<BlockInfo> block_tree_leaves;
+      std::set<BlockIndex> block_tree_leaves;
       {
         OUTCOME_TRY(block_tree_unordered_leaves, storage->getBlockTreeLeaves());
         SL_TRACE(log,
@@ -37,7 +37,7 @@ namespace jam::blockchain {
             return header.as_failure();
           }
           auto slot = header.value().slot;
-          SL_TRACE(log, "Leaf {} found", BlockInfo(slot, hash));
+          SL_TRACE(log, "Leaf {} found", BlockIndex(slot, hash));
           block_tree_leaves.emplace(slot, hash);
         }
       }
@@ -148,14 +148,14 @@ namespace jam::blockchain {
             last_finalized_block_info);
 
     // Load non-finalized block from block storage
-    std::map<BlockInfo, BlockHeader> collected;
+    std::map<BlockIndex, BlockHeader> collected;
 
     {
       std::unordered_set<BlockHash> observed;
-      std::unordered_set<BlockInfo> dead;
+      std::unordered_set<BlockIndex> dead;
       // Iterate leaves
       for (auto &leaf : block_tree_leaves) {
-        std::unordered_set<BlockInfo> subchain;
+        std::unordered_set<BlockIndex> subchain;
         // Iterate subchain from leaf to finalized or early observer
         for (auto block = leaf;;) {
           // Met last finalized
@@ -258,7 +258,7 @@ namespace jam::blockchain {
     non_finalized_ = std::move(collected);
   }
 
-  std::tuple<BlockInfo, std::map<BlockInfo, BlockHeader>>
+  std::tuple<BlockIndex, std::map<BlockIndex, BlockHeader>>
   BlockTreeInitializer::nonFinalizedSubTree() {
     // if (used_.test_and_set()) {
     //   qtils::raise(BlockTreeError::WRONG_WORKFLOW);

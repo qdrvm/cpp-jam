@@ -25,8 +25,6 @@ struct fmt::formatter<Optional<T>> {
   template <typename FormatContext>
   auto format(const Optional<T> &opt, FormatContext &ctx) const
       -> decltype(ctx.out()) {
-    // ctx.out() is an output iterator to write to.
-
     if (opt.has_value()) {
       return fmt::format_to(ctx.out(), "{}", opt.value());
     }

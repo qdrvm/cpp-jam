@@ -11,7 +11,6 @@
 #include "jam_types/block.hpp"
 #include "jam_types/block_data.hpp"
 #include "jam_types/justification.hpp"
-#include "jam_types/types.tmp.hpp"
 
 namespace jam::blockchain {
 
@@ -39,7 +38,7 @@ namespace jam::blockchain {
 
     /**
      * Get the last finalized block
-     * @return BlockInfo of the block
+     * @return BlockIndex of the block
      */
     [[nodiscard]] virtual outcome::result<BlockIndex> getLastFinalized()
         const = 0;
@@ -66,7 +65,7 @@ namespace jam::blockchain {
      * @returns vector of hashes or error
      */
     [[nodiscard]] virtual outcome::result<std::vector<BlockHash>> getBlockHash(
-        BlockNumber slot) const = 0;
+        TimeSlot slot) const = 0;
 
     // -- headers --
 
@@ -106,21 +105,21 @@ namespace jam::blockchain {
      * Saves provided body of block to  block storage
      * @returns result of saving
      */
-    virtual outcome::result<void> putBlockBody(const BlockHash &block_hash,
-                                               const BlockBody &block_body) = 0;
+    virtual outcome::result<void> putExtrinsic(const BlockHash &block_hash,
+                                               const Extrinsic &block_body) = 0;
 
     /**
      * Tries to get block body
      * @returns block body or error
      */
-    [[nodiscard]] virtual outcome::result<std::optional<BlockBody>>
-    getBlockBody(const BlockHash &block_hash) const = 0;
+    [[nodiscard]] virtual outcome::result<std::optional<Extrinsic>>
+    getExtrinsic(const BlockHash &block_hash) const = 0;
 
     /**
      * Removes body of block with hash {@param block_hash} from block storage
      * @returns result of saving
      */
-    virtual outcome::result<void> removeBlockBody(
+    virtual outcome::result<void> removeExtrinsic(
         const BlockHash &block_hash) = 0;
 
     // -- justification --

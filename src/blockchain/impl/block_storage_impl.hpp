@@ -39,7 +39,7 @@ namespace jam::blockchain {
         const BlockIndex &block_index) override;
 
     outcome::result<std::vector<BlockHash>> getBlockHash(
-        BlockNumber slot) const override;
+        TimeSlot slot) const override;
 
     // -- header --
 
@@ -57,13 +57,13 @@ namespace jam::blockchain {
 
     // -- body --
 
-    outcome::result<void> putBlockBody(const BlockHash &block_hash,
-                                       const BlockBody &block_body) override;
+    outcome::result<void> putExtrinsic(const BlockHash &block_hash,
+                                       const Extrinsic &block_body) override;
 
-    outcome::result<std::optional<BlockBody>> getBlockBody(
+    outcome::result<std::optional<Extrinsic>> getExtrinsic(
         const BlockHash &block_hash) const override;
 
-    outcome::result<void> removeBlockBody(const BlockHash &block_hash) override;
+    outcome::result<void> removeExtrinsic(const BlockHash &block_hash) override;
 
     // -- justification --
 

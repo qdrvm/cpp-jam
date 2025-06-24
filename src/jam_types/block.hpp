@@ -13,7 +13,7 @@ namespace jam {
 
   struct Block {
     BlockHeader header;
-    BlockBody extrinsic;
+    Extrinsic extrinsic;
     bool operator==(const Block &) const = default;
   };
 

@@ -21,7 +21,6 @@
 
 #include "jam_types/block.hpp"
 #include "jam_types/justification.hpp"
-#include "jam_types/types.tmp.hpp"
 
 namespace jam::blockchain {
   /**
@@ -43,12 +42,12 @@ namespace jam::blockchain {
 
     // /**
     //  * Get block hash by provided block number
-    //  * @param block_number of the block header we are looking for
+    //  * @param slot of the block header we are looking for
     //  * @return result containing block hash if it exists, error otherwise
     //  */
     // virtual outcome::result<std::optional<BlockHash>>
     // getBlockHash(
-    //     BlockNumber block_number) const = 0;
+    //     TimeSlot slot) const = 0;
 
     /**
      * Checks containing of block header by provided block id
@@ -64,7 +63,7 @@ namespace jam::blockchain {
      does
      * not exist in our storage, or actual error happens
      */
-    virtual outcome::result<BlockBody> getBlockBody(
+    [[nodiscard]] virtual outcome::result<Extrinsic> getExtrinsic(
         const BlockHash &block_hash) const = 0;
 
     // /**
@@ -87,7 +86,7 @@ namespace jam::blockchain {
 
     /**
      * Adds block body to the storage
-     * @param block_number that corresponds to the block which body we are
+     * @param slot that corresponds to the block which body we are
      * adding
      * @param block_hash that corresponds to the block which body we are
      adding
@@ -95,8 +94,8 @@ namespace jam::blockchain {
      * @return result with success if block body was inserted. Error
      otherwise
      */
-    virtual outcome::result<void> addBlockBody(const BlockHash &block_hash,
-                                               const BlockBody &block_body) = 0;
+    virtual outcome::result<void> addExtrinsic(const BlockHash &block_hash,
+                                               const Extrinsic &block_body) = 0;
 
     /**
      * Add an existent block to the tree
@@ -192,12 +191,12 @@ namespace jam::blockchain {
     //     const BlockHash &ancestor,
     //     const BlockHash &descendant) const = 0;
     //
-    // bool hasDirectChain(const BlockInfo &ancestor,
-    //                     const BlockInfo &descendant) const {
+    // bool hasDirectChain(const BlockIndex &ancestor,
+    //                     const BlockIndex &descendant) const {
     //   return hasDirectChain(ancestor.hash, descendant.hash);
     // }
     //
-    // virtual bool isFinalized(const BlockInfo &block) const = 0;
+    // virtual bool isFinalized(const BlockIndex &block) const = 0;
 
     /**
      * Get a best leaf of the tree
@@ -206,7 +205,7 @@ namespace jam::blockchain {
      * @note best block is also a result of "SelectBestChain": if we are the
      * leader, we connect a block, which we constructed, to that best block
      */
-    virtual BlockInfo bestBlock() const = 0;
+    virtual BlockIndex bestBlock() const = 0;
 
     /**
      * @brief Get the most recent block of the best (longest) chain among
@@ -217,7 +216,7 @@ namespace jam::blockchain {
      (and
      * the target one) may possess
      */
-    virtual outcome::result<BlockInfo> getBestContaining(
+    virtual outcome::result<BlockIndex> getBestContaining(
         const BlockHash &target_hash) const = 0;
 
     /**
@@ -225,7 +224,7 @@ namespace jam::blockchain {
      * @return collection of the leaves
      */
     virtual std::vector<BlockHash> getLeaves() const = 0;
-    // virtual std::vector<BlockInfo> getLeavesInfo() const = 0;
+    // virtual std::vector<BlockIndex> getLeavesInfo() const = 0;
 
     /**
      * Get children of the block with specified hash
@@ -239,12 +238,12 @@ namespace jam::blockchain {
      * Get the last finalized block
      * @return hash of the block
      */
-    virtual BlockInfo getLastFinalized() const = 0;
+    virtual BlockIndex getLastFinalized() const = 0;
 
     // /**
     //  * Warp synced to block.
     //  */
-    // virtual void warp(const BlockInfo &block) = 0;
+    // virtual void warp(const BlockIndex &block) = 0;
 
     /**
      * Notify best and finalized block to subscriptions.

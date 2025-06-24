@@ -6,8 +6,10 @@
 
 #pragma once
 
-#include "jam_types/types.tmp.hpp"
 #include "jam_types/block.hpp"
+#include "jam_types/block_header.hpp"
+#include "jam_types/block_request.hpp"
+#include "jam_types/peer_id.hpp"
 #include "utils/request_id.hpp"
 
 namespace jam::messages {
@@ -45,4 +47,4 @@ namespace jam::messages {
     PeerId peer;
   };
 
-}
+}  // namespace jam::messages

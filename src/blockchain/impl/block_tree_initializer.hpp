@@ -24,13 +24,13 @@ namespace jam::blockchain {
     BlockTreeInitializer(qtils::SharedRef<log::LoggingSystem> logsys,
                          qtils::SharedRef<BlockStorage> storage);
 
-    std::tuple<BlockInfo, std::map<BlockInfo, BlockHeader>>
+    std::tuple<BlockIndex, std::map<BlockIndex, BlockHeader>>
     nonFinalizedSubTree();
 
    private:
     std::atomic_flag used_;
-    BlockInfo last_finalized_;
-    std::map<BlockInfo, BlockHeader> non_finalized_;
+    BlockIndex last_finalized_;
+    std::map<BlockIndex, BlockHeader> non_finalized_;
   };
 
 }  // namespace jam::blockchain

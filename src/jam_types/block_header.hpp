@@ -7,21 +7,12 @@
 #pragma once
 
 #include <crypto/hasher.hpp>
-#include <jam_types/types.tmp.hpp>
-#include <scale/jam_scale.hpp>
+#include <jam_types/block_index.hpp>
+#include <jam_types/epoch_mark.hpp>
+#include <jam_types/types.hpp>
 #include <utils/custom_equality.hpp>
 
 namespace jam {
-
-  using test_vectors::BandersnatchVrfSignature;
-  using test_vectors::EpochMark;
-  using test_vectors::HeaderHash;
-  using test_vectors::OffendersMark;
-  using test_vectors::OpaqueHash;
-  using test_vectors::StateRoot;
-  using test_vectors::TicketsMark;
-  using test_vectors::TimeSlot;
-  using test_vectors::ValidatorIndex;
 
   /**
    * @struct BlockHeader represents header of a block
@@ -37,10 +28,13 @@ namespace jam {
     TimeSlot slot;
     /// He - epoch marker
     std::optional<EpochMark> epoch_mark;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     /// Hw - winning-tickets marker
     std::optional<TicketsMark> tickets_mark;
     /// Ho - offenders marker
     OffendersMark offenders_mark;
+#pragma GCC diagnostic pop
     /// Hi - Bandersnatch block author index
     ValidatorIndex author_index;
     /// Hv - the entropy-yielding vrf signature
@@ -49,7 +43,7 @@ namespace jam {
     BandersnatchVrfSignature seal;
 
     /// Block hash if calculated
-    mutable std::optional<BlockHash> hash_opt{};
+    mutable std::optional<HeaderHash> hash_opt{};
 
     CUSTOM_EQUALITY(BlockHeader,
                     parent,
@@ -74,7 +68,7 @@ namespace jam {
                                entropy_source,
                                seal);
 
-    const BlockHash &hash() const {
+    const HeaderHash &hash() const {
       BOOST_ASSERT_MSG(hash_opt.has_value(),
                        "Hash must be calculated and saved before that");
       return hash_opt.value();
@@ -87,7 +81,7 @@ namespace jam {
       hash_opt.emplace(hasher.blake2b_256(enc_res.value()));
     }
 
-    BlockInfo index() const {
+    BlockIndex index() const {
       return {slot, hash()};
     }
   };

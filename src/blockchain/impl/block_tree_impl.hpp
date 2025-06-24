@@ -76,7 +76,7 @@ namespace jam::blockchain {
         qtils::SharedRef<log::LoggingSystem> logsys,
         qtils::SharedRef<const app::Configuration> app_config,
         qtils::SharedRef<BlockStorage> storage,
-        // // const BlockInfo &finalized,
+        // // const BlockIndex &finalized,
         qtils::SharedRef<crypto::Hasher> hasher,
         // primitives::events::ChainSubscriptionEnginePtr chain_events_engine,
         // primitives::events::ExtrinsicSubscriptionEnginePtr
@@ -95,7 +95,7 @@ namespace jam::blockchain {
     const BlockHash &getGenesisBlockHash() const override;
 
     // outcome::result<std::optional<BlockHash>> getBlockHash(
-    //     BlockNumber block_number) const override;
+    //     TimeSlot slot) const override;
 
     bool has(const BlockHash &hash) const override;
 
@@ -105,7 +105,7 @@ namespace jam::blockchain {
     //   outcome::result<std::optional<BlockHeader>> tryGetBlockHeader(
     //       const BlockHash &block_hash) const override;
 
-    outcome::result<BlockBody> getBlockBody(
+    outcome::result<Extrinsic> getExtrinsic(
         const BlockHash &block_hash) const override;
 
     // outcome::result<Justification> getBlockJustification(
@@ -126,8 +126,8 @@ namespace jam::blockchain {
     outcome::result<void> markAsRevertedBlocks(
         const std::vector<BlockHash> &block_hashes) override;
 
-    outcome::result<void> addBlockBody(const BlockHash &block_hash,
-                                       const BlockBody &body) override;
+    outcome::result<void> addExtrinsic(const BlockHash &block_hash,
+                                       const Extrinsic &body) override;
 
     outcome::result<void> finalize(const BlockHash &block_hash,
                                    const Justification &justification) override;
@@ -145,22 +145,22 @@ namespace jam::blockchain {
     // bool hasDirectChain(const BlockHash &ancestor,
     //                     const BlockHash &descendant) const override;
     //
-    // bool isFinalized(const BlockInfo &block) const override;
+    // bool isFinalized(const BlockIndex &block) const override;
 
-    BlockInfo bestBlock() const override;
+    BlockIndex bestBlock() const override;
 
-    outcome::result<BlockInfo> getBestContaining(
+    outcome::result<BlockIndex> getBestContaining(
         const BlockHash &target_hash) const override;
 
     std::vector<BlockHash> getLeaves() const override;
-    // std::vector<BlockInfo> getLeavesInfo() const override;
+    // std::vector<BlockIndex> getLeavesInfo() const override;
 
     outcome::result<std::vector<BlockHash>> getChildren(
         const BlockHash &block) const override;
 
-    BlockInfo getLastFinalized() const override;
+    BlockIndex getLastFinalized() const override;
 
-    // void warp(const BlockInfo &block_info) override;
+    // void warp(const BlockIndex &block_info) override;
 
     void notifyBestAndFinalized() override;
 
@@ -168,21 +168,21 @@ namespace jam::blockchain {
 
     // BlockHeaderRepository methods
 
-    outcome::result<BlockNumber> getNumberByHash(
+    outcome::result<TimeSlot> getNumberByHash(
         const BlockHash &block_hash) const override;
 
     // outcome::result<BlockHash> getHashByNumber(
-    //     BlockNumber block_number) const override;
+    //     TimeSlot slot) const override;
 
    private:
     // struct BlocksPruning {
     //   BlocksPruning(std::optional<uint32_t> keep,
-    //                 BlockNumber finalized);
+    //                 TimeSlot finalized);
     //
-    //   BlockNumber max(BlockNumber finalized) const;
+    //   TimeSlot max(TimeSlot finalized) const;
     //
     //   std::optional<uint32_t> keep_;
-    //   BlockNumber next_;
+    //   TimeSlot next_;
     // };
 
     struct BlockTreeData {
@@ -203,10 +203,10 @@ namespace jam::blockchain {
         const BlockTreeData &p, const BlockHash &block_hash) const;
 
     //   outcome::result<void> pruneTrie(const BlockTreeData &block_tree_data,
-    //                                   BlockNumber new_finalized);
+    //                                   TimeSlot new_finalized);
 
-    BlockInfo getLastFinalizedNoLock(const BlockTreeData &p) const;
-    BlockInfo bestBlockNoLock(const BlockTreeData &p) const;
+    BlockIndex getLastFinalizedNoLock(const BlockTreeData &p) const;
+    BlockIndex bestBlockNoLock(const BlockTreeData &p) const;
 
     // bool hasDirectChainNoLock(const BlockTreeData &p,
     //                           const BlockHash &ancestor,

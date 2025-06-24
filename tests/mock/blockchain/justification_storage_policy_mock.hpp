@@ -17,7 +17,7 @@ namespace jam::blockchain {
     MOCK_METHOD(outcome::result<bool>,
                 shouldStoreFor,
                 (const BlockHeader &header,
-                 BlockNumber last_finalized_number),
+                 TimeSlot last_finalized_number),
                 (const, override));
 
    private:

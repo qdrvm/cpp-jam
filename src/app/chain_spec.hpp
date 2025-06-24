@@ -11,13 +11,8 @@
 
 #include <qtils/byte_vec.hpp>
 
-#include "jam_types/types.tmp.hpp"
-
-namespace jam {
-
-  using NodeAddress = Stub;
-
-}
+#include "jam_types/types.hpp"
+#include "jam_types/peer_address.hpp"
 
 namespace jam::app {
 
@@ -25,14 +20,14 @@ namespace jam::app {
    public:
     virtual ~ChainSpec() = default;
 
-    virtual const std::string &id() const = 0;
+    [[nodiscard]] virtual const std::string &id() const = 0;
 
-    virtual const std::vector<NodeAddress> &bootNodes() const = 0;
+    [[nodiscard]] virtual const std::vector<PeerAddress> &bootNodes() const = 0;
 
-    virtual const qtils::ByteVec &genesisHeader() const = 0;
+    [[nodiscard]] virtual const qtils::ByteVec &genesisHeader() const = 0;
 
-    virtual const std::map<qtils::ByteVec, qtils::ByteVec> &genesisState()
-        const = 0;
+    [[nodiscard]] virtual const std::map<qtils::ByteVec, qtils::ByteVec> &
+    genesisState() const = 0;
   };
 
 }  // namespace jam::app

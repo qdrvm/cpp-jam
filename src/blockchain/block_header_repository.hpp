@@ -37,17 +37,17 @@ namespace jam::blockchain {
      * @return the number of the block with the provided {@param block_hash}
      * in case one is in the storage or an error
      */
-    virtual outcome::result<BlockNumber> getNumberByHash(
+    virtual outcome::result<TimeSlot> getNumberByHash(
         const BlockHash &block_hash) const = 0;
 
     // /**
-    //  * @param block_number - the number of a block, contained in a block
+    //  * @param slot - the number of a block, contained in a block
     //  header
     //  * @return the hash of the block with the provided number in case one is
     //  * in the storage or an error
     //  */
     // virtual outcome::result<BlockHash> getHashByNumber(
-    //     BlockNumber block_number) const = 0;
+    //     TimeSlot slot) const = 0;
 
     /**
      * @return block header with corresponding {@param block_hash} or an error
@@ -68,12 +68,12 @@ namespace jam::blockchain {
     //  * @return block number or a none optional if the corresponding block
     //  * header is not in storage or a storage error
     //  */
-    // outcome::result<BlockNumber> getNumberById(
+    // outcome::result<TimeSlot> getNumberById(
     //     const BlockId &block_id) const {
     //   return visit_in_place(
     //       block_id,
-    //       [](const BlockNumber &block_number) {
-    //         return block_number;
+    //       [](const TimeSlot &slot) {
+    //         return slot;
     //       },
     //       [this](const BlockHash &block_hash) {
     //         return getNumberByHash(block_hash);
@@ -89,7 +89,7 @@ namespace jam::blockchain {
     //     const BlockId &id) const {
     //   return visit_in_place(
     //       id,
-    //       [this](const BlockNumber &n) {
+    //       [this](const TimeSlot &n) {
     //         return getHashByNumber(n);
     //       },
     //       [](const BlockHash &hash) { return hash; });

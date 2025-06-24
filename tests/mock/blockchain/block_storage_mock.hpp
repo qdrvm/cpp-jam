@@ -24,19 +24,19 @@ namespace jam::blockchain {
                 (),
                 (const, override));
 
-    MOCK_METHOD(outcome::result<BlockInfo>,
+    MOCK_METHOD(outcome::result<BlockIndex>,
                 getLastFinalized,
                 (),
                 (const, override));
 
     MOCK_METHOD(outcome::result<void>,
                 assignHashToSlot,
-                (const BlockInfo &),
+                (const BlockIndex &),
                 (override));
 
     MOCK_METHOD(outcome::result<void>,
                 deassignHashToSlot,
-                (const BlockInfo &),
+                (const BlockIndex &),
                 (override));
 
     MOCK_METHOD(outcome::result<std::vector<BlockHash>>,
@@ -69,17 +69,17 @@ namespace jam::blockchain {
                 (const, override));
 
     MOCK_METHOD(outcome::result<void>,
-                putBlockBody,
-                (const BlockHash &, const BlockBody &),
+                putExtrinsic,
+                (const BlockHash &, const Extrinsic &),
                 (override));
 
-    MOCK_METHOD(outcome::result<std::optional<BlockBody>>,
-                getBlockBody,
+    MOCK_METHOD(outcome::result<std::optional<Extrinsic>>,
+                getExtrinsic,
                 (const BlockHash &),
                 (const, override));
 
     MOCK_METHOD(outcome::result<void>,
-                removeBlockBody,
+                removeExtrinsic,
                 (const BlockHash &),
                 (override));
 

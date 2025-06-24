@@ -10,7 +10,7 @@
 #include <optional>
 
 #include <ark_vrf/ark_vrf.h>
-#include <qtils/byte_arr.hpp>
+#include <qtils/bytes.hpp>
 
 namespace jam::crypto::bandersnatch {
   using Output = qtils::ByteArr<JAM_BANDERSNATCH_OUTPUT>;

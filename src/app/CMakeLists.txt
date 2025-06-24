@@ -59,6 +59,7 @@ target_link_libraries(chain_spec
     logger
     Boost::property_tree
     app_configuration
+    jam_types
 )
 add_dependencies(chain_spec
     generate_common_types

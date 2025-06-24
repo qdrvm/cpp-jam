@@ -152,7 +152,7 @@ namespace jam::blockchain {
       qtils::SharedRef<log::LoggingSystem> logsys,
       qtils::SharedRef<const app::Configuration> app_config,
       qtils::SharedRef<BlockStorage> storage,
-      // const BlockInfo &finalized,
+      // const BlockIndex &finalized,
       qtils::SharedRef<crypto::Hasher> hasher,
       // primitives::events::ChainSubscriptionEnginePtr chain_events_engine,
       // primitives::events::ExtrinsicSubscriptionEnginePtr
@@ -433,14 +433,14 @@ namespace jam::blockchain {
       const BlockHeader &block_header) {
     SL_TRACE(log_,
              "Trying to add block {} into block tree",
-             BlockInfo(block_header.slot, block_hash));
+             BlockIndex(block_header.slot, block_hash));
 
     auto node_opt = p.tree_->find(block_hash);
     // Check if the tree doesn't have this block; if not, we skip that
     if (node_opt.has_value()) {
       SL_TRACE(log_,
                "Block {} exists in block tree",
-               BlockInfo(block_header.slot, block_hash));
+               BlockIndex(block_header.slot, block_hash));
       return BlockTreeError::BLOCK_EXISTS;
     }
 
@@ -452,7 +452,7 @@ namespace jam::blockchain {
                "Block {} parent of {} has not found in block tree. "
                "Trying to restore missed branch",
                block_header.parent,
-               BlockInfo(block_header.slot, block_hash));
+               BlockIndex(block_header.slot, block_hash));
 
       // Trying to restore missed branch
       std::stack<std::pair<BlockHash, BlockHeader>> to_add;
@@ -461,7 +461,7 @@ namespace jam::blockchain {
 
       for (auto hash = block_header.parent;;) {
         OUTCOME_TRY(header, p.storage_->getBlockHeader(hash));
-        BlockInfo block_index(header.slot, hash);
+        BlockIndex block_index(header.slot, hash);
         SL_TRACE(log_,
                  "Block {} has found in storage and enqueued to add",
                  block_index);
@@ -501,7 +501,7 @@ namespace jam::blockchain {
 
       SL_TRACE(log_,
                "Trying to add block {} into block tree",
-               BlockInfo(block_header.slot, block_hash));
+               BlockIndex(block_header.slot, block_hash));
     }
     auto &parent = parent_opt.value();
 
@@ -527,11 +527,11 @@ namespace jam::blockchain {
         });
   }
 
-  outcome::result<void> BlockTreeImpl::addBlockBody(const BlockHash &block_hash,
-                                                    const BlockBody &body) {
+  outcome::result<void> BlockTreeImpl::addExtrinsic(const BlockHash &block_hash,
+                                                    const Extrinsic &body) {
     return block_tree_data_.exclusiveAccess(
         [&](BlockTreeData &p) -> outcome::result<void> {
-          return p.storage_->putBlockBody(block_hash, body);
+          return p.storage_->putExtrinsic(block_hash, body);
         });
   }
 
@@ -553,7 +553,7 @@ namespace jam::blockchain {
 
         OUTCOME_TRY(p.storage_->putJustification(justification, block_hash));
 
-        std::vector<BlockInfo> retired_hashes;
+        std::vector<BlockIndex> retired_hashes;
         for (auto parent = node->parent(); parent; parent = parent->parent()) {
           retired_hashes.emplace_back(parent->info);
         }
@@ -565,7 +565,7 @@ namespace jam::blockchain {
         auto finalized_header_ptr = std::make_shared<BlockHeader>(header);
         se_manager_->notify(EventTypes::BlockFinalized, finalized_header_ptr);
 
-        OUTCOME_TRY(body, p.storage_->getBlockBody(block_hash));
+        OUTCOME_TRY(body, p.storage_->getExtrinsic(block_hash));
         if (body.has_value()) {
           // for (auto &ext : body.value()) {
           //   auto extrinsic_hash = p.hasher_->blake2b_256(ext.data);
@@ -586,8 +586,8 @@ namespace jam::blockchain {
         }
 
         struct RemoveAfterFinalizationParams {
-          BlockInfo filanized;
-          std::vector<BlockInfo> removed;
+          BlockIndex filanized;
+          std::vector<BlockIndex> removed;
         };
 
         auto data_ptr = std::make_shared<RemoveAfterFinalizationParams>(
@@ -631,7 +631,7 @@ namespace jam::blockchain {
         //   SL_TRACE(log_,
         //            "BlocksPruning: remove body for block {}",
         //            p.blocks_pruning_.next_);
-        //   OUTCOME_TRY(p.storage_->removeBlockBody(*hash));
+        //   OUTCOME_TRY(p.storage_->removeExtrinsic(*hash));
         // }
       } else {
         OUTCOME_TRY(header, p.storage_->getBlockHeader(block_hash));
@@ -664,11 +664,11 @@ namespace jam::blockchain {
   }
 
   // outcome::result<std::optional<BlockHash>>
-  // BlockTreeImpl::getBlockHash(BlockNumber block_number) const {
+  // BlockTreeImpl::getBlockHash(TimeSlot slot) const {
   //   return block_tree_data_.sharedAccess(
   //       [&](const BlockTreeData &p)
   //           -> outcome::result<std::optional<BlockHash>> {
-  //         OUTCOME_TRY(hash_opt, p.storage_->getBlockHash(block_number));
+  //         OUTCOME_TRY(hash_opt, p.storage_->getBlockHash(slot));
   //         return hash_opt;
   //       });
   // }
@@ -710,11 +710,11 @@ namespace jam::blockchain {
   //       });
   // }
 
-  outcome::result<BlockBody> BlockTreeImpl::getBlockBody(
+  outcome::result<Extrinsic> BlockTreeImpl::getExtrinsic(
       const BlockHash &block_hash) const {
     return block_tree_data_.sharedAccess(
-        [&](const BlockTreeData &p) -> outcome::result<BlockBody> {
-          OUTCOME_TRY(body, p.storage_->getBlockBody(block_hash));
+        [&](const BlockTreeData &p) -> outcome::result<Extrinsic> {
+          OUTCOME_TRY(body, p.storage_->getExtrinsic(block_hash));
           if (body.has_value()) {
             return body.value();
           }
@@ -763,7 +763,7 @@ namespace jam::blockchain {
           auto count = std::min<uint64_t>(
               current_depth - start_block_number + 1, maximum);
 
-          BlockNumber finish_block_number = start_block_number + count - 1;
+          TimeSlot finish_block_number = start_block_number + count - 1;
 
           auto finish_block_hash_res =
               p.storage_->getBlockHash(finish_block_number);
@@ -887,8 +887,8 @@ namespace jam::blockchain {
   //    *  or changing logic may make it obsolete
   //    *  block numbers may be obtained somewhere else
   //    */
-  //   BlockNumber ancestor_depth = 0u;
-  //   BlockNumber descendant_depth = 0u;
+  //   TimeSlot ancestor_depth = 0u;
+  //   TimeSlot descendant_depth = 0u;
   //   if (ancestor_node_ptr) {
   //     ancestor_depth = ancestor_node_ptr->info.number;
   //   } else {
@@ -910,15 +910,15 @@ namespace jam::blockchain {
   //   if (descendant_depth < ancestor_depth) {
   //     SL_DEBUG(log_,
   //              "Ancestor block is lower. {} in comparison with {}",
-  //              BlockInfo(ancestor_depth, ancestor),
-  //              BlockInfo(descendant_depth, descendant));
+  //              BlockIndex(ancestor_depth, ancestor),
+  //              BlockIndex(descendant_depth, descendant));
   //     return false;
   //   }
   //
   //   // Try to use optimal way, if ancestor and descendant in the finalized
   //   // chain
   //   auto finalized = [&](const BlockHash &hash,
-  //                        BlockNumber number) {
+  //                        TimeSlot number) {
   //     return number <= getLastFinalizedNoLock(p).number
   //        and p.storage_->getBlockHash(number)
   //                == outcome::success(
@@ -952,7 +952,7 @@ namespace jam::blockchain {
   //   });
   // }
   //
-  // bool BlockTreeImpl::isFinalized(const BlockInfo &block) const {
+  // bool BlockTreeImpl::isFinalized(const BlockIndex &block) const {
   //   return block_tree_data_.sharedAccess([&](const BlockTreeData &p) {
   //     return block.number <= getLastFinalizedNoLock(p).number
   //        and p.storage_->getBlockHash(block.number)
@@ -961,19 +961,19 @@ namespace jam::blockchain {
   //   });
   // }
 
-  BlockInfo BlockTreeImpl::bestBlockNoLock(const BlockTreeData &p) const {
+  BlockIndex BlockTreeImpl::bestBlockNoLock(const BlockTreeData &p) const {
     return p.tree_->best();
   }
 
-  BlockInfo BlockTreeImpl::bestBlock() const {
+  BlockIndex BlockTreeImpl::bestBlock() const {
     return block_tree_data_.sharedAccess(
         [&](const BlockTreeData &p) { return bestBlockNoLock(p); });
   }
 
-  outcome::result<BlockInfo> BlockTreeImpl::getBestContaining(
+  outcome::result<BlockIndex> BlockTreeImpl::getBestContaining(
       const BlockHash &target_hash) const {
     return block_tree_data_.sharedAccess(
-        [&](const BlockTreeData &p) -> outcome::result<BlockInfo> {
+        [&](const BlockTreeData &p) -> outcome::result<BlockIndex> {
           if (getLastFinalizedNoLock(p).hash == target_hash) {
             return bestBlockNoLock(p);
           }
@@ -1009,7 +1009,7 @@ namespace jam::blockchain {
         [&](const BlockTreeData &p) { return getLeavesNoLock(p); });
   }
 
-  // std::vector<BlockInfo> BlockTreeImpl::getLeavesInfo() const {
+  // std::vector<BlockIndex> BlockTreeImpl::getLeavesInfo() const {
   //   return block_tree_data_.sharedAccess(
   //       [&](const BlockTreeData &p) { return p.tree_->leafInfo(); });
   // }
@@ -1034,12 +1034,12 @@ namespace jam::blockchain {
         });
   }
 
-  BlockInfo BlockTreeImpl::getLastFinalizedNoLock(
+  BlockIndex BlockTreeImpl::getLastFinalizedNoLock(
       const BlockTreeData &p) const {
     return p.tree_->finalized();
   }
 
-  BlockInfo BlockTreeImpl::getLastFinalized() const {
+  BlockIndex BlockTreeImpl::getLastFinalized() const {
     return block_tree_data_.sharedAccess(
         [&](const BlockTreeData &p) { return getLastFinalizedNoLock(p); });
   }
@@ -1067,7 +1067,7 @@ namespace jam::blockchain {
     // remove from storage
     for (const auto &block : changes.prune) {
       OUTCOME_TRY(block_header, p.storage_->getBlockHeader(block.hash));
-      OUTCOME_TRY(block_body_opt, p.storage_->getBlockBody(block.hash));
+      OUTCOME_TRY(block_body_opt, p.storage_->getExtrinsic(block.hash));
       if (block_body_opt.has_value()) {
         // extrinsics.reserve(extrinsics.size() +
         // block_body_opt.value().size()); for (auto &ext :
@@ -1100,7 +1100,7 @@ namespace jam::blockchain {
 
   // outcome::result<void> BlockTreeImpl::pruneTrie(
   //     const BlockTreeData &block_tree_data,
-  //     BlockNumber new_finalized) {
+  //     TimeSlot new_finalized) {
   //   // pruning is disabled
   //   if (!block_tree_data.state_pruner_->getPruningDepth().has_value()) {
   //     return outcome::success();
@@ -1137,7 +1137,7 @@ namespace jam::blockchain {
   //   return outcome::success();
   // }
   //
-  // void BlockTreeImpl::warp(const BlockInfo &block_info) {
+  // void BlockTreeImpl::warp(const BlockIndex &block_info) {
   //   block_tree_data_.exclusiveAccess([&](BlockTreeData &p) {
   //     p.tree_ = std::make_unique<CachedTree>(block_info);
   //     metric_known_chain_leaves_->set(1);
@@ -1173,10 +1173,10 @@ namespace jam::blockchain {
 
   // BlockHeaderRepository methods
 
-  outcome::result<BlockNumber> BlockTreeImpl::getNumberByHash(
+  outcome::result<TimeSlot> BlockTreeImpl::getNumberByHash(
       const BlockHash &hash) const {
     auto slot_opt = block_tree_data_.sharedAccess(
-        [&](const BlockTreeData &p) -> std::optional<BlockNumber> {
+        [&](const BlockTreeData &p) -> std::optional<TimeSlot> {
           if (auto node = p.tree_->find(hash)) {
             return node.value()->info.slot;
           }
@@ -1190,7 +1190,7 @@ namespace jam::blockchain {
   }
 
   // outcome::result<BlockHash> BlockTreeImpl::getHashByNumber(
-  //     BlockNumber number) const {
+  //     TimeSlot number) const {
   //   OUTCOME_TRY(block_hash_opt, getBlockHash(number));
   //   if (block_hash_opt.has_value()) {
   //     return block_hash_opt.value();
@@ -1199,12 +1199,12 @@ namespace jam::blockchain {
   // }
   //
   // BlockTreeImpl::BlocksPruning::BlocksPruning(std::optional<uint32_t> keep,
-  //                                             BlockNumber
+  //                                             TimeSlot
   //                                             finalized)
   //     : keep_{keep}, next_{max(finalized)} {}
   //
-  // BlockNumber BlockTreeImpl::BlocksPruning::max(
-  //     BlockNumber finalized) const {
+  // TimeSlot BlockTreeImpl::BlocksPruning::max(
+  //     TimeSlot finalized) const {
   //   return keep_ and finalized > *keep_ ? finalized - *keep_ : 0;
   // }
 

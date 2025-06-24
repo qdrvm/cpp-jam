@@ -14,7 +14,7 @@ namespace jam::blockchain {
 
   outcome::result<bool> JustificationStoragePolicyImpl::shouldStoreFor(
       const BlockHeader &block_header,
-      BlockNumber last_finalized_number) const {
+      TimeSlot last_finalized_number) const {
     if (block_header.slot == 0) {
       return true;
     }

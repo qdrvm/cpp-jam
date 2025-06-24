@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include <jam_types/types.tmp.hpp>
 #include <qtils/shared_ref.hpp>
 #include <utils/ctor_limiters.hpp>
 

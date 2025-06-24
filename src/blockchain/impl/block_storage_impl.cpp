@@ -93,7 +93,7 @@ namespace jam::blockchain {
   }
 
   outcome::result<void> BlockStorageImpl::assignHashToSlot(
-      const BlockInfo &block_index) {
+      const BlockIndex &block_index) {
     SL_DEBUG(logger_, "Add slot-to-hash for {}", block_index);
     auto slot_to_hash_key = slotToHashLookupKey(block_index.slot);
     auto storage = storage_->getSpace(storage::Space::LookupKey);
@@ -138,11 +138,11 @@ namespace jam::blockchain {
   //   {
   //     return visit_in_place(
   //         block_id,
-  //         [&](const BlockNumber &block_number)
+  //         [&](const TimeSlot &slot)
   //             -> outcome::result<std::optional<BlockHash>> {
   //           auto key_space = storage_->getSpace(storage::Space::kLookupKey);
   //           OUTCOME_TRY(data_opt,
-  //                       key_space->tryGet(slotToHashLookupKey(block_number)));
+  //                       key_space->tryGet(slotToHashLookupKey(slot)));
   //           if (data_opt.has_value()) {
   //             OUTCOME_TRY(block_hash,
   //                         BlockHash::fromSpan(data_opt.value()));
@@ -184,8 +184,8 @@ namespace jam::blockchain {
     return fetchBlockHeader(block_hash);
   }
 
-  outcome::result<void> BlockStorageImpl::putBlockBody(
-      const BlockHash &block_hash, const BlockBody &block_body) {
+  outcome::result<void> BlockStorageImpl::putExtrinsic(
+      const BlockHash &block_hash, const Extrinsic &block_body) {
     OUTCOME_TRY(encoded_body, encode(block_body));
     return putToSpace(*storage_,
                       storage::Space::Extrinsic,
@@ -193,19 +193,19 @@ namespace jam::blockchain {
                       std::move(encoded_body));
   }
 
-  outcome::result<std::optional<BlockBody>> BlockStorageImpl::getBlockBody(
+  outcome::result<std::optional<Extrinsic>> BlockStorageImpl::getExtrinsic(
       const BlockHash &block_hash) const {
     OUTCOME_TRY(encoded_block_body_opt,
                 getFromSpace(*storage_, storage::Space::Extrinsic, block_hash));
     if (encoded_block_body_opt.has_value()) {
       OUTCOME_TRY(block_body,
-                  decode<BlockBody>(encoded_block_body_opt.value()));
+                  decode<Extrinsic>(encoded_block_body_opt.value()));
       return std::make_optional(std::move(block_body));
     }
     return std::nullopt;
   }
 
-  outcome::result<void> BlockStorageImpl::removeBlockBody(
+  outcome::result<void> BlockStorageImpl::removeExtrinsic(
       const BlockHash &block_hash) {
     auto space = storage_->getSpace(storage::Space::Extrinsic);
     return space->remove(block_hash);
@@ -274,7 +274,7 @@ namespace jam::blockchain {
     block_data.header = std::move(header);
 
     // Block body
-    OUTCOME_TRY(body_opt, getBlockBody(block_hash));
+    OUTCOME_TRY(body_opt, getExtrinsic(block_hash));
     block_data.extrinsic = std::move(body_opt);
 
     // // Justification
@@ -317,7 +317,7 @@ namespace jam::blockchain {
     // TODO(xDimon): needed to clean up trie storage if block deleted
 
     // Remove the block body
-    if (auto res = removeBlockBody(block_index.hash); res.has_error()) {
+    if (auto res = removeExtrinsic(block_index.hash); res.has_error()) {
       SL_ERROR(logger_,
                "could not remove body of block {} from the storage: {}",
                block_index,

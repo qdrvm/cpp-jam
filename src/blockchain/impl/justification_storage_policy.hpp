@@ -21,7 +21,7 @@ namespace jam::blockchain {
 
     [[nodiscard]] virtual outcome::result<bool> shouldStoreFor(
         const BlockHeader &block,
-        BlockNumber last_finalized_number) const = 0;
+        TimeSlot last_finalized_number) const = 0;
   };
 
   class JustificationStoragePolicyImpl final
@@ -29,7 +29,7 @@ namespace jam::blockchain {
    public:
     [[nodiscard]] outcome::result<bool> shouldStoreFor(
         const BlockHeader &block,
-        BlockNumber last_finalized_number) const override;
+        TimeSlot last_finalized_number) const override;
   };
 
 }  // namespace kagome::blockchain

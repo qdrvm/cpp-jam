@@ -34,6 +34,9 @@ add_subdirectory(se)
 # Modules subsystem
 add_subdirectory(modules)
 
+# Types
+add_subdirectory(jam_types)
+
 # Storage
 add_subdirectory(storage)
 

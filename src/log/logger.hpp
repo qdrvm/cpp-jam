@@ -18,6 +18,12 @@
 #include <soralog/macro.hpp>
 
 #include "injector/dont_inject.hpp"
+#include "log/formatters/empty.hpp"
+#include "log/formatters/filepath.hpp"
+#include "log/formatters/optional.hpp"
+#include "log/formatters/ref_and_ptr.hpp"
+#include "log/formatters/tagged.hpp"
+#include "log/formatters/variant.hpp"
 #include "utils/ctor_limiters.hpp"
 
 namespace jam::log {

@@ -11,6 +11,7 @@
 #include <system_error>
 
 #include <app/configuration.hpp>
+#include <boost/beast/http/verb.hpp>
 
 OUTCOME_CPP_DEFINE_CATEGORY(jam::app, ChainSpecImpl::Error, e) {
   using E = jam::app::ChainSpecImpl::Error;
@@ -79,7 +80,18 @@ namespace jam::app {
 
   outcome::result<void> ChainSpecImpl::loadBootNodes(
       const boost::property_tree::ptree &tree) {
-    // TODO Not implemented
+    OUTCOME_TRY(bootnodes,
+                ensure("bootnodes", tree.get_child_optional("bootnodes")));
+    try {
+      for (const auto &node : bootnodes | std::views::values) {
+        auto str = node.get_value<std::string>();
+        OUTCOME_TRY(address, PeerAddress::fromString(str));
+        boot_nodes_.emplace_back(address);
+        SL_DEBUG(log_, "Bootnode: {}", address);
+      }
+    } catch (const boost::property_tree::ptree_bad_data &e) {
+      return PeerAddress::Error::Malformed;
+    }
     return outcome::success();
   }
 

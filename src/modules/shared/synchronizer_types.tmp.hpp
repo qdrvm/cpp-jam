@@ -6,7 +6,8 @@
 
 #pragma once
 
-#include "jam_types/types.tmp.hpp"
+#include "jam_types/block_index.hpp"
+#include "jam_types/peer_id.hpp"
 
 namespace jam::messages {
 

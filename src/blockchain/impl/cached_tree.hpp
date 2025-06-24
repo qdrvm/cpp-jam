@@ -8,7 +8,7 @@
 
 #include <qtils/shared_ref.hpp>
 
-#include "jam_types/types.tmp.hpp"
+#include "jam_types/block_index.hpp"
 
 namespace jam::blockchain {
   using BlockWeight = std::tuple<uint32_t, uint32_t, TimeSlot>;
@@ -114,6 +114,6 @@ namespace jam::blockchain {
     qtils::SharedRef<TreeNode> root_;
     qtils::SharedRef<TreeNode> best_;
     std::unordered_map<BlockHash, qtils::SharedRef<TreeNode>> nodes_;
-    std::unordered_map<BlockHash, BlockNumber> leaves_;
+    std::unordered_map<BlockHash, TimeSlot> leaves_;
   };
 }  // namespace jam::blockchain

@@ -39,7 +39,7 @@ namespace jam::app {
       return id_;
     }
 
-    const std::vector<NodeAddress> &bootNodes() const override {
+    const std::vector<PeerAddress> &bootNodes() const override {
       return boot_nodes_;
     }
 
@@ -72,7 +72,7 @@ namespace jam::app {
 
     log::Logger log_;
     std::string id_;
-    std::vector<NodeAddress> boot_nodes_;
+    std::vector<PeerAddress> boot_nodes_;
     qtils::ByteVec genesis_header_;
     std::map<qtils::ByteVec, qtils::ByteVec> genesis_state_;
   };
