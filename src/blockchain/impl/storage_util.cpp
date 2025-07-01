@@ -24,7 +24,7 @@ namespace jam::blockchain {
         block_id,
         [&](const BlockNumber &block_number)
             -> outcome::result<std::optional<qtils::ByteVecOrView>> {
-          auto key_space = storage.getSpace(storage::Space::LookupKey);
+          auto key_space = storage.getSpace(storage::Space::SlotToHashes);
           return key_space->tryGet(slotToHashLookupKey(block_number));
         },
         [](const BlockHash &block_hash) {
@@ -34,7 +34,7 @@ namespace jam::blockchain {
 
   outcome::result<std::optional<BlockHash>> blockHashByNumber(
       storage::SpacedStorage &storage, BlockNumber block_number) {
-    auto key_space = storage.getSpace(storage::Space::LookupKey);
+    auto key_space = storage.getSpace(storage::Space::SlotToHashes);
     OUTCOME_TRY(data_opt, key_space->tryGet(slotToHashLookupKey(block_number)));
     if (data_opt.has_value()) {
       OUTCOME_TRY(hash, BlockHash::fromSpan(data_opt.value()));

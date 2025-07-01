@@ -16,7 +16,7 @@
     "ftxui",
     "rocksdb",
     "boost-property-tree",
-    "openssl",
+    "boringssl",
     "xxhash"
   ],
   "features": {

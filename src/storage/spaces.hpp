@@ -29,16 +29,16 @@ namespace jam::storage {
    */
   enum class Space : uint8_t {
     Default = 0,  ///< Default space used for general-purpose storage
-    LookupKey,    ///< Space used for mapping lookup keys
 
     // application-defined spaces
-    Header,
-    Extrinsic,
-    Justification,
+    SlotToHashes,   ///< mapping time slot to block hashes
+    Header,         ///< mapping block hash to header
+    Extrinsic,      ///< mapping block hash to extrinsic
+    Justification,  ///< mapping block hash to finality justification
     // ... append here
 
     Total  ///< Total number of defined spaces (must be last)
   };
 
   constexpr size_t SpacesCount = static_cast<size_t>(Space::Total);
-}
+}  // namespace jam::storage

@@ -9,6 +9,5 @@ add_library(keccak
 )
 set_source_files_properties(keccak.с PROPERTIES LANGUAGE C)
 target_link_libraries(keccak
-    OpenSSL::Crypto
     qtils::qtils
 )

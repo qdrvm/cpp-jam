@@ -23,8 +23,8 @@
 #include <qtils/literals.hpp>
 
 #include "qtils/error_throw.hpp"
-#include "testutil/prepare_loggers.hpp"
 #include "testutil/literals.hpp"
+#include "testutil/prepare_loggers.hpp"
 
 using jam::Block;
 using jam::BlockBody;
@@ -60,11 +60,13 @@ class BlockStorageTest : public testing::Test {
     hasher = std::make_shared<HasherMock>();
     spaced_storage = std::make_shared<SpacedStorageMock>();
 
-    std::set<Space> required_spaces = {Space::Default,
-                                       Space::Header,
-                                       Space::Justification,
-                                       Space::Extrinsic,
-                                       Space::LookupKey};
+    std::set required_spaces = {
+        Space::Default,
+        Space::SlotToHashes,
+        Space::Header,
+        Space::Extrinsic,
+        Space::Justification,
+    };
 
     for (auto space : required_spaces) {
       auto storage = std::make_shared<BufferStorageMock>();

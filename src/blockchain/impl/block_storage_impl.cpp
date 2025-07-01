@@ -96,7 +96,7 @@ namespace jam::blockchain {
       const BlockInfo &block_index) {
     SL_DEBUG(logger_, "Add slot-to-hash for {}", block_index);
     auto slot_to_hash_key = slotToHashLookupKey(block_index.slot);
-    auto storage = storage_->getSpace(storage::Space::LookupKey);
+    auto storage = storage_->getSpace(storage::Space::SlotToHashes);
     OUTCOME_TRY(hashes, getBlockHash(block_index.slot));
     if (not qtils::cxx23::ranges::contains(hashes, block_index.hash)) {
       hashes.emplace_back(block_index.hash);
@@ -109,7 +109,7 @@ namespace jam::blockchain {
       const BlockIndex &block_index) {
     SL_DEBUG(logger_, "Remove num-to-idx for {}", block_index);
     auto slot_to_hash_key = slotToHashLookupKey(block_index.slot);
-    auto storage = storage_->getSpace(storage::Space::LookupKey);
+    auto storage = storage_->getSpace(storage::Space::SlotToHashes);
     OUTCOME_TRY(hashes, getBlockHash(block_index.slot));
     auto to_erase = std::ranges::remove(hashes, block_index.hash);
     if (not to_erase.empty()) {
@@ -125,7 +125,7 @@ namespace jam::blockchain {
 
   outcome::result<std::vector<BlockHash>> BlockStorageImpl::getBlockHash(
       TimeSlot slot) const {
-    auto storage = storage_->getSpace(storage::Space::LookupKey);
+    auto storage = storage_->getSpace(storage::Space::SlotToHashes);
     OUTCOME_TRY(data_opt, storage->tryGet(slotToHashLookupKey(slot)));
     if (data_opt.has_value()) {
       return decode<std::vector<BlockHash>>(data_opt.value());
@@ -300,7 +300,7 @@ namespace jam::blockchain {
     {  // Remove slot-to-hash assigning
       auto num_to_hash_key = slotToHashLookupKey(block_index.slot);
 
-      auto key_space = storage_->getSpace(storage::Space::LookupKey);
+      auto key_space = storage_->getSpace(storage::Space::SlotToHashes);
       OUTCOME_TRY(hash_opt, key_space->tryGet(num_to_hash_key.view()));
       if (hash_opt == block_hash) {
         if (auto res = key_space->remove(num_to_hash_key); res.has_error()) {
