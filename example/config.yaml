@@ -40,3 +40,8 @@ logging:
             - name: metrics
             - name: threads
             - name: storage
+              children:
+                - name: block_storage
+            - name: blockchain
+              children:
+                - name: block_tree

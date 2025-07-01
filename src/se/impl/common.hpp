@@ -118,6 +118,14 @@ namespace jam::se::utils {
       return std::forward<F>(f)(t_);
     }
 
+    T &unsafeGet() {
+      return t_;
+    }
+
+    const T &unsafeGet() const {
+      return t_;
+    }
+
    private:
     T t_;           ///< The wrapped object
     mutable M cs_;  ///< Mutex for synchronization

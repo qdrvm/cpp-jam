@@ -9,8 +9,8 @@
 #include <scale/scale.hpp>
 
 namespace jam {
-  using scale::decode;
-  using scale::encode;
+  using scale::impl::memory::decode;
+  using scale::impl::memory::encode;
 
   template <typename T, typename... Configs>
   [[nodiscard]] outcome::result<std::vector<uint8_t>> encode_with_config(

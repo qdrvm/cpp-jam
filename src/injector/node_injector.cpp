@@ -25,7 +25,12 @@
 #include "app/impl/chain_spec_impl.hpp"
 #include "app/impl/state_manager_impl.hpp"
 #include "app/impl/watchdog.hpp"
+#include "blockchain/impl/genesis_block_header_impl.hpp"
+#include "blockchain/impl/block_storage_impl.hpp"
+#include "blockchain/impl/block_tree_impl.hpp"
+#include "blockchain/impl/justification_storage_policy.hpp"
 #include "clock/impl/clock_impl.hpp"
+#include "crypto/hasher/hasher_impl.hpp"
 #include "injector/bind_by_lambda.hpp"
 #include "loaders/loader.hpp"
 #include "log/logger.hpp"
@@ -57,13 +62,13 @@ namespace {
                                Ts &&...args) {
     // clang-format off
     return di::make_injector(
+        di::bind<app::Configuration>.to(config),
+        di::bind<log::LoggingSystem>.to(logsys),
         di::bind<app::StateManager>.to<app::StateManagerImpl>(),
         di::bind<app::Application>.to<app::ApplicationImpl>(),
         di::bind<clock::SystemClock>.to<clock::SystemClockImpl>(),
         di::bind<clock::SteadyClock>.to<clock::SteadyClockImpl>(),
-        di::bind<Watchdog>. to<Watchdog>(),
-        di::bind<app::Configuration>.to(config),
-        di::bind<log::LoggingSystem>.to(logsys),
+        di::bind<Watchdog>.to<Watchdog>(),
         di::bind<metrics::Handler>.to<metrics::PrometheusHandler>(),
         di::bind<metrics::Exposer>.to<metrics::ExposerImpl>(),
         di::bind<Dispatcher>.to<se::AsyncDispatcher<kHandlersCount, kThreadPoolSize>>(),
@@ -78,6 +83,11 @@ namespace {
         //di::bind<storage::SpacedStorage>.to<storage::InMemorySpacedStorage>(),
         di::bind<storage::SpacedStorage>.to<storage::RocksDb>(),
         di::bind<app::ChainSpec>.to<app::ChainSpecImpl>(),
+        di::bind<crypto::Hasher>.to<crypto::HasherImpl>(),
+        di::bind<blockchain::GenesisBlockHeader>.to<blockchain::GenesisBlockHeaderImpl>(),
+        di::bind<blockchain::BlockStorage>.to<blockchain::BlockStorageImpl>(),
+        di::bind<blockchain::BlockTree>.to<blockchain::BlockTreeImpl>(),
+        di::bind<blockchain::JustificationStoragePolicy>.to<blockchain::JustificationStoragePolicyImpl>(),
 
         // user-defined overrides...
         std::forward<decltype(args)>(args)...);

@@ -16,7 +16,9 @@ target_link_libraries(node_injector
     application
     metrics
     clock
+    hasher
     se_async
     modules
     storage
+    blockchain
 )
