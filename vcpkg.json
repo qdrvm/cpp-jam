@@ -3,10 +3,8 @@
   "version": "0.0.1",
   "dependencies": [
     "qtils",
-    "scale",
     "fmt",
     "soralog",
-    "kagome-crates",
     "libb2",
     "boost-di",
     "boost-program-options",
