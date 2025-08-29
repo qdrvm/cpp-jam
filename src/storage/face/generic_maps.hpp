@@ -18,7 +18,7 @@
 #include "storage/face/readable.hpp"
 #include "storage/face/writeable.hpp"
 
-namespace jam::storage::face {
+namespace lean::storage::face {
 
   /**
    * @brief Abstraction over a key-value storage supporting read, write,
@@ -45,4 +45,4 @@ namespace jam::storage::face {
     }
   };
 
-}  // namespace jam::storage::face
+}  // namespace lean::storage::face

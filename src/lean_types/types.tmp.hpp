@@ -11,7 +11,7 @@
 #include <scale/tie_hash.hpp>
 #include <qtils/byte_arr.hpp>
 
-namespace jam {
+namespace lean {
   // stub types. must be refactored in future
 
   struct Stub {};
@@ -37,9 +37,9 @@ namespace jam {
     auto operator<=>(const BlockIndex &other) const = default;
   };
 
-}  // namespace jam
-SCALE_TIE_HASH_STD(jam::BlockIndex);
-namespace jam {
+}  // namespace lean
+SCALE_TIE_HASH_STD(lean::BlockIndex);
+namespace lean {
 
   using BlockInfo = BlockIndex;
 
@@ -75,15 +75,15 @@ namespace jam {
     BlockAnnounce(const BlockAnnounce &) = delete;
   };
 
-}  // namespace jam
+}  // namespace lean
 
-SCALE_DEFINE_ENUM_VALUE_RANGE(jam,
+SCALE_DEFINE_ENUM_VALUE_RANGE(lean,
                               Direction,
-                              jam::Direction::ASCENDING,
-                              jam::Direction::DESCENDING);
+                              lean::Direction::ASCENDING,
+                              lean::Direction::DESCENDING);
 
 template <>
-struct fmt::formatter<jam::Stub> {
+struct fmt::formatter<lean::Stub> {
   constexpr auto parse(format_parse_context &ctx) -> decltype(ctx.begin()) {
     auto it = ctx.begin(), end = ctx.end();
     if (it != end && *it != '}') {
@@ -93,14 +93,14 @@ struct fmt::formatter<jam::Stub> {
   }
 
   template <typename FormatContext>
-  auto format(const jam::Stub &, FormatContext &ctx) const
+  auto format(const lean::Stub &, FormatContext &ctx) const
       -> decltype(ctx.out()) {
     return fmt::format_to(ctx.out(), "stub");
   }
 };
 
 template <>
-struct fmt::formatter<jam::BlockInfo> {
+struct fmt::formatter<lean::BlockInfo> {
   // Presentation format: 's' - short, 'l' - long.
   char presentation = 's';
 
@@ -124,7 +124,7 @@ struct fmt::formatter<jam::BlockInfo> {
   // Formats the BlockInfo using the parsed format specification (presentation)
   // stored in this formatter.
   template <typename FormatContext>
-  auto format(const jam::BlockInfo &block_info, FormatContext &ctx) const
+  auto format(const lean::BlockInfo &block_info, FormatContext &ctx) const
       -> decltype(ctx.out()) {
     // ctx.out() is an output iterator to write to.
 

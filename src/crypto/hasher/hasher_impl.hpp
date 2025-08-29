@@ -9,7 +9,7 @@
 #include "crypto/hash_types.hpp"
 #include "crypto/hasher.hpp"
 
-namespace jam::crypto {
+namespace lean::crypto {
 
   class HasherImpl : public Hasher {
    public:
@@ -36,4 +36,4 @@ namespace jam::crypto {
     Hash512 blake2b_512(qtils::ByteView data) const override;
   };
 
-}  // namespace jam::crypto
+}  // namespace lean::crypto

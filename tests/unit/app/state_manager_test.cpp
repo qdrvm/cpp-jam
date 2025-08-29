@@ -13,10 +13,10 @@
 #include "app/impl/state_manager_impl.hpp"
 #include "testutil/prepare_loggers.hpp"
 
-using jam::app::AppStateException;
-using jam::app::StateManager;
-using jam::app::StateManagerImpl;
-using jam::log::LoggingSystem;
+using lean::app::AppStateException;
+using lean::app::StateManager;
+using lean::app::StateManagerImpl;
+using lean::log::LoggingSystem;
 using OnPrepare = StateManager::OnPrepare;
 using OnLaunch = StateManager::OnLaunch;
 using OnShutdown = StateManager::OnShutdown;

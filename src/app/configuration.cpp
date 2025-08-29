@@ -5,7 +5,7 @@
 
 #include "app/configuration.hpp"
 
-namespace jam::app {
+namespace lean::app {
 
   Configuration::Configuration()
       : version_("undefined"),
@@ -47,4 +47,4 @@ namespace jam::app {
     return metrics_;
   }
 
-}  // namespace jam::app
+}  // namespace lean::app

@@ -11,7 +11,7 @@
 #include "log/logger.hpp"
 #include "storage/spaced_storage.hpp"
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   class BlockStorageImpl : public BlockStorage, Singleton<BlockStorage> {
    public:
@@ -81,7 +81,7 @@ namespace jam::blockchain {
 
     outcome::result<BlockHash> putBlock(const Block &block) override;
 
-    outcome::result<std::optional<BlockData>> getBlockData(
+    outcome::result<std::optional<SignedBlock>> getBlock(
         const BlockHash &block_hash) const override;
 
     outcome::result<void> removeBlock(const BlockHash &block_hash) override;
@@ -98,4 +98,4 @@ namespace jam::blockchain {
 
     mutable std::optional<std::vector<BlockHash>> block_tree_leaves_;
   };
-}  // namespace jam::blockchain
+}  // namespace lean::blockchain

@@ -15,15 +15,15 @@
 #include "modules/module.hpp"
 #include "se/subscription_fwd.hpp"
 
-namespace jam::log {
+namespace lean::log {
   class LoggingSystem;
-}  // namespace jam::log
+}  // namespace lean::log
 
-namespace jam::modules {
+namespace lean::modules {
   class Module;
-}  // namespace jam::modules
+}  // namespace lean::modules
 
-namespace jam::loaders {
+namespace lean::loaders {
 
   class Loader {
    public:
@@ -70,4 +70,4 @@ namespace jam::loaders {
    private:
     std::shared_ptr<modules::Module> module_;
   };
-}  // namespace jam::loaders
+}  // namespace lean::loaders

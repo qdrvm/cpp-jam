@@ -7,11 +7,11 @@
 #pragma once
 
 #include <crypto/hasher.hpp>
-#include <jam_types/types.tmp.hpp>
+#include <lean_types/types.tmp.hpp>
 #include <scale/jam_scale.hpp>
 #include <utils/custom_equality.hpp>
 
-namespace jam {
+namespace lean {
 
   /**
     * @struct BlockHeader
@@ -64,4 +64,4 @@ namespace jam {
     header.updateHash(hasher);
   }
 
-}  // namespace jam
+}  // namespace lean

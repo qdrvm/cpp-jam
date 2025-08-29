@@ -8,13 +8,14 @@
 
 #include <qtils/outcome.hpp>
 
-#include "jam_types/block.hpp"
-#include "jam_types/block_body.hpp"
-#include "jam_types/block_header.hpp"
-#include "jam_types/justification.hpp"
-#include "jam_types/types.tmp.hpp"
+#include "lean_types/block.hpp"
+#include "lean_types/block_body.hpp"
+#include "lean_types/block_header.hpp"
+#include "lean_types/justification.hpp"
+#include "lean_types/signed_block.hpp"
+#include "lean_types/types.tmp.hpp"
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   /**
    * A wrapper for a storage of blocks
@@ -161,8 +162,8 @@ namespace jam::blockchain {
      * Tries to get block data
      * @returns block data or error
      */
-    [[nodiscard]] virtual outcome::result<std::optional<BlockData>>
-    getBlockData(const BlockHash &block_hash) const = 0;
+    [[nodiscard]] virtual outcome::result<std::optional<SignedBlock>>
+    getBlock(const BlockHash &block_hash) const = 0;
 
     /**
      * Removes all data of block by hash from block storage
@@ -171,4 +172,4 @@ namespace jam::blockchain {
     virtual outcome::result<void> removeBlock(const BlockHash &block_hash) = 0;
   };
 
-}  // namespace jam::blockchain
+}  // namespace lean::blockchain

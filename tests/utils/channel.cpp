@@ -13,7 +13,7 @@
 #include <thread>
 
 using namespace std::chrono_literals;
-using namespace jam;
+using namespace lean;
 
 /**
  * @file channel.cpp

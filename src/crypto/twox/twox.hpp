@@ -10,7 +10,7 @@
 
 #include <qtils/byte_view.hpp>
 
-namespace jam::crypto {
+namespace lean::crypto {
 
   Hash64 make_twox64(qtils::ByteView buf);
 
@@ -18,4 +18,4 @@ namespace jam::crypto {
 
   Hash256 make_twox256(qtils::ByteView buf);
 
-}  // namespace jam::crypto
+}  // namespace lean::crypto

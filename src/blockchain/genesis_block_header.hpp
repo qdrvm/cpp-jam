@@ -6,13 +6,13 @@
 
 #pragma once
 
-#include "jam_types/block_header.hpp"
+#include "lean_types/block_header.hpp"
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   class GenesisBlockHeader : public BlockHeader {
    public:
     using BlockHeader::BlockHeader;
   };
 
-}  // namespace jam::blockchain
+}  // namespace lean::blockchain

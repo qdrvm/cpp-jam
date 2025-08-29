@@ -21,7 +21,7 @@
 #include "storage/buffer_map_types.hpp"
 #include "storage/spaced_storage.hpp"
 
-namespace jam::storage {
+namespace lean::storage {
 
   /**
    * @class InMemorySpacedStorage
@@ -56,4 +56,4 @@ namespace jam::storage {
     std::map<Space, std::shared_ptr<InMemoryStorage>> spaces_;
   };
 
-}  // namespace jam::storage
+}  // namespace lean::storage

@@ -13,7 +13,7 @@
 #include "log/logger.hpp"
 #include "metrics/registry.hpp"
 
-namespace jam::metrics {
+namespace lean::metrics {
   namespace fs = std::filesystem;
 
   MetricsWatcher::MetricsWatcher(
@@ -91,4 +91,4 @@ namespace jam::metrics {
     return outcome::success(total_size);
   }
 
-}  // namespace jam::metrics
+}  // namespace lean::metrics

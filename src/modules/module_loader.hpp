@@ -23,7 +23,7 @@ namespace fs = std::filesystem;
 template <typename T>
 using Result = outcome::result<T>;
 
-namespace jam::modules {
+namespace lean::modules {
 
   class ModuleLoader {
    public:
@@ -53,6 +53,6 @@ namespace jam::modules {
                              std::deque<std::shared_ptr<Module>> &modules);
   };
 
-}  // namespace jam::modules
+}  // namespace lean::modules
 
-OUTCOME_HPP_DECLARE_ERROR(jam::modules, ModuleLoader::Error);
+OUTCOME_HPP_DECLARE_ERROR(lean::modules, ModuleLoader::Error);

@@ -9,7 +9,7 @@
 #include <rocksdb/write_batch.h>
 #include "storage/rocksdb/rocksdb.hpp"
 
-namespace jam::storage {
+namespace lean::storage {
 
   class RocksDbBatch : public BufferBatch {
    public:
@@ -33,4 +33,4 @@ namespace jam::storage {
     log::Logger &logger_;
     rocksdb::WriteBatch batch_;
   };
-}  // namespace jam::storage
+}  // namespace lean::storage

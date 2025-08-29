@@ -10,7 +10,7 @@
 
 #include <gmock/gmock.h>
 
-namespace jam::app {
+namespace lean::app {
 
   class StateManagerMock : public StateManager {
    public:

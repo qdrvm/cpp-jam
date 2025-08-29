@@ -6,11 +6,11 @@
 
 #pragma once
 
-namespace jam {
+namespace lean {
 
   struct SignedBlock {
     Block message;
     qtils::ByteArr<32> signature;
   };
 
-}  // namespace jam
+}  // namespace lean

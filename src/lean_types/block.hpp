@@ -8,9 +8,9 @@
 
 #include <qtils/byte_arr.hpp>
 
-#include "jam_types/block_body.hpp"
+#include "lean_types/block_body.hpp"
 
-namespace jam {
+namespace lean {
 
   struct Block {
     uint64_t slot;
@@ -20,4 +20,4 @@ namespace jam {
     BlockBody body;
   };
 
-}  // namespace jam
+}  // namespace lean

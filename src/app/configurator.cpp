@@ -27,8 +27,8 @@
 
 using Endpoint = boost::asio::ip::tcp::endpoint;
 
-OUTCOME_CPP_DEFINE_CATEGORY(jam::app, Configurator::Error, e) {
-  using E = jam::app::Configurator::Error;
+OUTCOME_CPP_DEFINE_CATEGORY(lean::app, Configurator::Error, e) {
+  using E = lean::app::Configurator::Error;
   switch (e) {
     case E::CliArgsParseFailed:
       return "CLI Arguments parse failed";
@@ -77,7 +77,7 @@ namespace {
 
 }  // namespace
 
-namespace jam::app {
+namespace lean::app {
 
   Configurator::Configurator(int argc, const char **argv, const char **env)
       : argc_(argc), argv_(argv), env_(env) {
@@ -569,4 +569,4 @@ namespace jam::app {
     return outcome::success();
   }
 
-}  // namespace jam::app
+}  // namespace lean::app

@@ -8,9 +8,9 @@
 
 #include "blockchain/block_tree.hpp"
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   GenesisBlockHash::GenesisBlockHash(std::shared_ptr<BlockTree> block_tree)
       : primitives::BlockHash(block_tree->getGenesisBlockHash()){};
 
-}  // namespace jam::blockchain
+}  // namespace lean::blockchain

@@ -13,7 +13,7 @@
 namespace test {
 
   struct BaseRocksDB_Test : public BaseFS_Test {
-    using RocksDB = jam::storage::RocksDb;
+    using RocksDB = lean::storage::RocksDb;
     using Buffer = qtils::ByteVec;
     using BufferView = qtils::ByteView;
 
@@ -25,11 +25,11 @@ namespace test {
 
     void TearDown() override;
 
-    std::shared_ptr<jam::log::LoggingSystem> logsys;
-    std::shared_ptr<jam::app::ConfigurationMock> app_config;
+    std::shared_ptr<lean::log::LoggingSystem> logsys;
+    std::shared_ptr<lean::app::ConfigurationMock> app_config;
 
     std::shared_ptr<RocksDB> rocks_;
-    std::shared_ptr<jam::storage::BufferStorage> db_;
+    std::shared_ptr<lean::storage::BufferStorage> db_;
   };
 
 }  // namespace test

@@ -10,7 +10,7 @@
 
 #include "crypto/hash_types.hpp"
 
-namespace jam::crypto {
+namespace lean::crypto {
 
   class Hasher {
    public:
@@ -86,4 +86,4 @@ namespace jam::crypto {
      */
     virtual Hash256 sha2_256(qtils::ByteView data) const = 0;
   };
-}  // namespace jam::crypto
+}  // namespace lean::crypto

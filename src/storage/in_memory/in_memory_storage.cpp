@@ -12,7 +12,7 @@
 
 using qtils::ByteVec;
 
-namespace jam::storage {
+namespace lean::storage {
 
   outcome::result<ByteVecOrView> InMemoryStorage::get(
       const ByteView &key) const {
@@ -69,4 +69,4 @@ namespace jam::storage {
   std::optional<size_t> InMemoryStorage::byteSizeHint() const {
     return size_;
   }
-}  // namespace jam::storage
+}  // namespace lean::storage

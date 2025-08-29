@@ -10,7 +10,7 @@ add_custom_command(
     OUTPUT ${BUILD_VERSION_CPP}
     COMMAND echo "// Auto-generated file" > ${BUILD_VERSION_CPP}
     COMMAND echo "#include <string>" >> ${BUILD_VERSION_CPP}
-    COMMAND echo "namespace jam {" >> ${BUILD_VERSION_CPP}
+    COMMAND echo "namespace lean {" >> ${BUILD_VERSION_CPP}
     COMMAND echo "  const std::string &buildVersion() {" >> ${BUILD_VERSION_CPP}
     COMMAND printf "    static const std::string buildVersion(\"" >> ${BUILD_VERSION_CPP}
     COMMAND ${GET_VERSION_SCRIPT} >> ${BUILD_VERSION_CPP}

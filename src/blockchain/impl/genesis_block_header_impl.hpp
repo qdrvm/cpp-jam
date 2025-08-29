@@ -10,17 +10,17 @@
 
 #include "blockchain/genesis_block_header.hpp"
 
-namespace jam::app {
+namespace lean::app {
   class ChainSpec;
 }
-namespace jam::log {
+namespace lean::log {
   class LoggingSystem;
 }
-namespace jam::crypto {
+namespace lean::crypto {
   class Hasher;
 }
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   class GenesisBlockHeaderImpl final : public GenesisBlockHeader {
    public:
@@ -29,4 +29,4 @@ namespace jam::blockchain {
                            const qtils::SharedRef<crypto::Hasher> &hasher);
   };
 
-}  // namespace jam::blockchain
+}  // namespace lean::blockchain

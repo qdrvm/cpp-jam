@@ -44,7 +44,7 @@
 namespace {
   namespace di = boost::di;
   namespace fs = std::filesystem;
-  using namespace jam;  // NOLINT
+  using namespace lean;  // NOLINT
 
   template <typename C>
   auto useConfig(C c) {
@@ -102,7 +102,7 @@ namespace {
   }
 }  // namespace
 
-namespace jam::injector {
+namespace lean::injector {
   class NodeInjectorImpl {
    public:
     using Injector =
@@ -125,23 +125,23 @@ namespace jam::injector {
         .template create<std::shared_ptr<app::Application>>();
   }
 
-  std::unique_ptr<jam::loaders::Loader> NodeInjector::register_loader(
+  std::unique_ptr<lean::loaders::Loader> NodeInjector::register_loader(
       std::shared_ptr<modules::Module> module) {
     auto logsys = pimpl_->injector_
                       .template create<std::shared_ptr<log::LoggingSystem>>();
     auto logger = logsys->getLogger("Modules", "jam");
 
-    std::unique_ptr<jam::loaders::Loader> loader{};
+    std::unique_ptr<lean::loaders::Loader> loader{};
 
     if ("ExampleLoader" == module->get_loader_id()) {
       loader = pimpl_->injector_
-                   .create<std::unique_ptr<jam::loaders::ExampleLoader>>();
+                   .create<std::unique_ptr<lean::loaders::ExampleLoader>>();
     } else if ("NetworkingLoader" == module->get_loader_id()) {
       loader = pimpl_->injector_
-                   .create<std::unique_ptr<jam::loaders::NetworkingLoader>>();
+                   .create<std::unique_ptr<lean::loaders::NetworkingLoader>>();
     } else if ("SynchronizerLoader" == module->get_loader_id()) {
       loader = pimpl_->injector_
-                   .create<std::unique_ptr<jam::loaders::SynchronizerLoader>>();
+                   .create<std::unique_ptr<lean::loaders::SynchronizerLoader>>();
     } else {
       SL_CRITICAL(logger,
                   "> No loader found for: {} [{}]",
@@ -160,6 +160,6 @@ namespace jam::injector {
                module->get_loader_id(),
                module->get_path());
     }
-    return std::unique_ptr<jam::loaders::Loader>(loader.release());
+    return std::unique_ptr<lean::loaders::Loader>(loader.release());
   }
-}  // namespace jam::injector
+}  // namespace lean::injector

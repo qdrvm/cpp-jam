@@ -14,7 +14,7 @@
 #include <boost/static_assert.hpp>
 #include <rocksdb/db.h>
 
-namespace jam::storage {
+namespace lean::storage {
 
   // Names of non-default space
   static constexpr std::string_view kNamesArr[] = {
@@ -44,4 +44,4 @@ namespace jam::storage {
     return space;
   }
 
-}  // namespace jam::storage
+}  // namespace lean::storage

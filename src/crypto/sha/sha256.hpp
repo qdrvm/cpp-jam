@@ -10,7 +10,7 @@
 
 #include "crypto/hash_types.hpp"
 
-namespace jam::crypto {
+namespace lean::crypto {
 
   /**
    * Take a SHA-256 hash from string
@@ -26,4 +26,4 @@ namespace jam::crypto {
    */
   Hash256 sha256(qtils::ByteView input);
 
-}  // namespace jam::crypto
+}  // namespace lean::crypto

@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include <jam_types/chekpoint.hpp>
+#include <lean_types/chekpoint.hpp>
 
-namespace jam {
+namespace lean {
 
   struct Vote {
     uint64_t validator_id;
@@ -18,4 +18,4 @@ namespace jam {
     Checkpoint source;
   };
 
-}  // namespace jam
+}  // namespace lean

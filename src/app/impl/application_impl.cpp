@@ -18,7 +18,7 @@
 #include "metrics/metrics.hpp"
 #include "se/impl/subscription_manager.hpp"
 
-namespace jam::app {
+namespace lean::app {
 
   SeHolder::SeHolder(SePtr se) : se_(std::move(se)) {}
 
@@ -76,4 +76,4 @@ namespace jam::app {
     watchdog_thread.join();
   }
 
-}  // namespace jam::app
+}  // namespace lean::app

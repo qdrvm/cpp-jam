@@ -11,15 +11,15 @@
 
 #include <qtils/byte_vec.hpp>
 
-#include "jam_types/types.tmp.hpp"
+#include "lean_types/types.tmp.hpp"
 
-namespace jam {
+namespace lean {
 
   using NodeAddress = Stub;
 
 }
 
-namespace jam::app {
+namespace lean::app {
 
   class ChainSpec {
    public:
@@ -35,4 +35,4 @@ namespace jam::app {
         const = 0;
   };
 
-}  // namespace jam::app
+}  // namespace lean::app

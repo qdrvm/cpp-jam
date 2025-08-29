@@ -10,7 +10,7 @@
 
 #include "keccak/keccak.h"
 
-namespace jam::crypto {
+namespace lean::crypto {
   inline Hash256 keccak(qtils::ByteView buf) {
     Hash256 out;
     sha3_HashBuffer(256,
@@ -21,4 +21,4 @@ namespace jam::crypto {
                     32);
     return out;
   }
-}  // namespace jam::crypto
+}  // namespace lean::crypto

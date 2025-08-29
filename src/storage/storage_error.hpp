@@ -15,7 +15,7 @@
 
 #include <qtils/enum_error_code.hpp>
 
-namespace jam::storage {
+namespace lean::storage {
 
   /**
    * @brief Universal error codes for storage interface.
@@ -37,7 +37,7 @@ namespace jam::storage {
 
     UNKNOWN = 1000,  ///< unknown error
   };
-}  // namespace jam::storage
+}  // namespace lean::storage
 
 /**
  * @brief Declare StorageError integration with Outcome library.
@@ -45,4 +45,4 @@ namespace jam::storage {
  * Enables automatic conversion between StorageError and
  * outcome::result for error handling.
  */
-OUTCOME_HPP_DECLARE_ERROR(jam::storage, StorageError);
+OUTCOME_HPP_DECLARE_ERROR(lean::storage, StorageError);

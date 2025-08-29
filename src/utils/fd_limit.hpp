@@ -13,9 +13,9 @@
 
 struct rlimit;
 
-namespace jam {
+namespace lean {
 
   std::optional<size_t> getFdLimit(const log::Logger &logger);
   void setFdLimit(size_t limit, const log::Logger &logger);
 
-}  // namespace jam
+}  // namespace lean

@@ -6,11 +6,11 @@
 
 #pragma once
 
-#include <jam_types/types.tmp.hpp>
+#include <lean_types/types.tmp.hpp>
 #include <qtils/byte_vec.hpp>
 #include <qtils/tagged.hpp>
 
-namespace jam {
+namespace lean {
 
   using Justification = qtils::Tagged<qtils::ByteVec, struct JustificationTag>;
 

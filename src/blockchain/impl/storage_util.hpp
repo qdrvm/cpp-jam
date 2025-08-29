@@ -8,7 +8,7 @@
 
 #include <qtils/byte_vec.hpp>
 
-#include "jam_types/types.tmp.hpp"
+#include "lean_types/types.tmp.hpp"
 
 // #include "primitives/block_id.hpp"
 #include "storage/spaced_storage.hpp"
@@ -36,7 +36,7 @@
  * as a Blockchain storage
  */
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   /**
    * Convert slot into a short lookup key (LE representation)
@@ -99,4 +99,4 @@ namespace jam::blockchain {
                                         storage::Space space,
                                         const BlockHash &block_hash);
 
-}  // namespace jam::blockchain
+}  // namespace lean::blockchain

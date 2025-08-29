@@ -10,7 +10,7 @@
 
 #include "metrics/session.hpp"
 
-namespace jam::metrics {
+namespace lean::metrics {
 
   class Registry;
   class Session;
@@ -34,4 +34,4 @@ namespace jam::metrics {
                                   std::shared_ptr<Session> session) = 0;
   };
 
-}  // namespace jam::metrics
+}  // namespace lean::metrics

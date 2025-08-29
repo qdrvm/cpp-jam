@@ -8,7 +8,7 @@
 
 #include "primitives/common.hpp"
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   class BlockTree;
 
@@ -17,8 +17,8 @@ namespace jam::blockchain {
     GenesisBlockHash(std::shared_ptr<BlockTree> block_tree);
   };
 
-}  // namespace jam::blockchain
+}  // namespace lean::blockchain
 
 template <>
-struct fmt::formatter<jam::blockchain::GenesisBlockHash>
+struct fmt::formatter<lean::blockchain::GenesisBlockHash>
     : fmt::formatter<qtils::ByteView> {};

@@ -15,7 +15,7 @@
 
 #include "storage/face/writeable.hpp"
 
-namespace jam::storage::face {
+namespace lean::storage::face {
 
   /**
    * @brief An abstraction over a storage, which can be used for batch writes.
@@ -49,4 +49,4 @@ namespace jam::storage::face {
     virtual void clear() = 0;
   };
 
-}  // namespace jam::storage::face
+}  // namespace lean::storage::face

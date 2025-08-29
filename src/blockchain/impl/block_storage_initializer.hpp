@@ -6,27 +6,27 @@
 
 #pragma once
 
-#include <jam_types/types.tmp.hpp>
+#include <lean_types/types.tmp.hpp>
 #include <qtils/shared_ref.hpp>
 #include <utils/ctor_limiters.hpp>
 
-namespace jam::log {
+namespace lean::log {
   class LoggingSystem;
 }
-namespace jam::storage {
+namespace lean::storage {
   class SpacedStorage;
 }
-namespace jam::blockchain {
+namespace lean::blockchain {
   class GenesisBlockHeader;
 }
-namespace jam::app {
+namespace lean::app {
   class ChainSpec;
 }
-namespace jam::crypto {
+namespace lean::crypto {
   class Hasher;
 }
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   class BlockStorageInitializer final : Singleton<BlockStorageInitializer> {
    public:
@@ -37,4 +37,4 @@ namespace jam::blockchain {
                             qtils::SharedRef<crypto::Hasher> hasher);
   };
 
-}  // namespace jam::blockchain
+}  // namespace lean::blockchain

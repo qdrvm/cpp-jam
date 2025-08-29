@@ -12,7 +12,7 @@
 
 #include "blake2b.h"
 
-namespace jam::crypto {
+namespace lean::crypto {
 
   // Cyclic right rotation.
 
@@ -205,4 +205,4 @@ namespace jam::crypto {
     return 0;
   }
 
-}  // namespace jam::crypto
+}  // namespace lean::crypto

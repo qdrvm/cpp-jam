@@ -6,7 +6,7 @@
 
 #pragma once
 
-namespace jam {
+namespace lean {
 
   struct State {
 
@@ -29,5 +29,5 @@ namespace jam {
 
   };
 
-}  // namespace jam
+}  // namespace lean
 

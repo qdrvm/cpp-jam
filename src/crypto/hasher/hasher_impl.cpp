@@ -14,7 +14,7 @@
 #include "crypto/sha/sha256.hpp"
 #include "crypto/twox/twox.hpp"
 
-namespace jam::crypto {
+namespace lean::crypto {
 
   Hash64 HasherImpl::twox_64(qtils::ByteView data) const {
     return make_twox64(data);
@@ -65,4 +65,4 @@ namespace jam::crypto {
     return sha256(data);
   }
 
-}  // namespace jam::crypto
+}  // namespace lean::crypto

@@ -17,7 +17,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace jam::storage {
+namespace lean::storage {
 
   /**
    * @enum Space
@@ -33,7 +33,7 @@ namespace jam::storage {
 
     // application-defined spaces
     Header,
-    Extrinsic,
+    BlockBody,
     Justification,
     // ... append here
 

@@ -6,7 +6,7 @@
 
 #include "blockchain/block_storage_error.hpp"
 
-OUTCOME_CPP_DEFINE_CATEGORY(jam::blockchain, BlockStorageError, e) {
+OUTCOME_CPP_DEFINE_CATEGORY(lean::blockchain, BlockStorageError, e) {
   using E = BlockStorageError;
   switch (e) {
     case E::BLOCK_EXISTS:

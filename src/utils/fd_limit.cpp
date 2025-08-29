@@ -11,7 +11,7 @@
 #include <boost/iterator/counting_iterator.hpp>
 #include <sys/resource.h>
 
-namespace jam {
+namespace lean {
   namespace {
     bool getFdLimit(rlimit &r, const log::Logger &logger) {
       if (getrlimit(RLIMIT_NOFILE, &r) != 0) {
@@ -71,4 +71,4 @@ namespace jam {
       SL_VERBOSE(logger, "changed current={}", r.rlim_cur);
     }
   }
-}  // namespace jam
+}  // namespace lean

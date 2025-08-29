@@ -12,7 +12,7 @@
 
 #include <cstdlib>
 
-namespace jam::crypto {
+namespace lean::crypto {
 
   typedef struct {
     unsigned char opaque[128];
@@ -81,6 +81,6 @@ namespace jam::crypto {
               const void *in,
               size_t inlen);
 
-}  // namespace jam::crypto
+}  // namespace lean::crypto
 
 #endif  // CORE_BLAKE2S_HASH

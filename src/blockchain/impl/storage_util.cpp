@@ -11,12 +11,12 @@
 #include "storage/storage_error.hpp"
 
 using qtils::ByteVec;
-// using jam::Hash256;
-// using jam::primitives::BlockId;
-// using jam::primitives::BlockNumber;
-// using jam::storage::Space;
+// using lean::Hash256;
+// using lean::primitives::BlockId;
+// using lean::primitives::BlockNumber;
+// using lean::storage::Space;
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   outcome::result<std::optional<qtils::ByteVecOrView>> blockIdToBlockHash(
       storage::SpacedStorage &storage, const BlockId &block_id) {
@@ -78,4 +78,4 @@ namespace jam::blockchain {
     return target_space->remove(block_hash);
   }
 
-}  // namespace jam::blockchain
+}  // namespace lean::blockchain

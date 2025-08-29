@@ -8,7 +8,7 @@
 
 #include <jam_types/types.tmp.hpp>
 
-namespace jam {
+namespace lean {
 
   using test_vectors::TicketsExtrinsic;
   using test_vectors::PreimagesExtrinsic;
@@ -29,4 +29,4 @@ namespace jam {
     }
   };
 
-}  // namespace jam
+}  // namespace lean

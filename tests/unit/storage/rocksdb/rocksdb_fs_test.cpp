@@ -16,14 +16,14 @@
 #include "testutil/prepare_loggers.hpp"
 #include "testutil/storage/base_fs_test.hpp"
 
-using jam::app::ConfigurationMock;
-using jam::log::LoggingSystem;
-using jam::storage::RocksDb;
-using DatabaseConfig = jam::app::Configuration::DatabaseConfig;
+using lean::app::ConfigurationMock;
+using lean::log::LoggingSystem;
+using lean::storage::RocksDb;
+using DatabaseConfig = lean::app::Configuration::DatabaseConfig;
 using namespace testing;
 
 struct RocksDb_Open : public test::BaseFS_Test {
-  RocksDb_Open() : test::BaseFS_Test("/tmp/jam-test-rocksdb-open") {}
+  RocksDb_Open() : test::BaseFS_Test("/tmp/lean-test-rocksdb-open") {}
 
   void SetUp() override {
     BaseFS_Test::SetUp();

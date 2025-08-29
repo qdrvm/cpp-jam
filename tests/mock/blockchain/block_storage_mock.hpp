@@ -10,7 +10,7 @@
 
 #include "blockchain/block_storage.hpp"
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   class BlockStorageMock : public BlockStorage {
    public:
@@ -114,4 +114,4 @@ namespace jam::blockchain {
                 (override));
   };
 
-}  // namespace jam::blockchain
+}  // namespace lean::blockchain

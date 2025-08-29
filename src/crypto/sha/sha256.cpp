@@ -8,7 +8,7 @@
 
 #include <openssl/sha.h>
 
-namespace jam::crypto {
+namespace lean::crypto {
   Hash256 sha256(std::string_view input) {
     return sha256(
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -23,4 +23,4 @@ namespace jam::crypto {
     SHA256_Final(out.data(), &ctx);
     return out;
   }
-}  // namespace jam::crypto
+}  // namespace lean::crypto

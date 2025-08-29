@@ -6,7 +6,7 @@
 
 #pragma once
 
-namespace jam {
+namespace lean {
 
     /// @note temporary property to support simplified round robin block production in absence of randao & deposit mechanisms
   struct Config {
@@ -14,4 +14,4 @@ namespace jam {
     uint64_t genesis_time;
   };
 
-}  // namespace jam
+}  // namespace lean

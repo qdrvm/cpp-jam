@@ -8,7 +8,7 @@
 
 #include <scale/scale.hpp>
 
-namespace jam {
+namespace lean {
   using scale::impl::memory::decode;
   using scale::impl::memory::encode;
 
@@ -38,4 +38,4 @@ namespace jam {
     return std::move(value);
   }
 
-}  // namespace jam
+}  // namespace lean

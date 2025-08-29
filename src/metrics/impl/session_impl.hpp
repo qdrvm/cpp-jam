@@ -13,11 +13,11 @@
 #include "log/logger.hpp"
 #include "metrics/session.hpp"
 
-namespace jam::log {
+namespace lean::log {
   class LoggingSystem;
-}  // namespace jam::log
+}  // namespace lean::log
 
-namespace jam::metrics {
+namespace lean::metrics {
 
   class SessionImpl : public Session,
                       public std::enable_shared_from_this<SessionImpl> {
@@ -123,4 +123,4 @@ namespace jam::metrics {
     std::unique_ptr<Parser> parser_;  ///< http parser
   };
 
-}  // namespace jam::metrics
+}  // namespace lean::metrics

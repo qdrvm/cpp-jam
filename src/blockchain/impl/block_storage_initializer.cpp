@@ -15,9 +15,9 @@
 #include "blockchain/genesis_block_header.hpp"
 #include "blockchain/impl/block_storage_impl.hpp"
 #include "blockchain/impl/storage_util.hpp"
-#include "jam_types/block.hpp"
+#include "lean_types/block.hpp"
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   BlockStorageInitializer::BlockStorageInitializer(
       qtils::SharedRef<log::LoggingSystem> logsys,
@@ -44,7 +44,7 @@ namespace jam::blockchain {
     if (not genesis_header_is_exist) {
       // genesis block initialization
       Block genesis_block{
-          .header = *genesis_header,
+         // .header = *genesis_header,
       };
 
       auto res = block_storage.putBlock(genesis_block);
@@ -81,4 +81,4 @@ namespace jam::blockchain {
     }
   }
 
-}  // namespace jam::blockchain
+}  // namespace lean::blockchain

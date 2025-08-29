@@ -6,9 +6,9 @@
 
 #pragma once
 
-#include "jam_types/types.tmp.hpp"
+#include "lean_types/types.tmp.hpp"
 
-namespace jam::messages {
+namespace lean::messages {
 
   struct BlockDiscoveredMessage {
     BlockIndex index;

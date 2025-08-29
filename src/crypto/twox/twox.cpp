@@ -8,7 +8,7 @@
 
 #include <xxhash.h>
 
-namespace jam::crypto {
+namespace lean::crypto {
 
   void make_twox64(const uint8_t *in, uint32_t len, uint8_t *out) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -61,4 +61,4 @@ namespace jam::crypto {
     return hash;
   }
 
-}  // namespace jam::crypto
+}  // namespace lean::crypto

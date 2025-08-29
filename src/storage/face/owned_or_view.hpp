@@ -14,7 +14,7 @@
 
 #pragma once
 
-namespace jam::storage::face {
+namespace lean::storage::face {
 
   /**
    * @brief Trait to determine the storage value type.
@@ -36,4 +36,4 @@ namespace jam::storage::face {
   template <typename T>
   using OwnedOrView = typename OwnedOrViewTrait<T>::type;
 
-}  // namespace jam::storage::face
+}  // namespace lean::storage::face

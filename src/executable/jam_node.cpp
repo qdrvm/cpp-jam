@@ -31,22 +31,22 @@ namespace {
                  "Run with `--help' argument to print usage\n";
   }
 
-  using jam::app::Application;
-  using jam::app::Configuration;
-  using jam::injector::NodeInjector;
-  using jam::log::LoggingSystem;
+  using lean::app::Application;
+  using lean::app::Configuration;
+  using lean::injector::NodeInjector;
+  using lean::log::LoggingSystem;
 
   int run_node(std::shared_ptr<LoggingSystem> logsys,
                std::shared_ptr<Configuration> appcfg) {
     auto injector = std::make_unique<NodeInjector>(logsys, appcfg);
 
     // Load modules
-    std::deque<std::unique_ptr<jam::loaders::Loader>> loaders;
+    std::deque<std::unique_ptr<lean::loaders::Loader>> loaders;
     {
       auto logger = logsys->getLogger("Modules", "jam");
       const std::string path(appcfg->modulesDir());
 
-      jam::modules::ModuleLoader module_loader(path);
+      lean::modules::ModuleLoader module_loader(path);
       auto modules_res = module_loader.get_modules();
       if (modules_res.has_error()) {
         SL_CRITICAL(logger, "Failed to load modules from path: {}", path);
@@ -80,10 +80,10 @@ namespace {
       }
 
       // Notify about all modules are loaded
-      // se_manager->notify(jam::EventTypes::LoadingIsFinished);
+      // se_manager->notify(lean::EventTypes::LoadingIsFinished);
     }
 
-    auto logger = logsys->getLogger("Main", jam::log::defaultGroupName);
+    auto logger = logsys->getLogger("Main", lean::log::defaultGroupName);
     auto app = injector->injectApplication();
     SL_INFO(logger, "Node started. Version: {} ", appcfg->nodeVersion());
 
@@ -118,7 +118,7 @@ int main(int argc, const char **argv, const char **env) {
   }
 
   auto app_configurator =
-      std::make_unique<jam::app::Configurator>(argc, argv, env);
+      std::make_unique<lean::app::Configurator>(argc, argv, env);
 
   // Parse CLI args for help, version and config
   if (auto res = app_configurator->step1(); res.has_value()) {
@@ -152,7 +152,7 @@ int main(int argc, const char **argv, const char **env) {
       return EXIT_FAILURE;
     }
 
-    std::make_shared<jam::log::LoggingSystem>(std::move(logging_system));
+    std::make_shared<lean::log::LoggingSystem>(std::move(logging_system));
   });
 
   // Parse remaining args
@@ -205,7 +205,7 @@ int main(int argc, const char **argv, const char **env) {
     }
   }
 
-  auto logger = logging_system->getLogger("Main", jam::log::defaultGroupName);
+  auto logger = logging_system->getLogger("Main", lean::log::defaultGroupName);
   SL_INFO(logger, "All components are stopped");
   logger->flush();
 

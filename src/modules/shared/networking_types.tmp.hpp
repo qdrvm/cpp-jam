@@ -6,12 +6,44 @@
 
 #pragma once
 
-#include "jam_types/types.tmp.hpp"
-#include "jam_types/block.hpp"
+#include "lean_types/block.hpp"
+#include "lean_types/block_header.hpp"
+#include "lean_types/types.tmp.hpp"
 #include "utils/request_id.hpp"
 
-namespace jam::messages {
+namespace lean::messages {
 
+  struct PeerConnectedMessage {
+    PeerId peer;
+    // address?
+    // initial view?
+  };
 
+  struct PeerDisconnectedMessage {
+    PeerId peer;
+    // reason?
+  };
+
+  struct BlockAnnounce {
+    BlockHeader header;
+    PeerId peer;
+  };
+
+  struct BlockAnnounceMessage {
+    BlockAnnounce header;
+    PeerId peer;
+  };
+
+  struct BlockRequestMessage {
+    RequestCxt ctx;
+    BlocksRequest request;
+    PeerId peer;
+  };
+
+  struct BlockResponseMessage {
+    RequestCxt ctx;
+    outcome::result<Block> result;
+    PeerId peer;
+  };
 
 }

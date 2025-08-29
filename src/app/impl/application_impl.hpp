@@ -15,34 +15,34 @@
 #include "app/application.hpp"
 #include "se/subscription_fwd.hpp"
 
-namespace jam {
+namespace lean {
   class Watchdog;
-}  // namespace jam
+}  // namespace lean
 
-namespace jam::app {
+namespace lean::app {
   class Configuration;
   class StateManager;
-}  // namespace jam::app
+}  // namespace lean::app
 
-namespace jam::clock {
+namespace lean::clock {
   class SystemClock;
-}  // namespace jam::clock
+}  // namespace lean::clock
 
 namespace soralog {
   class Logger;
 }  // namespace soralog
 
-namespace jam::log {
+namespace lean::log {
   class LoggingSystem;
-}  // namespace jam::log
+}  // namespace lean::log
 
-namespace jam::metrics {
+namespace lean::metrics {
   class Registry;
   class Gauge;
   class Exposer;
-}  // namespace jam::metrics
+}  // namespace lean::metrics
 
-namespace jam::app {
+namespace lean::app {
 
   /**
    * @brief RAII holder for subscription engine management
@@ -99,4 +99,4 @@ namespace jam::app {
     std::unique_ptr<metrics::Registry> metrics_registry_;
   };
 
-}  // namespace jam::app
+}  // namespace lean::app

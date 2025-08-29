@@ -6,7 +6,7 @@
 
 #include "modules/example/example.hpp"
 
-namespace jam::modules {
+namespace lean::modules {
   ExampleModuleImpl::ExampleModuleImpl(
       ExampleModuleLoader &loader,
       qtils::SharedRef<log::LoggingSystem> logging_system)
@@ -34,4 +34,4 @@ namespace jam::modules {
     SL_INFO(logger_, "Received notification: {}", *s);
   }
 
-}  // namespace jam::modules
+}  // namespace lean::modules

@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-namespace jam::metrics {
+namespace lean::metrics {
 
   class Counter;
   class Gauge;
@@ -108,4 +108,4 @@ namespace jam::metrics {
         const std::map<std::string, std::string> &labels = {}) = 0;
   };
 
-}  // namespace jam::metrics
+}  // namespace lean::metrics

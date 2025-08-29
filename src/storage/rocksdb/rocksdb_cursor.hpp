@@ -9,7 +9,7 @@
 #include <rocksdb/iterator.h>
 #include "storage/rocksdb/rocksdb.hpp"
 
-namespace jam::storage {
+namespace lean::storage {
 
   class RocksDBCursor : public BufferStorageCursor {
    public:
@@ -37,4 +37,4 @@ namespace jam::storage {
     std::shared_ptr<rocksdb::Iterator> i_;
   };
 
-}  // namespace jam::storage
+}  // namespace lean::storage

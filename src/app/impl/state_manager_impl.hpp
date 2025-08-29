@@ -19,11 +19,11 @@
 namespace soralog {
   class Logger;
 }  // namespace soralog
-namespace jam::log {
+namespace lean::log {
   class LoggingSystem;
-}  // namespace jam::log
+}  // namespace lean::log
 
-namespace jam::app {
+namespace lean::app {
 
   class StateManagerImpl  // left non-final on purpose to be accessible in tests
       : Singleton<StateManager>,
@@ -82,4 +82,4 @@ namespace jam::app {
     std::queue<OnShutdown> shutdown_;
   };
 
-}  // namespace jam::app
+}  // namespace lean::app

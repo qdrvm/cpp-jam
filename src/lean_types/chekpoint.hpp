@@ -9,11 +9,11 @@
 #include <qtils/byte_arr.hpp>
 #include "types.tmp.hpp"
 
-namespace jam {
+namespace lean {
 
   struct Checkpoint {
     qtils::ByteArr<32> root;
     Slot slot;
   };
 
-}  // namespace jam
+}  // namespace lean

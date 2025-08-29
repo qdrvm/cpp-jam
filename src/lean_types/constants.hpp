@@ -7,7 +7,7 @@
 #pragma once
 #include <cstdint>
 
-namespace jam {
+namespace lean {
 
   static constexpr uint64_t SLOT_DURATION_MS = 4000;  // 4 seconds
   static constexpr uint64_t INTERVALS_PER_SLOT = 4;   // 4 intervals	by 1 second
@@ -19,4 +19,4 @@ namespace jam {
   static constexpr uint64_t VALIDATOR_REGISTRY_LIMIT =  //
       1 << 12;                                          // 4'096 validators
 
-}  // namespace jam
+}  // namespace lean

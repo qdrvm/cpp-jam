@@ -14,7 +14,7 @@
 
 #include <cstdint>
 
-namespace jam::crypto {
+namespace lean::crypto {
 
 #define _256_bits 32
 
@@ -217,4 +217,4 @@ namespace jam::crypto {
   void blake2s_256(void *out, const void *in, size_t inlen) {
     blake2s(out, _256_bits, NULL, 0, in, inlen);
   }
-}  // namespace jam::crypto
+}  // namespace lean::crypto

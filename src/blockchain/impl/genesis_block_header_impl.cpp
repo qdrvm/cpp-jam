@@ -13,7 +13,7 @@
 #include "scale/jam_scale.hpp"
 #include "jam_types/config-tiny.hpp"
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   GenesisBlockHeaderImpl::GenesisBlockHeaderImpl(
       const qtils::SharedRef<log::LoggingSystem> &logsys,
@@ -32,4 +32,4 @@ namespace jam::blockchain {
     updateHash(*hasher);
   }
 
-}  // namespace jam::blockchain
+}  // namespace lean::blockchain

@@ -9,11 +9,11 @@
 #include <qtils/byte_vec.hpp>
 #include <qtils/literals.hpp>
 
-namespace jam::storage {
+namespace lean::storage {
 
   using qtils::literals::operator""_vec;
 
   inline const qtils::ByteVec kBlockTreeLeavesLookupKey =
-      ":jam:block_tree_leaves"_vec;
+      ":lean:block_tree_leaves"_vec;
 
-}  // namespace jam::storage
+}  // namespace lean::storage

@@ -16,7 +16,7 @@
 #include <qtils/byte_arr.hpp>
 #include <qtils/byte_vec.hpp>
 
-namespace jam::crypto {
+namespace lean::crypto {
 
   // state context
   typedef struct {
@@ -60,6 +60,6 @@ namespace jam::crypto {
     return out;
   }
 
-}  // namespace jam::crypto
+}  // namespace lean::crypto
 
 #endif

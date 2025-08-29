@@ -8,7 +8,7 @@
 
 #include <qtils/enum_error_code.hpp>
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   enum class BlockStorageError : uint8_t {
     BLOCK_EXISTS = 1,
@@ -21,4 +21,4 @@ namespace jam::blockchain {
 
 }
 
-OUTCOME_HPP_DECLARE_ERROR(jam::blockchain, BlockStorageError);
+OUTCOME_HPP_DECLARE_ERROR(lean::blockchain, BlockStorageError);

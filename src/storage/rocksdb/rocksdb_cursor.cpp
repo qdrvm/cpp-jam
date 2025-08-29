@@ -8,7 +8,7 @@
 
 #include "rocksdb_util.hpp"
 
-namespace jam::storage {
+namespace lean::storage {
 
   RocksDBCursor::RocksDBCursor(std::shared_ptr<rocksdb::Iterator> it)
       : i_{std::move(it)} {}
@@ -51,4 +51,4 @@ namespace jam::storage {
     return isValid() ? std::make_optional(make_buffer(i_->value()))
                      : std::nullopt;
   }
-}  // namespace jam::storage
+}  // namespace lean::storage

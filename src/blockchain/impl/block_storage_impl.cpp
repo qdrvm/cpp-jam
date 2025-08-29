@@ -13,7 +13,7 @@
 #include "scale/jam_scale.hpp"
 #include "storage/predefined_keys.hpp"
 
-namespace jam::blockchain {
+namespace lean::blockchain {
 
   BlockStorageImpl::BlockStorageImpl(
       qtils::SharedRef<log::LoggingSystem> logsys,
@@ -188,7 +188,7 @@ namespace jam::blockchain {
       const BlockHash &block_hash, const BlockBody &block_body) {
     OUTCOME_TRY(encoded_body, encode(block_body));
     return putToSpace(*storage_,
-                      storage::Space::Extrinsic,
+                      storage::Space::BlockBody,
                       block_hash,
                       std::move(encoded_body));
   }
@@ -196,7 +196,7 @@ namespace jam::blockchain {
   outcome::result<std::optional<BlockBody>> BlockStorageImpl::getBlockBody(
       const BlockHash &block_hash) const {
     OUTCOME_TRY(encoded_block_body_opt,
-                getFromSpace(*storage_, storage::Space::Extrinsic, block_hash));
+                getFromSpace(*storage_, storage::Space::BlockBody, block_hash));
     if (encoded_block_body_opt.has_value()) {
       OUTCOME_TRY(block_body,
                   decode<BlockBody>(encoded_block_body_opt.value()));
@@ -207,7 +207,7 @@ namespace jam::blockchain {
 
   outcome::result<void> BlockStorageImpl::removeBlockBody(
       const BlockHash &block_hash) {
-    auto space = storage_->getSpace(storage::Space::Extrinsic);
+    auto space = storage_->getSpace(storage::Space::BlockBody);
     return space->remove(block_hash);
   }
 
@@ -245,39 +245,41 @@ namespace jam::blockchain {
 
   outcome::result<BlockHash> BlockStorageImpl::putBlock(const Block &block) {
     // insert provided block's parts into the database
-    OUTCOME_TRY(block_hash, putBlockHeader(block.header));
-
-    OUTCOME_TRY(encoded_header, encode(block.header));
-    OUTCOME_TRY(putToSpace(*storage_,
-                           storage::Space::Header,
-                           block_hash,
-                           std::move(encoded_header)));
-
-    OUTCOME_TRY(encoded_body, encode(block.extrinsic));
-    OUTCOME_TRY(putToSpace(*storage_,
-                           storage::Space::Extrinsic,
-                           block_hash,
-                           std::move(encoded_body)));
-
-    logger_->info("Added block {} as child of {}",
-                  BlockIndex{block.header.slot, block_hash},
-                  block.header.parent_root);
-    return block_hash;
+    // OUTCOME_TRY(block_hash, putBlockHeader(block.header));
+    //
+    // OUTCOME_TRY(encoded_header, encode(block.header));
+    // OUTCOME_TRY(putToSpace(*storage_,
+    //                        storage::Space::Header,
+    //                        block_hash,
+    //                        std::move(encoded_header)));
+    //
+    // OUTCOME_TRY(encoded_body, encode(block.body));
+    // OUTCOME_TRY(putToSpace(*storage_,
+    //                        storage::Space::BlockBody,
+    //                        block_hash,
+    //                        std::move(encoded_body)));
+    //
+    // logger_->info("Added block {} as child of {}",
+    //               BlockIndex{block.slot, block_hash},
+    //               block.parent_root);
+    return BlockHash{};//block_hash;
   }
 
-  outcome::result<std::optional<BlockData>> BlockStorageImpl::getBlockData(
+  outcome::result<std::optional<SignedBlock>> BlockStorageImpl::getBlock(
       const BlockHash &block_hash) const {
-    BlockData block_data{.hash = block_hash};
+    SignedBlock block_data{
+//      .hash = block_hash
+    };
 
-    // Block header
-    OUTCOME_TRY(header, getBlockHeader(block_hash));
-    block_data.header = std::move(header);
-
-    // Block body
-    OUTCOME_TRY(body_opt, getBlockBody(block_hash));
-    block_data.extrinsic = std::move(body_opt);
-
-    // // Justification
+    // // Block header
+    // OUTCOME_TRY(header, getBlockHeader(block_hash));
+    // block_data.header = std::move(header);
+    //
+    // // Block body
+    // OUTCOME_TRY(body_opt, getBlockBody(block_hash));
+    // block_data.extrinsic = std::move(body_opt);
+    //
+    // // // Justification
     // OUTCOME_TRY(justification_opt, getJustification(block_hash));
     // block_data.justification = std::move(justification_opt);
 
@@ -364,4 +366,4 @@ namespace jam::blockchain {
     return std::nullopt;
   }
 
-}  // namespace jam::blockchain
+}  // namespace lean::blockchain

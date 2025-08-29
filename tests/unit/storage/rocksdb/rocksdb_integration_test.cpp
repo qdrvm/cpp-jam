@@ -16,7 +16,7 @@
 #include "storage/rocksdb/rocksdb.hpp"
 #include "storage/storage_error.hpp"
 
-using namespace jam::storage;
+using namespace lean::storage;
 namespace fs = std::filesystem;
 
 struct RocksDb_Integration_Test : public test::BaseRocksDB_Test {

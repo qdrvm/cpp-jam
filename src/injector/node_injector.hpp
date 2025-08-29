@@ -10,24 +10,24 @@
 
 #include "se/subscription.hpp"
 
-namespace jam::log {
+namespace lean::log {
   class LoggingSystem;
-}  // namespace jam::log
+}  // namespace lean::log
 
-namespace jam::app {
+namespace lean::app {
   class Configuration;
   class Application;
-}  // namespace jam::app
+}  // namespace lean::app
 
-namespace jam::loaders {
+namespace lean::loaders {
   class Loader;
-}  // namespace jam::loaders
+}  // namespace lean::loaders
 
-namespace jam::modules {
+namespace lean::modules {
   class Module;
-}  // namespace jam::modules
+}  // namespace lean::modules
 
-namespace jam::injector {
+namespace lean::injector {
 
   /**
    * Dependency injector for a universal node. Provides all major components
@@ -46,4 +46,4 @@ namespace jam::injector {
     std::shared_ptr<class NodeInjectorImpl> pimpl_;
   };
 
-}  // namespace jam::injector
+}  // namespace lean::injector

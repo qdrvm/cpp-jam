@@ -20,7 +20,7 @@
 #include "injector/dont_inject.hpp"
 #include "utils/ctor_limiters.hpp"
 
-namespace jam::log {
+namespace lean::log {
   using soralog::Level;
 
   using Logger = qtils::SharedRef<soralog::Logger>;
@@ -84,6 +84,6 @@ namespace jam::log {
     std::shared_ptr<soralog::LoggingSystem> logging_system_;
   };
 
-}  // namespace jam::log
+}  // namespace lean::log
 
-OUTCOME_HPP_DECLARE_ERROR(jam::log, Error);
+OUTCOME_HPP_DECLARE_ERROR(lean::log, Error);
