@@ -10,6 +10,7 @@
 
 #include "blockchain/block_storage_error.hpp"
 #include "blockchain/impl/storage_util.hpp"
+#include "lean_types/block_data.hpp"
 #include "scale/jam_scale.hpp"
 #include "storage/predefined_keys.hpp"
 
@@ -124,7 +125,7 @@ namespace lean::blockchain {
   }
 
   outcome::result<std::vector<BlockHash>> BlockStorageImpl::getBlockHash(
-      TimeSlot slot) const {
+      Slot slot) const {
     auto storage = storage_->getSpace(storage::Space::LookupKey);
     OUTCOME_TRY(data_opt, storage->tryGet(slotToHashLookupKey(slot)));
     if (data_opt.has_value()) {
@@ -187,16 +188,14 @@ namespace lean::blockchain {
   outcome::result<void> BlockStorageImpl::putBlockBody(
       const BlockHash &block_hash, const BlockBody &block_body) {
     OUTCOME_TRY(encoded_body, encode(block_body));
-    return putToSpace(*storage_,
-                      storage::Space::BlockBody,
-                      block_hash,
-                      std::move(encoded_body));
+    return putToSpace(
+        *storage_, storage::Space::Body, block_hash, std::move(encoded_body));
   }
 
   outcome::result<std::optional<BlockBody>> BlockStorageImpl::getBlockBody(
       const BlockHash &block_hash) const {
     OUTCOME_TRY(encoded_block_body_opt,
-                getFromSpace(*storage_, storage::Space::BlockBody, block_hash));
+                getFromSpace(*storage_, storage::Space::Body, block_hash));
     if (encoded_block_body_opt.has_value()) {
       OUTCOME_TRY(block_body,
                   decode<BlockBody>(encoded_block_body_opt.value()));
@@ -207,7 +206,7 @@ namespace lean::blockchain {
 
   outcome::result<void> BlockStorageImpl::removeBlockBody(
       const BlockHash &block_hash) {
-    auto space = storage_->getSpace(storage::Space::BlockBody);
+    auto space = storage_->getSpace(storage::Space::Body);
     return space->remove(block_hash);
   }
 
@@ -243,32 +242,31 @@ namespace lean::blockchain {
     return space->remove(block_hash);
   }
 
-  outcome::result<BlockHash> BlockStorageImpl::putBlock(const Block &block) {
+  outcome::result<BlockHash> BlockStorageImpl::putBlock(
+      const BlockData &block) {
     // insert provided block's parts into the database
-    // OUTCOME_TRY(block_hash, putBlockHeader(block.header));
-    //
-    // OUTCOME_TRY(encoded_header, encode(block.header));
-    // OUTCOME_TRY(putToSpace(*storage_,
-    //                        storage::Space::Header,
-    //                        block_hash,
-    //                        std::move(encoded_header)));
-    //
-    // OUTCOME_TRY(encoded_body, encode(block.body));
-    // OUTCOME_TRY(putToSpace(*storage_,
-    //                        storage::Space::BlockBody,
-    //                        block_hash,
-    //                        std::move(encoded_body)));
-    //
-    // logger_->info("Added block {} as child of {}",
-    //               BlockIndex{block.slot, block_hash},
-    //               block.parent_root);
-    return BlockHash{};//block_hash;
+    OUTCOME_TRY(block_hash, putBlockHeader(*block.header));
+
+    OUTCOME_TRY(encoded_header, encode(block.header));
+    OUTCOME_TRY(putToSpace(*storage_,
+                           storage::Space::Header,
+                           block_hash,
+                           std::move(encoded_header)));
+
+    OUTCOME_TRY(encoded_body, encode(block.body));
+    OUTCOME_TRY(putToSpace(
+        *storage_, storage::Space::Body, block_hash, std::move(encoded_body)));
+
+    logger_->info("Added block {} as child of {}",
+                  BlockIndex{block.header->slot, block_hash},
+                  block.header->parent_root);
+    return BlockHash{};  // block_hash;
   }
 
   outcome::result<std::optional<SignedBlock>> BlockStorageImpl::getBlock(
       const BlockHash &block_hash) const {
     SignedBlock block_data{
-//      .hash = block_hash
+        //      .hash = block_hash
     };
 
     // // Block header

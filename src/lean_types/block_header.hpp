@@ -7,7 +7,7 @@
 #pragma once
 
 #include <crypto/hasher.hpp>
-#include <lean_types/types.tmp.hpp>
+#include <lean_types/types.hpp>
 #include <scale/jam_scale.hpp>
 #include <utils/custom_equality.hpp>
 

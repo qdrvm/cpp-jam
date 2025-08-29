@@ -43,7 +43,7 @@ namespace {
     // Load modules
     std::deque<std::unique_ptr<lean::loaders::Loader>> loaders;
     {
-      auto logger = logsys->getLogger("Modules", "jam");
+      auto logger = logsys->getLogger("Modules", "lean");
       const std::string path(appcfg->modulesDir());
 
       lean::modules::ModuleLoader module_loader(path);
@@ -98,7 +98,7 @@ namespace {
 }  // namespace
 
 int main(int argc, const char **argv, const char **env) {
-  soralog::util::setThreadName("jam-node");
+  soralog::util::setThreadName("lean-node");
 
   qtils::FinalAction flush_std_streams_at_exit([] {
     std::cout.flush();
@@ -166,7 +166,7 @@ int main(int argc, const char **argv, const char **env) {
 
   // Setup config
   auto configuration = ({
-    auto logger = logging_system->getLogger("Configurator", "jam");
+    auto logger = logging_system->getLogger("Configurator", "lean");
 
     auto config_res = app_configurator->calculateConfig(logger);
     if (config_res.has_error()) {

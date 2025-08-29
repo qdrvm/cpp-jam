@@ -104,7 +104,7 @@ namespace lean::metrics {
      */
     void reportError(boost::system::error_code ec, std::string_view message);
 
-    static constexpr boost::string_view kServerName = "JAM-Node";
+    static constexpr boost::string_view kServerName = "Lean-node";
 
     std::shared_ptr<soralog::Logger> logger_;
 

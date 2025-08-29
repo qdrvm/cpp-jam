@@ -148,7 +148,7 @@ namespace lean::storage {
       auto [_, was_inserted] = all_families.insert(existing_family);
       if (was_inserted) {
         SL_WARN(logger_,
-                "Column family '{}' present in database but not used by JAM; "
+                "Column family '{}' present in database but not used by Lean; "
                 "Probably obsolete.",
                 existing_family);
       }

@@ -7,7 +7,8 @@
 #pragma once
 
 #include <qtils/byte_arr.hpp>
-#include "types.tmp.hpp"
+
+#include "types.hpp"
 
 namespace lean {
 

@@ -79,7 +79,7 @@ namespace lean::blockchain {
 
     // -- combined
 
-    outcome::result<BlockHash> putBlock(const Block &block) override;
+    outcome::result<BlockHash> putBlock(const BlockData &block) override;
 
     outcome::result<std::optional<SignedBlock>> getBlock(
         const BlockHash &block_hash) const override;

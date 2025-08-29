@@ -10,7 +10,7 @@
 #include <gmock/gmock.h>
 #include <qtils/byte_view.hpp>
 
-namespace jam::crypto {
+namespace lean::crypto {
 
   class HasherMock : public Hasher {
    public:

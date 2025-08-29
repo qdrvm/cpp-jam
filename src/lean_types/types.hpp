@@ -27,12 +27,10 @@ namespace lean {
 
   using Slot = uint64_t;
 
-  using TimeSlot = Slot;
-
   using ProposerIndex = uint64_t;
 
   struct BlockIndex {
-    TimeSlot slot;
+    Slot slot;
     BlockHash hash;
     auto operator<=>(const BlockIndex &other) const = default;
   };
@@ -43,9 +41,9 @@ namespace lean {
 
   using BlockInfo = BlockIndex;
 
-  using BlockNumber = TimeSlot;
+  using BlockNumber = Slot;
 
-  using BlockId = std::variant<TimeSlot, BlockHash>;
+  using BlockId = std::variant<Slot, BlockHash>;
 
   // networking types
 

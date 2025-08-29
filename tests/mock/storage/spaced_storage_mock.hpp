@@ -10,7 +10,7 @@
 
 #include "storage/spaced_storage.hpp"
 
-namespace jam::storage {
+namespace lean::storage {
 
   class SpacedStorageMock : public SpacedStorage {
    public:

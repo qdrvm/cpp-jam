@@ -22,26 +22,27 @@
 #include <blockchain/genesis_block_header.hpp>
 #include <qtils/literals.hpp>
 
+#include "lean_types/block_data.hpp"
 #include "qtils/error_throw.hpp"
-#include "testutil/prepare_loggers.hpp"
 #include "testutil/literals.hpp"
+#include "testutil/prepare_loggers.hpp"
 
-using jam::Block;
-using jam::BlockBody;
-using jam::BlockData;
-using jam::BlockHash;
-using jam::BlockHeader;
-using jam::BlockNumber;
-using jam::encode;
-using jam::app::ChainSpecMock;
-using jam::blockchain::BlockStorageError;
-using jam::blockchain::BlockStorageImpl;
-using jam::blockchain::BlockStorageInitializer;
-using jam::blockchain::GenesisBlockHeader;
-using jam::crypto::HasherMock;
-using jam::storage::BufferStorageMock;
-using jam::storage::Space;
-using jam::storage::SpacedStorageMock;
+using lean::Block;
+using lean::BlockBody;
+using lean::BlockData;
+using lean::BlockHash;
+using lean::BlockHeader;
+using lean::BlockNumber;
+using lean::encode;
+using lean::app::ChainSpecMock;
+using lean::blockchain::BlockStorageError;
+using lean::blockchain::BlockStorageImpl;
+using lean::blockchain::BlockStorageInitializer;
+using lean::blockchain::GenesisBlockHeader;
+using lean::crypto::HasherMock;
+using lean::storage::BufferStorageMock;
+using lean::storage::Space;
+using lean::storage::SpacedStorageMock;
 using qtils::ByteVec;
 using qtils::ByteView;
 using testing::_;
@@ -63,7 +64,7 @@ class BlockStorageTest : public testing::Test {
     std::set<Space> required_spaces = {Space::Default,
                                        Space::Header,
                                        Space::Justification,
-                                       Space::Extrinsic,
+                                       Space::Body,
                                        Space::LookupKey};
 
     for (auto space : required_spaces) {
@@ -82,7 +83,8 @@ class BlockStorageTest : public testing::Test {
   BlockHash regular_block_hash{"regular"_arr32};
   BlockHash unhappy_block_hash{"unhappy"_arr32};
 
-  qtils::SharedRef<jam::log::LoggingSystem> logsys = testutil::prepareLoggers();
+  qtils::SharedRef<lean::log::LoggingSystem> logsys =
+      testutil::prepareLoggers();
 
   qtils::SharedRef<GenesisBlockHeader> genesis_header =
       std::make_shared<GenesisBlockHeader>();
@@ -164,13 +166,13 @@ TEST_F(BlockStorageTest, CreateWithExistingGenesis) {
 TEST_F(BlockStorageTest, CreateWithStorageError) {
   // trying to get header of genesis block
   EXPECT_CALL(*(spaces[Space::Header]), contains(ByteView{genesis_block_hash}))
-      .WillOnce(Return(jam::storage::StorageError::IO_ERROR));
+      .WillOnce(Return(lean::storage::StorageError::IO_ERROR));
 
   // Init underlying storage
   EXPECT_THROW_OUTCOME(
       BlockStorageInitializer(
           logsys, spaced_storage, genesis_header, chain_spec, hasher),
-      jam::storage::StorageError::IO_ERROR);
+      lean::storage::StorageError::IO_ERROR);
 }
 
 /**
@@ -181,9 +183,9 @@ TEST_F(BlockStorageTest, CreateWithStorageError) {
 TEST_F(BlockStorageTest, PutBlock) {
   auto block_storage = createWithGenesis();
 
-  Block block;
-  block.header.slot = 1;
-  block.header.parent = genesis_block_hash;
+  BlockData block;
+  block.header->slot = 1;
+  block.header->parent_root = genesis_block_hash;
 
   ASSERT_OUTCOME_SUCCESS(block_storage->putBlock(block));
 }
@@ -227,21 +229,22 @@ TEST_F(BlockStorageTest, TryGetBlockNotFound) {
 TEST_F(BlockStorageTest, PutWithStorageError) {
   auto block_storage = createWithGenesis();
 
-  Block block;
-  block.header.slot = 1;
-  block.header.parent = genesis_block_hash;
+  BlockData block;
+  block.header.emplace();
+  block.header->slot = 1;
+  block.header->parent_root = genesis_block_hash;
 
-  auto encoded_header = ByteVec(encode(block.header).value());
+  auto encoded_header = ByteVec(encode(*block.header).value());
   ON_CALL(*hasher, blake2b_256(encoded_header.view()))
       .WillByDefault(Return(regular_block_hash));
 
   ByteVec key{regular_block_hash};
 
-  EXPECT_CALL(*(spaces[Space::Extrinsic]), put(key.view(), _))
-      .WillOnce(Return(jam::storage::StorageError::IO_ERROR));
+  EXPECT_CALL(*(spaces[Space::Body]), put(key.view(), _))
+      .WillOnce(Return(lean::storage::StorageError::IO_ERROR));
 
   ASSERT_OUTCOME_ERROR(block_storage->putBlock(block),
-                       jam::storage::StorageError::IO_ERROR);
+                       lean::storage::StorageError::IO_ERROR);
 }
 
 /**
@@ -259,7 +262,7 @@ TEST_F(BlockStorageTest, Remove) {
 
   EXPECT_CALL(*(spaces[Space::Header]), tryGetMock(hash))
       .WillOnce(Return(encoded_header));
-  EXPECT_CALL(*(spaces[Space::Extrinsic]), remove(hash))
+  EXPECT_CALL(*(spaces[Space::Body]), remove(hash))
       .WillOnce(Return(outcome::success()));
   EXPECT_CALL(*(spaces[Space::Header]), remove(hash))
       .WillOnce(Return(outcome::success()));

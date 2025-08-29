@@ -129,7 +129,7 @@ namespace lean::injector {
       std::shared_ptr<modules::Module> module) {
     auto logsys = pimpl_->injector_
                       .template create<std::shared_ptr<log::LoggingSystem>>();
-    auto logger = logsys->getLogger("Modules", "jam");
+    auto logger = logsys->getLogger("Modules", "lean");
 
     std::unique_ptr<lean::loaders::Loader> loader{};
 

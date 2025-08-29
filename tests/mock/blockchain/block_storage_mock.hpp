@@ -41,7 +41,7 @@ namespace lean::blockchain {
 
     MOCK_METHOD(outcome::result<std::vector<BlockHash>>,
                 getBlockHash,
-                (TimeSlot),
+                (Slot),
                 (const, override));
     // MOCK_METHOD(outcome::result<std::optional<BlockHash>>,
     //             getBlockHash,

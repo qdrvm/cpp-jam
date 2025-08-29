@@ -31,7 +31,7 @@ namespace lean::log {
 
   void setLoggingSystem(std::weak_ptr<soralog::LoggingSystem> logging_system);
 
-  inline static std::string defaultGroupName{"jam"};
+  inline static std::string defaultGroupName{"lean"};
 
   class LoggingSystem : public Singleton<LoggingSystem> {
    public:

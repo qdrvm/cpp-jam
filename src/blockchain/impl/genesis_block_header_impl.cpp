@@ -11,7 +11,6 @@
 #include "crypto/hasher.hpp"
 #include "log/logger.hpp"
 #include "scale/jam_scale.hpp"
-#include "jam_types/config-tiny.hpp"
 
 namespace lean::blockchain {
 

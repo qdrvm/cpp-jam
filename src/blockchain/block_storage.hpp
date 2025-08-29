@@ -10,10 +10,11 @@
 
 #include "lean_types/block.hpp"
 #include "lean_types/block_body.hpp"
+#include "lean_types/block_data.hpp"
 #include "lean_types/block_header.hpp"
 #include "lean_types/justification.hpp"
 #include "lean_types/signed_block.hpp"
-#include "lean_types/types.tmp.hpp"
+#include "lean_types/types.hpp"
 
 namespace lean::blockchain {
 
@@ -156,7 +157,7 @@ namespace lean::blockchain {
      * Saves block to block storage
      * @returns hash of saved header or error
      */
-    virtual outcome::result<BlockHash> putBlock(const Block &block) = 0;
+    virtual outcome::result<BlockHash> putBlock(const BlockData &block) = 0;
 
     /**
      * Tries to get block data

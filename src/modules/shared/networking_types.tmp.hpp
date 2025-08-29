@@ -8,7 +8,7 @@
 
 #include "lean_types/block.hpp"
 #include "lean_types/block_header.hpp"
-#include "lean_types/types.tmp.hpp"
+#include "lean_types/types.hpp"
 #include "utils/request_id.hpp"
 
 namespace lean::messages {

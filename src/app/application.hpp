@@ -10,7 +10,7 @@
 
 namespace lean::app {
 
-  /// @class Application - JAM-application interface
+  /// @class Application - Lean-application interface
   class Application : private Singleton<Application> {
    public:
     virtual ~Application() = default;

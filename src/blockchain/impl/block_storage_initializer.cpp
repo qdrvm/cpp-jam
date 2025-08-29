@@ -43,8 +43,8 @@ namespace lean::blockchain {
 
     if (not genesis_header_is_exist) {
       // genesis block initialization
-      Block genesis_block{
-         // .header = *genesis_header,
+      BlockData genesis_block{
+          .header = *genesis_header,
       };
 
       auto res = block_storage.putBlock(genesis_block);

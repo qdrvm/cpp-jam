@@ -10,7 +10,7 @@
 
 #include "app/chain_spec.hpp"
 
-namespace jam::app {
+namespace lean::app {
 
   class ChainSpecMock final : public ChainSpec {
    public:
@@ -27,4 +27,4 @@ namespace jam::app {
     MOCK_METHOD(const KVMap &, genesisState, (), (const, override));
   };
 
-}  // namespace jam::app
+}  // namespace lean::app

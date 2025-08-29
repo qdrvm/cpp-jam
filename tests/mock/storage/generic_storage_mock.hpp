@@ -11,7 +11,7 @@
 #include "storage/buffer_map_types.hpp"
 #include "storage/face/generic_maps.hpp"
 
-namespace jam::storage::face {
+namespace lean::storage::face {
 
   template <typename K, typename V>
   struct GenericStorageMock : public GenericStorage<K, V> {
@@ -56,6 +56,6 @@ namespace jam::storage::face {
 
 }  // namespace kagome::storage::face
 
-namespace jam::storage {
+namespace lean::storage {
   using BufferStorageMock = face::GenericStorageMock<qtils::ByteVec, qtils::ByteVec>;
 }  // namespace kagome::storage

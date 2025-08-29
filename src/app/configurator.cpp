@@ -161,13 +161,13 @@ namespace lean::app {
     }
 
     if (vm.contains("help")) {
-      std::cout << "JAM-node version " << buildVersion() << '\n';
+      std::cout << "Lean-node version " << buildVersion() << '\n';
       std::cout << cli_options_ << '\n';
       return true;
     }
 
     if (vm.contains("version")) {
-      std::cout << "JAM-node version " << buildVersion() << '\n';
+      std::cout << "Lean-node version " << buildVersion() << '\n';
       return true;
     }
 

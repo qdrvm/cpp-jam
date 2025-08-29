@@ -33,7 +33,7 @@ namespace lean::storage {
 
     // application-defined spaces
     Header,
-    BlockBody,
+    Body,
     Justification,
     // ... append here
 

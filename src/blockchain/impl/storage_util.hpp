@@ -8,7 +8,7 @@
 
 #include <qtils/byte_vec.hpp>
 
-#include "lean_types/types.tmp.hpp"
+#include "lean_types/types.hpp"
 
 // #include "primitives/block_id.hpp"
 #include "storage/spaced_storage.hpp"
@@ -41,7 +41,7 @@ namespace lean::blockchain {
   /**
    * Convert slot into a short lookup key (LE representation)
    */
-  inline qtils::ByteVec slotToHashLookupKey(TimeSlot slot) {
+  inline qtils::ByteVec slotToHashLookupKey(Slot slot) {
     BOOST_STATIC_ASSERT(std::is_same_v<decltype(slot), uint64_t>);
     return encode(slot).value();
   }
