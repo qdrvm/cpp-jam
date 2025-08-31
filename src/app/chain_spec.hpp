@@ -25,14 +25,14 @@ namespace lean::app {
    public:
     virtual ~ChainSpec() = default;
 
-    virtual const std::string &id() const = 0;
+    [[nodiscard]] virtual const std::string &id() const = 0;
 
-    virtual const std::vector<NodeAddress> &bootNodes() const = 0;
+    [[nodiscard]] virtual const std::vector<NodeAddress> &bootNodes() const = 0;
 
-    virtual const qtils::ByteVec &genesisHeader() const = 0;
+    [[nodiscard]] virtual const qtils::ByteVec &genesisHeader() const = 0;
 
-    virtual const std::map<qtils::ByteVec, qtils::ByteVec> &genesisState()
-        const = 0;
+    [[nodiscard]] virtual const std::map<qtils::ByteVec, qtils::ByteVec> &
+    genesisState() const = 0;
   };
 
 }  // namespace lean::app
