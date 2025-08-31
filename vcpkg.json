@@ -16,8 +16,10 @@
     "ftxui",
     "rocksdb",
     "boost-property-tree",
-    "openssl",
-    "xxhash"
+    "xxhash",
+    "cppcodec",
+    "leanp2p",
+    "sszpp"
   ],
   "features": {
     "test": { "description": "Test", "dependencies": ["gtest"]}
